@@ -1,24 +1,33 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
+import { homeForRole, useAuth } from "@/lib/auth";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "VendaForte — Força de Vendas para Distribuidoras" },
+      { name: "description", content: "Acesse o VendaForte: pedidos, clientes, produtos, agenda e indicadores da sua distribuidora." },
+      { property: "og:title", content: "VendaForte — Força de Vendas para Distribuidoras" },
+      { property: "og:description", content: "Pedidos, clientes, produtos, agenda e indicadores em um só lugar." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const { ready, session, profile } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!ready) return;
+    if (!session) navigate({ to: "/login", replace: true });
+    else navigate({ to: homeForRole(profile?.role), replace: true });
+  }, [ready, session, profile, navigate]);
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="flex min-h-screen items-center justify-center">
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
     </div>
   );
 }
