@@ -5,9 +5,9 @@ import { ModulePlaceholder } from "@/components/ModulePage";
 export const Route = createFileRoute("/_authenticated/clientes")({
   head: () => ({
     meta: [
-      { title: "Clientes — VendaForte" },
+      { title: "Clientes — Dcalice" },
       { name: "description", content: "Carteira de clientes, limite de crédito e histórico." },
-      { property: "og:title", content: "Clientes — VendaForte" },
+      { property: "og:title", content: "Clientes — Dcalice" },
       { property: "og:description", content: "Carteira de clientes, limite de crédito e histórico." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

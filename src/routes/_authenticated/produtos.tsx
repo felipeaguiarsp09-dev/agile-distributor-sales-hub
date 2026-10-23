@@ -5,9 +5,9 @@ import { ModulePlaceholder } from "@/components/ModulePage";
 export const Route = createFileRoute("/_authenticated/produtos")({
   head: () => ({
     meta: [
-      { title: "Produtos — VendaForte" },
+      { title: "Produtos — Dcalice" },
       { name: "description", content: "Catálogo, preços e estoque." },
-      { property: "og:title", content: "Produtos — VendaForte" },
+      { property: "og:title", content: "Produtos — Dcalice" },
       { property: "og:description", content: "Catálogo, preços e estoque." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

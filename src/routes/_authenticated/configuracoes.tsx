@@ -13,10 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({
     meta: [
-      { title: "Configurações — VendaForte" },
-      { name: "description", content: "Seu perfil e senha no VendaForte." },
-      { property: "og:title", content: "Configurações — VendaForte" },
-      { property: "og:description", content: "Seu perfil e senha no VendaForte." },
+      { title: "Configurações — Dcalice" },
+      { name: "description", content: "Seu perfil e senha no Dcalice." },
+      { property: "og:title", content: "Configurações — Dcalice" },
+      { property: "og:description", content: "Seu perfil e senha no Dcalice." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

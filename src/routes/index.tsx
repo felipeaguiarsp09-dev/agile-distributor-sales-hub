@@ -6,9 +6,9 @@ import { homeForRole, useAuth } from "@/lib/auth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "VendaForte — Força de Vendas para Distribuidoras" },
-      { name: "description", content: "Acesse o VendaForte: pedidos, clientes, produtos, agenda e indicadores da sua distribuidora." },
-      { property: "og:title", content: "VendaForte — Força de Vendas para Distribuidoras" },
+      { title: "Dcalice — Força de Vendas para Distribuidoras" },
+      { name: "description", content: "Acesse o Dcalice: pedidos, clientes, produtos, agenda e indicadores da sua distribuidora." },
+      { property: "og:title", content: "Dcalice — Força de Vendas para Distribuidoras" },
       { property: "og:description", content: "Pedidos, clientes, produtos, agenda e indicadores em um só lugar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

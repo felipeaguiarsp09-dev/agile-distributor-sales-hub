@@ -9,7 +9,7 @@ export function Brand({ inverted = false }: { inverted?: boolean }) {
       <span
         className={`font-display text-xl font-bold tracking-tight ${inverted ? "text-sidebar-foreground" : "text-foreground"}`}
       >
-        Venda<span className="text-accent">Forte</span>
+        Dcalice
       </span>
     </div>
   );
