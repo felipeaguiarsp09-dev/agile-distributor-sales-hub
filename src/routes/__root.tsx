@@ -80,9 +80,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "VendaForte — Força de Vendas" },
-      { name: "description", content: "VendaForte: força de vendas da distribuidora — pedidos, clientes, produtos e agenda." },
-      { property: "og:title", content: "VendaForte — Força de Vendas" },
+      { title: "Dcalice — Força de Vendas" },
+      { name: "description", content: "Dcalice: força de vendas da distribuidora — pedidos, clientes, produtos e agenda." },
+      { property: "og:title", content: "Dcalice — Força de Vendas" },
       { property: "og:description", content: "Força de vendas da distribuidora em uma única interface." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

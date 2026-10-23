@@ -12,9 +12,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Entrar — VendaForte" },
-      { name: "description", content: "Acesse sua conta no VendaForte com email e senha ou link de acesso." },
-      { property: "og:title", content: "Entrar — VendaForte" },
+      { title: "Entrar — Dcalice" },
+      { name: "description", content: "Acesse sua conta no Dcalice com email e senha ou link de acesso." },
+      { property: "og:title", content: "Entrar — Dcalice" },
       { property: "og:description", content: "Login individual da equipe comercial e clientes da distribuidora." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

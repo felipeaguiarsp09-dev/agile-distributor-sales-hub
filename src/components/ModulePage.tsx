@@ -31,7 +31,7 @@ export function ModulePlaceholder({
         </span>
         <p className="mt-4 font-semibold">Módulo em construção</p>
         <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-          Este módulo será liberado na próxima fase do VendaForte.
+          Este módulo será liberado na próxima fase do Dcalice.
         </p>
         {children}
       </div>

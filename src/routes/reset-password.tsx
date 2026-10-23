@@ -11,10 +11,10 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Nova senha — VendaForte" },
-      { name: "description", content: "Defina uma nova senha para sua conta VendaForte." },
-      { property: "og:title", content: "Nova senha — VendaForte" },
-      { property: "og:description", content: "Defina uma nova senha para sua conta VendaForte." },
+      { title: "Nova senha — Dcalice" },
+      { name: "description", content: "Defina uma nova senha para sua conta Dcalice." },
+      { property: "og:title", content: "Nova senha — Dcalice" },
+      { property: "og:description", content: "Defina uma nova senha para sua conta Dcalice." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
