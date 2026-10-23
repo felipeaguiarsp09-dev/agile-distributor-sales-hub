@@ -33,7 +33,7 @@ export function parseCsv(text: string): Record<string, string>[] {
   }
   const nonEmpty = rows.filter((r) => r.some((v) => v.trim() !== ""));
   if (nonEmpty.length === 0) return [];
-  const headers = nonEmpty[0].map((h) => normalizeHeader(h));
+  const headers = nonEmpty[0]!.map((h) => normalizeHeader(h));
   return nonEmpty.slice(1).map((r) => {
     const obj: Record<string, string> = {};
     headers.forEach((h, idx) => (obj[h] = (r[idx] ?? "").trim()));

@@ -52,7 +52,7 @@ export function toCustomer(r: Record<string, string>, row: number): CustomerRow 
     ["city", "cidade"],
     ["state", "uf", "estado"],
     ["zip", "cep"],
-  ]) {
+  ] as const) {
     const v = pick(r, key, ...alts);
     if (v) address[key] = v;
   }

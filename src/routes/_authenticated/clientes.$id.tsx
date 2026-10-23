@@ -59,7 +59,7 @@ function CustomerDetail() {
   const c = customer.data;
   if (!c) return <ErrorState message="Cliente não encontrado" />;
   const addr = (c.address ?? {}) as Record<string, string>;
-  const addressLine = [addr.street, addr.city, addr.state, addr.zip].filter(Boolean).join(" · ");
+  const addressLine = [addr["street"], addr["city"], addr["state"], addr["zip"]].filter(Boolean).join(" · ");
 
   async function remove() {
     if (!confirm("Excluir este cliente? Essa ação não pode ser desfeita.")) return;

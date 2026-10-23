@@ -63,11 +63,11 @@ export function CustomerForm({
           </SelectContent>
         </Select>
       </Field>
-      <Field label="Endereço" className="sm:col-span-2"><Input value={v.address.street ?? ""} onChange={(e) => setAddr("street", e.target.value)} /></Field>
-      <Field label="Cidade"><Input value={v.address.city ?? ""} onChange={(e) => setAddr("city", e.target.value)} /></Field>
+      <Field label="Endereço" className="sm:col-span-2"><Input value={v.address["street"] ?? ""} onChange={(e) => setAddr("street", e.target.value)} /></Field>
+      <Field label="Cidade"><Input value={v.address["city"] ?? ""} onChange={(e) => setAddr("city", e.target.value)} /></Field>
       <div className="grid grid-cols-2 gap-4">
-        <Field label="UF"><Input maxLength={2} value={v.address.state ?? ""} onChange={(e) => setAddr("state", e.target.value.toUpperCase())} /></Field>
-        <Field label="CEP"><Input value={v.address.zip ?? ""} onChange={(e) => setAddr("zip", e.target.value)} /></Field>
+        <Field label="UF"><Input maxLength={2} value={v.address["state"] ?? ""} onChange={(e) => setAddr("state", e.target.value.toUpperCase())} /></Field>
+        <Field label="CEP"><Input value={v.address["zip"] ?? ""} onChange={(e) => setAddr("zip", e.target.value)} /></Field>
       </div>
       <Field label="Limite de crédito (R$)">
         <Input type="number" min={0} step="0.01" value={v.credit_limit} onChange={(e) => set("credit_limit", Number(e.target.value))} />

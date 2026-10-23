@@ -36,7 +36,7 @@ export const importErpData = createServerFn({ method: "POST" })
         const idByExt = new Map((existing ?? []).map((c) => [c.external_id as string, c.id]));
         const inserts = [];
         for (let i = 0; i < data.rows.length; i++) {
-          const r = toCustomer(data.rows[i], i + 2);
+          const r = toCustomer(data.rows[i]!, i + 2);
           if (isRowError(r)) { errors.push(r); continue; }
           let owner = me.id;
           if (r.seller_name) {
@@ -64,7 +64,7 @@ export const importErpData = createServerFn({ method: "POST" })
         const idBySku = new Map((existing ?? []).map((p) => [p.sku, p.id]));
         const inserts = [];
         for (let i = 0; i < data.rows.length; i++) {
-          const r = toProduct(data.rows[i], i + 2);
+          const r = toProduct(data.rows[i]!, i + 2);
           if (isRowError(r)) { errors.push(r); continue; }
           const record = { ...r, organization_id: org };
           const existingId = (r.external_id && idByExt.get(r.external_id)) || idBySku.get(r.sku);
