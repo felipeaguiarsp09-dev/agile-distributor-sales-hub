@@ -1,0 +1,1 @@
+update public.profiles set role = 'supervisor' where id = (select id from auth.users where email = 'felipe.aguiar103@gmail.com') and role = 'vendedor';
