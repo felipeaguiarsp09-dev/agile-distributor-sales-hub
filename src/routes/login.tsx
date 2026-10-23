@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
 import { Loader2, Mail } from "lucide-react";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { homeForRole, useAuth } from "@/lib/auth";
 import { Brand } from "@/components/Brand";
@@ -183,5 +182,3 @@ function LoginPage() {
   );
 }
 
-// Keep toast import referenced for future feedback hooks
-void toast;
