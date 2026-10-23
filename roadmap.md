@@ -9,4 +9,10 @@
 - [x] Conferir menu do supervisor e do vendedor — 7 módulos + Configurações, sem erros
 - [ ] Conferir menu do cliente — aguardando criação da conta de cliente
 - [ ] Conferir isolamento de carteira — aguardando contas, vínculo de equipe e clientes de teste; página Clientes ainda em construção
-## Fase 2 — Construção (próxima)
+## Fase 2 — Construção
+- [x] Importação da base (/admin/importacao + import-erp-data) — clientes e produtos; pedidos históricos entram com o módulo Pedidos
+- [x] Clientes e Produtos (listas, fichas, cadastro/edição pelo admin, carteira por papel)
+- [ ] Pedidos (novo, detalhe, sugestão de IA, estoque, envio ao ERP)
+- [ ] Indicadores
+- [ ] Fluxo de Vendas em tempo real
+- [ ] E-commerce, Agenda, /admin/usuarios, /admin/integracoes
