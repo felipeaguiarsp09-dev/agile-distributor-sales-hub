@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated")({
   component: AppShell,
 });
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const { profile } = useAuth();
   const items = modulesForRole(profile?.role);
   return (
@@ -39,7 +39,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   const { profile, organizationName } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();

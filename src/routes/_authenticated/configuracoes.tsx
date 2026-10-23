@@ -55,7 +55,7 @@ function Settings() {
 
   async function savePassword(e: FormEvent) {
     e.preventDefault();
-    if (password.length < 8) return toast.error("A senha precisa ter ao menos 8 caracteres.");
+    if (password.length < 8) { toast.error("A senha precisa ter ao menos 8 caracteres."); return; }
     setSavingPw(true);
     const { error } = await supabase.auth.updateUser({ password });
     setSavingPw(false);

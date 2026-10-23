@@ -28,7 +28,7 @@ function ResetPassword() {
   const [loading, setLoading] = useState(false);
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (password.length < 8) return toast.error("A senha precisa ter ao menos 8 caracteres.");
+    if (password.length < 8) { toast.error("A senha precisa ter ao menos 8 caracteres."); return; }
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
