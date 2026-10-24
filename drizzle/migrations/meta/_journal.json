@@ -15,6 +15,13 @@
       "when": 1792767777677,
       "tag": "0001_set_supervisor_role_felipe_aguiar103",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792879971040,
+      "tag": "0002_orders_workflow",
+      "breakpoints": true
     }
   ]
 }

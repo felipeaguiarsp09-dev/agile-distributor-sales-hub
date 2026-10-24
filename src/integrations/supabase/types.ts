@@ -796,6 +796,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calc_order_totals: {
+        Args: { p_order_id: string }
+        Returns: {
+          discount_amount: number
+          total_amount: number
+        }[]
+      }
       current_profile: {
         Args: never
         Returns: {
@@ -805,6 +812,11 @@ export type Database = {
           supervisor_id: string
         }[]
       }
+      set_order_erp_result: {
+        Args: { p_erp_order_id: string; p_order_id: string; p_status: string }
+        Returns: undefined
+      }
+      submit_order: { Args: { p_order_id: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
