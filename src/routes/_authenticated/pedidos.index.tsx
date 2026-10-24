@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber } from "@/lib/orders";
+import { canCreateOrder, ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber } from "@/lib/orders";
 import { PageHeader } from "@/components/ModulePage";
 import { EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
@@ -25,10 +25,6 @@ export const Route = createFileRoute("/_authenticated/pedidos/")({
   }),
   component: OrdersPage,
 });
-
-export function canCreateOrder(role: string | undefined) {
-  return role === "vendedor" || role === "administrador";
-}
 
 function OrdersPage() {
   const { profile } = useAuth();

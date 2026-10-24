@@ -5,6 +5,7 @@ import { ArrowLeft, Pencil, ShoppingCart, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { canCreateOrder } from "@/lib/orders";
 import { CreditBadge, EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { CustomerForm } from "@/components/CustomerForm";
 import { Badge } from "@/components/ui/badge";
@@ -82,9 +83,9 @@ function CustomerDetail() {
             {c.cnpj_cpf ?? "Sem documento"} {c.external_id && <Badge variant="outline" className="ml-2">ERP {c.external_id}</Badge>}
           </p>
         </div>
-        {profile?.role !== "cliente" && (
+        {canCreateOrder(profile?.role) && (
           <Button asChild variant="secondary">
-            <Link to="/pedidos"><ShoppingCart className="h-4 w-4" /> Novo pedido</Link>
+            <Link to="/pedidos/novo" search={{ cliente: c.id }}><ShoppingCart className="h-4 w-4" /> Novo pedido</Link>
           </Button>
         )}
         {isAdmin && !editing && (

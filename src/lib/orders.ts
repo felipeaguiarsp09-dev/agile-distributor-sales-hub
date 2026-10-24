@@ -24,3 +24,8 @@ export function cartTotals(lines: CartLine[], discount: number) {
   const d = Math.min(Math.max(discount || 0, 0), subtotal);
   return { subtotal, discount: d, total: Math.round((subtotal - d) * 100) / 100 };
 }
+
+/** Pelas regras de acesso do banco, só vendedor e administrador criam pedidos internos. */
+export function canCreateOrder(role: string | undefined) {
+  return role === "vendedor" || role === "administrador";
+}
