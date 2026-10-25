@@ -13,6 +13,7 @@
 - [x] Importação da base (/admin/importacao + import-erp-data) — clientes e produtos; pedidos históricos entram com o módulo Pedidos
 - [x] Clientes e Produtos (listas, fichas, cadastro/edição pelo admin, carteira por papel)
 - [ ] Pedidos (novo, detalhe, sugestão de IA, estoque, envio ao ERP)
+- [ ] Revisar /login: email+senha, link de acesso para cliente, redirecionamento por papel e acesso pelo RLS
 - [ ] Indicadores
 - [ ] Fluxo de Vendas em tempo real
 - [ ] E-commerce, Agenda, /admin/usuarios, /admin/integracoes
