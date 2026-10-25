@@ -12,9 +12,9 @@
 ## Fase 2 — Construção
 - [x] Importação da base (/admin/importacao + import-erp-data) — clientes e produtos; pedidos históricos entram com o módulo Pedidos
 - [x] Clientes e Produtos (listas, fichas, cadastro/edição pelo admin, carteira por papel)
-- [ ] Pedidos (novo, detalhe, sugestão de IA, estoque, envio ao ERP)
-- [ ] Menu: adicionar /admin/usuarios e /admin/integracoes (só admin); Configurações com nome e telefone
-- [ ] Revisar /login: email+senha, link de acesso para cliente, redirecionamento por papel e acesso pelo RLS
+- [x] Pedidos (novo, detalhe, sugestão de IA, estoque, envio ao ERP)
+- [x] Menu: adicionar /admin/usuarios e /admin/integracoes (só admin); Configurações com nome e telefone
+- [x] Revisar /login: email+senha, link de acesso para cliente, redirecionamento por papel e acesso pelo RLS
 - [ ] Indicadores
 - [ ] Fluxo de Vendas em tempo real
 - [ ] E-commerce, Agenda, /admin/usuarios, /admin/integracoes
