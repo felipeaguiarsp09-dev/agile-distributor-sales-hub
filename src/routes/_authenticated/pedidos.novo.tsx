@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-type Search = { cliente?: string; rascunho?: string };
+type Search = { cliente?: string | undefined; rascunho?: string | undefined };
 
 export const Route = createFileRoute("/_authenticated/pedidos/novo")({
   validateSearch: (s: Record<string, unknown>): Search => ({

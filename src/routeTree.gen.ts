@@ -19,6 +19,8 @@ import { Route as AuthenticatedEcommerceRouteImport } from './routes/_authentica
 import { Route as AuthenticatedFluxoDeVendasRouteImport } from './routes/_authenticated/fluxo-de-vendas'
 import { Route as AuthenticatedIndicadoresRouteImport } from './routes/_authenticated/indicadores'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated/admin.importacao'
+import { Route as AuthenticatedAdminIntegracoesRouteImport } from './routes/_authenticated/admin.integracoes'
+import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
 import { Route as AuthenticatedClientesNovoRouteImport } from './routes/_authenticated/clientes.novo'
@@ -80,6 +82,18 @@ const AuthenticatedAdminImportacaoRoute =
   AuthenticatedAdminImportacaoRouteImport.update({
     id: '/admin/importacao',
     path: '/admin/importacao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminIntegracoesRoute =
+  AuthenticatedAdminIntegracoesRouteImport.update({
+    id: '/admin/integracoes',
+    path: '/admin/integracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminUsuariosRoute =
+  AuthenticatedAdminUsuariosRouteImport.update({
+    id: '/admin/usuarios',
+    path: '/admin/usuarios',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedClientesIndexRoute =
@@ -144,6 +158,8 @@ export interface FileRoutesByFullPath {
   '/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/indicadores': typeof AuthenticatedIndicadoresRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
+  '/admin/integracoes': typeof AuthenticatedAdminIntegracoesRoute
+  '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/novo': typeof AuthenticatedClientesNovoRoute
   '/pedidos/$id': typeof AuthenticatedPedidosIdRoute
@@ -164,6 +180,8 @@ export interface FileRoutesByTo {
   '/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/indicadores': typeof AuthenticatedIndicadoresRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
+  '/admin/integracoes': typeof AuthenticatedAdminIntegracoesRoute
+  '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/novo': typeof AuthenticatedClientesNovoRoute
   '/pedidos/$id': typeof AuthenticatedPedidosIdRoute
@@ -186,6 +204,8 @@ export interface FileRoutesById {
   '/_authenticated/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/_authenticated/indicadores': typeof AuthenticatedIndicadoresRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
+  '/_authenticated/admin/integracoes': typeof AuthenticatedAdminIntegracoesRoute
+  '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/novo': typeof AuthenticatedClientesNovoRoute
   '/_authenticated/pedidos/$id': typeof AuthenticatedPedidosIdRoute
@@ -208,6 +228,8 @@ export interface FileRouteTypes {
     | '/fluxo-de-vendas'
     | '/indicadores'
     | '/admin/importacao'
+    | '/admin/integracoes'
+    | '/admin/usuarios'
     | '/clientes/$id'
     | '/clientes/novo'
     | '/pedidos/$id'
@@ -228,6 +250,8 @@ export interface FileRouteTypes {
     | '/fluxo-de-vendas'
     | '/indicadores'
     | '/admin/importacao'
+    | '/admin/integracoes'
+    | '/admin/usuarios'
     | '/clientes/$id'
     | '/clientes/novo'
     | '/pedidos/$id'
@@ -249,6 +273,8 @@ export interface FileRouteTypes {
     | '/_authenticated/fluxo-de-vendas'
     | '/_authenticated/indicadores'
     | '/_authenticated/admin/importacao'
+    | '/_authenticated/admin/integracoes'
+    | '/_authenticated/admin/usuarios'
     | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/novo'
     | '/_authenticated/pedidos/$id'
@@ -339,6 +365,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminImportacaoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/integracoes': {
+      id: '/_authenticated/admin/integracoes'
+      path: '/admin/integracoes'
+      fullPath: '/admin/integracoes'
+      preLoaderRoute: typeof AuthenticatedAdminIntegracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/usuarios': {
+      id: '/_authenticated/admin/usuarios'
+      path: '/admin/usuarios'
+      fullPath: '/admin/usuarios'
+      preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/clientes/': {
       id: '/_authenticated/clientes/'
       path: '/clientes'
@@ -412,6 +452,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFluxoDeVendasRoute: typeof AuthenticatedFluxoDeVendasRoute
   AuthenticatedIndicadoresRoute: typeof AuthenticatedIndicadoresRoute
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
+  AuthenticatedAdminIntegracoesRoute: typeof AuthenticatedAdminIntegracoesRoute
+  AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedClientesIdRoute: typeof AuthenticatedClientesIdRoute
   AuthenticatedClientesNovoRoute: typeof AuthenticatedClientesNovoRoute
   AuthenticatedPedidosIdRoute: typeof AuthenticatedPedidosIdRoute
@@ -430,6 +472,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFluxoDeVendasRoute: AuthenticatedFluxoDeVendasRoute,
   AuthenticatedIndicadoresRoute: AuthenticatedIndicadoresRoute,
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
+  AuthenticatedAdminIntegracoesRoute: AuthenticatedAdminIntegracoesRoute,
+  AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   AuthenticatedClientesIdRoute: AuthenticatedClientesIdRoute,
   AuthenticatedClientesNovoRoute: AuthenticatedClientesNovoRoute,
   AuthenticatedPedidosIdRoute: AuthenticatedPedidosIdRoute,

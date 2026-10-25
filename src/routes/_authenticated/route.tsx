@@ -1,6 +1,12 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2, LogOut, Menu, Settings, Upload } from "lucide-react";
+import { Loader2, LogOut, Menu, Plug, Settings, Upload, UserCog } from "lucide-react";
+
+const ADMIN_LINKS = [
+  { to: "/admin/usuarios", label: "Usuários", icon: UserCog },
+  { to: "/admin/integracoes", label: "Integrações", icon: Plug },
+  { to: "/admin/importacao", label: "Importação", icon: Upload },
+] as const;
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ROLE_LABEL, homeForRole, useAuth, type Role } from "@/lib/auth";
@@ -56,16 +62,18 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
       </div>
       <NavList onNavigate={onNavigate} />
       <div className="mt-auto space-y-1 border-t border-sidebar-border pt-4">
-        {profile?.role === "administrador" && (
-          <Link
-            to="/admin/importacao"
-            onClick={onNavigate}
-            className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-            activeProps={{ className: "bg-sidebar-accent text-sidebar-primary" }}
-          >
-            <Upload className="h-4 w-4" /> Importação
-          </Link>
-        )}
+        {profile?.role === "administrador" &&
+          ADMIN_LINKS.map((a) => (
+            <Link
+              key={a.to}
+              to={a.to}
+              onClick={onNavigate}
+              className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              activeProps={{ className: "bg-sidebar-accent text-sidebar-primary" }}
+            >
+              <a.icon className="h-4 w-4" /> {a.label}
+            </Link>
+          ))}
         <Link
           to="/configuracoes"
           onClick={onNavigate}
