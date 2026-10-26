@@ -15,6 +15,6 @@
 - [x] Pedidos (novo, detalhe, sugestão de IA, estoque, envio ao ERP)
 - [x] Menu: adicionar /admin/usuarios e /admin/integracoes (só admin); Configurações com nome e telefone
 - [x] Revisar /login: email+senha, link de acesso para cliente, redirecionamento por papel e acesso pelo RLS
-- [ ] Indicadores
+- [x] Indicadores (cards, gráfico, metas, análise da IA)
 - [ ] Fluxo de Vendas em tempo real
 - [ ] E-commerce, Agenda, /admin/usuarios, /admin/integracoes
