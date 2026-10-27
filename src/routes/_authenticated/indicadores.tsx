@@ -116,7 +116,7 @@ function IndicatorsPage() {
         <Select value={period} onValueChange={setPeriod}>
           <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
           <SelectContent>
-            {lastPeriods(12).map((p) => <SelectItem key={p} value={p} className="capitalize">{periodLabel(p)}</SelectItem>)}
+            {lastPeriods(36).map((p) => <SelectItem key={p} value={p} className="capitalize">{periodLabel(p)}</SelectItem>)}
           </SelectContent>
         </Select>
         {isManager && (
