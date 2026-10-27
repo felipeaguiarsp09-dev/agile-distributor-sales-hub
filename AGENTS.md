@@ -15,3 +15,5 @@
 - New auth users get a profile via the `handle_new_user` trigger (first user = administrador, others = vendedor). Why: profiles require an organization and only admins may insert them.
 - Server-side integrations use TanStack server functions/routes instead of Supabase Edge Functions. Why: platform stack; spec names are kept as function/route names.
 - Signed-in pages live under `src/routes/_authenticated/` (client-only gate, sidebar shell); menu items come from `src/lib/modules.ts` filtered by role.
+- Payment webhooks (`/api/public/payment-webhook`) never trust the request body: they re-fetch the payment from the gateway (or check the Asaas token) using credentials in `integration_configs`. Why: the route is public.
+- Scheduled jobs are server routes under `src/routes/api/public/jobs/*` guarded by `authenticateCronRequest`, with logic in `src/lib/jobs.server.ts`. Why: managed HTTP schedules, no Edge Functions.
