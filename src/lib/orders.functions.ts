@@ -142,13 +142,14 @@ export const pushOrderToErp = createServerFn({ method: "POST" })
     if (order.erp_order_id) return { ok: true, message: "Pedido já enviado ao ERP", erp_order_id: order.erp_order_id };
 
     const { data: cfg } = await sb.from("integration_configs").select("credentials").eq("integration_type", "erp").eq("is_active", true).maybeSingle();
-    const endpoint = (cfg?.credentials as { endpoint_url?: string } | null)?.endpoint_url;
+    const erpCreds = (cfg?.credentials ?? {}) as { endpoint_url?: string; api_key?: string };
+    const endpoint = erpCreds.endpoint_url;
     if (!endpoint) return { ok: false, message: "Integração com o ERP ainda não configurada" };
 
     let status: "sincronizado" | "erro" = "erro";
     let erpId: string | null = null;
     try {
-      const token = process.env["ERP_API_KEY"];
+      const token = erpCreds.api_key || process.env["ERP_API_KEY"];
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
@@ -163,5 +164,5 @@ export const pushOrderToErp = createServerFn({ method: "POST" })
       console.error("push-order-to-erp", e);
     }
     await sb.rpc("set_order_erp_result", { p_order_id: order.id, p_status: status, p_erp_order_id: erpId as string });
-    return { ok: status === "sincronizado", message: status === "sincronizado" ? "Pedido enviado ao ERP" : "Falha ao enviar ao ERP", erp_order_id: erpId };
+    return { ok: status === "sincronizado", message: status === "sincronizado" ? "Pedido enviado ao ERP" : "O ERP não aceitou o pedido. Ele continua aprovado; confira a integração e tente enviar de novo.", erp_order_id: erpId };
   });
