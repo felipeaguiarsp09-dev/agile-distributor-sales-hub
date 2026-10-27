@@ -29,3 +29,4 @@
 - [ ] Emails (aguardando domínio de envio): aprovação de pedido, confirmação do e-commerce, link de acesso do cliente
 - [x] Confirmar payment-webhook atualizando status
 - [ ] Publicar e testar no ambiente publicado (login dos papéis, importação, pedido com IA, aprovação, compra)
+- [x] Logo: marca da Dcalice no app e no ícone, sem texto e sem borda
