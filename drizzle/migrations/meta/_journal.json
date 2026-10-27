@@ -29,6 +29,13 @@
       "when": 1793015768462,
       "tag": "0003_seller_indicators",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793111792424,
+      "tag": "0004_imports_storage_and_indicator_fix",
+      "breakpoints": true
     }
   ]
 }
