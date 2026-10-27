@@ -25,7 +25,7 @@ export const importErpData = createServerFn({ method: "POST" })
     const errors: RowError[] = [];
     let imported = 0;
     let rowsTotal = 0;
-    const setJob = (fields: Record<string, unknown>) => sb.from("import_jobs").update(fields).eq("id", job.id);
+    const setJob = (fields: { status?: string; rows_total?: number; rows_imported?: number; error_log?: RowError[] }) => sb.from("import_jobs").update(fields).eq("id", job.id);
     let lastReport = 0;
     const progress = async (force = false) => {
       if (!force && imported - lastReport < 200) return;
