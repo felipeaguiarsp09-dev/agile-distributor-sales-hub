@@ -75,8 +75,8 @@ function ImportPage() {
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Falha na importação");
     } finally {
+      await qc.refetchQueries({ queryKey: ["import_jobs"] });
       setBusy(false);
-      void qc.invalidateQueries({ queryKey: ["import_jobs"] });
       void qc.invalidateQueries({ queryKey: ["customers"] });
       void qc.invalidateQueries({ queryKey: ["products"] });
       void qc.invalidateQueries({ queryKey: ["orders"] });
