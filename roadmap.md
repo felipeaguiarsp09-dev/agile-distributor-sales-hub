@@ -16,6 +16,9 @@
 - [x] Menu: adicionar /admin/usuarios e /admin/integracoes (só admin); Configurações com nome e telefone
 - [x] Revisar /login: email+senha, link de acesso para cliente, redirecionamento por papel e acesso pelo RLS
 - [x] Indicadores (cards, gráfico, metas, análise da IA) — testado com o administrador
-- [ ] Fluxo de Vendas em tempo real (agrupado por status, vendedor e região; aprovação/recusa do supervisor)
+- [x] Fluxo de Vendas em tempo real (status, vendedor, região; aprovação do supervisor) — testado
 - [ ] Pedidos: sugestões com Claude Sonnet 4.6 (indisponível — aguardando escolha do usuário), histórico de status no detalhe
-- [ ] E-commerce, Agenda, /admin/usuarios, /admin/integracoes
+- [ ] E-commerce (vitrine, carrinho, checkout, /ecommerce/pedidos, create-payment-intent, payment-webhook) — aguardando escolha do gateway
+- [ ] Agenda (dia/semana, check-in, registro)
+- [ ] /admin/usuarios (usuários e permissões)
+- [ ] /admin/integracoes (ERP/estoque/financeiro/pagamento + sync-erp-stock)
