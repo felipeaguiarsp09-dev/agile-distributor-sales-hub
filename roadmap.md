@@ -23,3 +23,9 @@
 - [ ] /admin/usuarios (usuários e permissões)
 - [ ] /admin/integracoes (ERP/estoque/financeiro/pagamento + sync-erp-stock)
 - [ ] Revisar estados de vazio, carregamento e erro em todas as páginas; mensagens claras de falha do ERP
+- [ ] Revisar telas no celular (pedido, clientes, agenda)
+- [ ] Teste ponta a ponta dos 4 papéis + corrigir vazamentos de permissão
+- [ ] Tarefas agendadas: sync-erp-stock (hora), previsão de demanda (semanal), análise de indicadores (diária, manhã)
+- [ ] Emails: aprovação de pedido, confirmação do e-commerce, link de acesso do cliente
+- [ ] Confirmar payment-webhook atualizando status
+- [ ] Publicar e testar no ambiente publicado (login dos papéis, importação, pedido com IA, aprovação, compra)
