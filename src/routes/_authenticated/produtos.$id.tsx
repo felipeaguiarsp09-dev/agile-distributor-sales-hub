@@ -94,6 +94,8 @@ function ProductDetail() {
       <h2 className="mb-3 mt-8 text-lg font-semibold">Previsão de demanda</h2>
       {forecast.isLoading ? (
         <RowsSkeleton rows={1} />
+      ) : forecast.isError ? (
+        <ErrorState message="Não foi possível carregar a previsão" onRetry={() => forecast.refetch()} />
       ) : !forecast.data ? (
         <EmptyState title="Sem previsão de demanda gerada ainda" />
       ) : (

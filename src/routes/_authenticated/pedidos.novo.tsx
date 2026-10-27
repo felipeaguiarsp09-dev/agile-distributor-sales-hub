@@ -197,6 +197,13 @@ function NewOrder() {
                 <span className="text-muted-foreground">Limite de crédito {brl(customer.credit_limit)}</span>
               </div>
             )}
+            {customers.isLoading && <p className="mt-2 text-sm text-muted-foreground">Carregando clientes...</p>}
+            {customers.isError && (
+              <p className="mt-2 text-sm text-destructive">
+                Não foi possível carregar os clientes.{" "}
+                <button className="underline" onClick={() => customers.refetch()}>Tentar novamente</button>
+              </p>
+            )}
             {customers.data?.length === 0 && <p className="mt-2 text-sm text-muted-foreground">Nenhum cliente na sua carteira ainda.</p>}
           </section>
 
@@ -242,7 +249,10 @@ function NewOrder() {
                 </SelectContent>
               </Select>
             </div>
+            {products.isLoading && <RowsSkeleton rows={3} />}
+            {products.isError && <ErrorState message="Não foi possível carregar o catálogo" onRetry={() => products.refetch()} />}
             {products.data?.length === 0 && <p className="text-sm text-muted-foreground">Catálogo vazio.</p>}
+            {!!products.data?.length && catalog.length === 0 && <p className="text-sm text-muted-foreground">Nenhum produto com esses filtros.</p>}
             <ul className="max-h-[480px] divide-y overflow-auto">
               {catalog.map((p) => (
                 <li key={p.id} className="flex items-center gap-3 py-2 text-sm">
