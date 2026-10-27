@@ -11,7 +11,7 @@ import { brl, EmptyState, ErrorState, RowsSkeleton } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/_authenticated/ecommerce/pedidos")({
+export const Route = createFileRoute("/_authenticated/ecommerce_/pedidos")({
   head: () => ({
     meta: [
       { title: "Meus pedidos — Dcalice" },

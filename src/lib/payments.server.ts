@@ -74,10 +74,11 @@ export async function createIntent(
   return { gateway_payment_id: String(body["id"]), checkout_url: String(body["url"]) };
 }
 
-export type VerifiedEvent = { match: { order_id?: string; gateway_payment_id?: string }; status: "pendente" | "pago" | "falhou" | "estornado" };
+export type VerifiedEvent = { match: { order_id?: string | undefined; gateway_payment_id?: string | undefined }; status: "pendente" | "pago" | "falhou" | "estornado" };
 
 /** Confirma o evento consultando o próprio gateway (não confia no corpo recebido). */
-export async function verifyEvent(provider: Provider, creds: PaymentCreds, body: Record<string, any>, headers: Headers): Promise<VerifiedEvent | null> {
+export async function verifyEvent(provider: Provider, creds: PaymentCreds, // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  body: any, headers: Headers): Promise<VerifiedEvent | null> {
   if (provider === "mercadopago") {
     const id = body?.data?.id ?? (body?.type === "payment" ? body?.id : null);
     if (!id || !creds.access_token) return null;

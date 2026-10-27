@@ -12,7 +12,7 @@ import { brl, EmptyState, ErrorState, RowsSkeleton } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export const Route = createFileRoute("/_authenticated/ecommerce/")({
+export const Route = createFileRoute("/_authenticated/ecommerce")({
   head: () => ({
     meta: [
       { title: "E-commerce — Dcalice" },
