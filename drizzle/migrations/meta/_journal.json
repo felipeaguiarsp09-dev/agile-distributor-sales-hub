@@ -43,6 +43,13 @@
       "when": 1793112377358,
       "tag": "0005_sales_flow",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793113307111,
+      "tag": "0006_submit_order_caller_check",
+      "breakpoints": true
     }
   ]
 }
