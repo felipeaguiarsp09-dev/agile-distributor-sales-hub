@@ -32,6 +32,9 @@ import { Route as AuthenticatedProdutosIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedProdutosIdRouteImport } from './routes/_authenticated/produtos.$id'
 import { Route as AuthenticatedProdutosNovoRouteImport } from './routes/_authenticated/produtos.novo'
 import { Route as ApiPublicPaymentWebhookRouteImport } from './routes/api/public/payment-webhook'
+import { Route as ApiPublicJobsGenerateDemandForecastRouteImport } from './routes/api/public/jobs/generate-demand-forecast'
+import { Route as ApiPublicJobsGenerateIndicatorInsightRouteImport } from './routes/api/public/jobs/generate-indicator-insight'
+import { Route as ApiPublicJobsSyncErpStockRouteImport } from './routes/api/public/jobs/sync-erp-stock'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -160,6 +163,24 @@ const ApiPublicPaymentWebhookRoute = ApiPublicPaymentWebhookRouteImport.update({
   path: '/api/public/payment-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsGenerateDemandForecastRoute =
+  ApiPublicJobsGenerateDemandForecastRouteImport.update({
+    id: '/api/public/jobs/generate-demand-forecast',
+    path: '/api/public/jobs/generate-demand-forecast',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicJobsGenerateIndicatorInsightRoute =
+  ApiPublicJobsGenerateIndicatorInsightRouteImport.update({
+    id: '/api/public/jobs/generate-indicator-insight',
+    path: '/api/public/jobs/generate-indicator-insight',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicJobsSyncErpStockRoute =
+  ApiPublicJobsSyncErpStockRouteImport.update({
+    id: '/api/public/jobs/sync-erp-stock',
+    path: '/api/public/jobs/sync-erp-stock',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -184,6 +205,9 @@ export interface FileRoutesByFullPath {
   '/clientes/': typeof AuthenticatedClientesIndexRoute
   '/pedidos/': typeof AuthenticatedPedidosIndexRoute
   '/produtos/': typeof AuthenticatedProdutosIndexRoute
+  '/api/public/jobs/generate-demand-forecast': typeof ApiPublicJobsGenerateDemandForecastRoute
+  '/api/public/jobs/generate-indicator-insight': typeof ApiPublicJobsGenerateIndicatorInsightRoute
+  '/api/public/jobs/sync-erp-stock': typeof ApiPublicJobsSyncErpStockRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -208,6 +232,9 @@ export interface FileRoutesByTo {
   '/clientes': typeof AuthenticatedClientesIndexRoute
   '/pedidos': typeof AuthenticatedPedidosIndexRoute
   '/produtos': typeof AuthenticatedProdutosIndexRoute
+  '/api/public/jobs/generate-demand-forecast': typeof ApiPublicJobsGenerateDemandForecastRoute
+  '/api/public/jobs/generate-indicator-insight': typeof ApiPublicJobsGenerateIndicatorInsightRoute
+  '/api/public/jobs/sync-erp-stock': typeof ApiPublicJobsSyncErpStockRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -234,6 +261,9 @@ export interface FileRoutesById {
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
   '/_authenticated/pedidos/': typeof AuthenticatedPedidosIndexRoute
   '/_authenticated/produtos/': typeof AuthenticatedProdutosIndexRoute
+  '/api/public/jobs/generate-demand-forecast': typeof ApiPublicJobsGenerateDemandForecastRoute
+  '/api/public/jobs/generate-indicator-insight': typeof ApiPublicJobsGenerateIndicatorInsightRoute
+  '/api/public/jobs/sync-erp-stock': typeof ApiPublicJobsSyncErpStockRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -260,6 +290,9 @@ export interface FileRouteTypes {
     | '/clientes/'
     | '/pedidos/'
     | '/produtos/'
+    | '/api/public/jobs/generate-demand-forecast'
+    | '/api/public/jobs/generate-indicator-insight'
+    | '/api/public/jobs/sync-erp-stock'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -284,6 +317,9 @@ export interface FileRouteTypes {
     | '/clientes'
     | '/pedidos'
     | '/produtos'
+    | '/api/public/jobs/generate-demand-forecast'
+    | '/api/public/jobs/generate-indicator-insight'
+    | '/api/public/jobs/sync-erp-stock'
   id:
     | '__root__'
     | '/'
@@ -309,6 +345,9 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes/'
     | '/_authenticated/pedidos/'
     | '/_authenticated/produtos/'
+    | '/api/public/jobs/generate-demand-forecast'
+    | '/api/public/jobs/generate-indicator-insight'
+    | '/api/public/jobs/sync-erp-stock'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -317,6 +356,9 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiPublicPaymentWebhookRoute: typeof ApiPublicPaymentWebhookRoute
+  ApiPublicJobsGenerateDemandForecastRoute: typeof ApiPublicJobsGenerateDemandForecastRoute
+  ApiPublicJobsGenerateIndicatorInsightRoute: typeof ApiPublicJobsGenerateIndicatorInsightRoute
+  ApiPublicJobsSyncErpStockRoute: typeof ApiPublicJobsSyncErpStockRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -482,6 +524,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaymentWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/generate-demand-forecast': {
+      id: '/api/public/jobs/generate-demand-forecast'
+      path: '/api/public/jobs/generate-demand-forecast'
+      fullPath: '/api/public/jobs/generate-demand-forecast'
+      preLoaderRoute: typeof ApiPublicJobsGenerateDemandForecastRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/jobs/generate-indicator-insight': {
+      id: '/api/public/jobs/generate-indicator-insight'
+      path: '/api/public/jobs/generate-indicator-insight'
+      fullPath: '/api/public/jobs/generate-indicator-insight'
+      preLoaderRoute: typeof ApiPublicJobsGenerateIndicatorInsightRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/jobs/sync-erp-stock': {
+      id: '/api/public/jobs/sync-erp-stock'
+      path: '/api/public/jobs/sync-erp-stock'
+      fullPath: '/api/public/jobs/sync-erp-stock'
+      preLoaderRoute: typeof ApiPublicJobsSyncErpStockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -536,6 +599,11 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiPublicPaymentWebhookRoute: ApiPublicPaymentWebhookRoute,
+  ApiPublicJobsGenerateDemandForecastRoute:
+    ApiPublicJobsGenerateDemandForecastRoute,
+  ApiPublicJobsGenerateIndicatorInsightRoute:
+    ApiPublicJobsGenerateIndicatorInsightRoute,
+  ApiPublicJobsSyncErpStockRoute: ApiPublicJobsSyncErpStockRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
