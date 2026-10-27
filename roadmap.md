@@ -18,14 +18,14 @@
 - [x] Indicadores (cards, gráfico, metas, análise da IA) — testado com o administrador
 - [x] Fluxo de Vendas em tempo real (status, vendedor, região; aprovação do supervisor) — testado
 - [ ] Pedidos: sugestões com Claude Sonnet 4.6 (indisponível — aguardando escolha do usuário), histórico de status no detalhe
-- [ ] E-commerce (vitrine, carrinho, checkout, /ecommerce/pedidos, create-payment-intent, payment-webhook) — aguardando escolha do gateway
-- [ ] Agenda (dia/semana, check-in, registro)
-- [ ] /admin/usuarios (usuários e permissões)
-- [ ] /admin/integracoes (ERP/estoque/financeiro/pagamento + sync-erp-stock)
+- [x] E-commerce (vitrine, carrinho, checkout, /ecommerce/pedidos, create-payment-intent, payment-webhook) — Mercado Pago/Asaas/Stripe configuráveis; cobrança real aguarda credenciais
+- [x] Agenda (dia/semana, check-in, registro)
+- [x] /admin/usuarios (usuários e permissões)
+- [x] /admin/integracoes (ERP/estoque/financeiro/pagamento + sync-erp-stock)
 - [ ] Revisar estados de vazio, carregamento e erro em todas as páginas; mensagens claras de falha do ERP
-- [ ] Revisar telas no celular (pedido, clientes, agenda)
-- [ ] Teste ponta a ponta dos 4 papéis + corrigir vazamentos de permissão
-- [ ] Tarefas agendadas: sync-erp-stock (hora), previsão de demanda (semanal), análise de indicadores (diária, manhã)
-- [ ] Emails: aprovação de pedido, confirmação do e-commerce, link de acesso do cliente
-- [ ] Confirmar payment-webhook atualizando status
+- [x] Revisar telas no celular (pedido, clientes, agenda)
+- [ ] Teste ponta a ponta dos 4 papéis — vendedor/supervisor/admin feitos; cliente aguarda conta de cliente
+- [x] Tarefas agendadas: sync-erp-stock (hora), previsão de demanda (semanal), análise de indicadores (diária, manhã)
+- [ ] Emails (aguardando domínio de envio): aprovação de pedido, confirmação do e-commerce, link de acesso do cliente
+- [x] Confirmar payment-webhook atualizando status
 - [ ] Publicar e testar no ambiente publicado (login dos papéis, importação, pedido com IA, aprovação, compra)
