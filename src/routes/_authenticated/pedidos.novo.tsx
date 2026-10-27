@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { canCreateOrder, cartTotals, type CartLine } from "@/lib/orders";
 import { submitOrder, suggestProducts, validateOrderStock } from "@/lib/orders.functions";
 import { PageHeader } from "@/components/ModulePage";
-import { CreditBadge, NoAccess, brl } from "@/components/shared";
+import { CreditBadge, ErrorState, NoAccess, RowsSkeleton, brl } from "@/components/shared";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,12 +62,19 @@ function NewOrder() {
 
   const customers = useQuery({
     queryKey: ["customers", "picker"],
-    queryFn: async () => (await supabase.from("customers").select("id, name, credit_limit, credit_status").order("name")).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("customers").select("id, name, credit_limit, credit_status").order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
   });
   const products = useQuery({
     queryKey: ["products", "active"],
-    queryFn: async () =>
-      (await supabase.from("products").select("id, name, sku, category, unit_price, stock_quantity").eq("is_active", true).order("name")).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("products").select("id, name, sku, category, unit_price, stock_quantity").eq("is_active", true).order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
   });
 
   // Continua um rascunho existente.
@@ -190,6 +197,13 @@ function NewOrder() {
                 <span className="text-muted-foreground">Limite de crédito {brl(customer.credit_limit)}</span>
               </div>
             )}
+            {customers.isLoading && <p className="mt-2 text-sm text-muted-foreground">Carregando clientes...</p>}
+            {customers.isError && (
+              <p className="mt-2 text-sm text-destructive">
+                Não foi possível carregar os clientes.{" "}
+                <button className="underline" onClick={() => customers.refetch()}>Tentar novamente</button>
+              </p>
+            )}
             {customers.data?.length === 0 && <p className="mt-2 text-sm text-muted-foreground">Nenhum cliente na sua carteira ainda.</p>}
           </section>
 
@@ -235,7 +249,10 @@ function NewOrder() {
                 </SelectContent>
               </Select>
             </div>
+            {products.isLoading && <RowsSkeleton rows={3} />}
+            {products.isError && <ErrorState message="Não foi possível carregar o catálogo" onRetry={() => products.refetch()} />}
             {products.data?.length === 0 && <p className="text-sm text-muted-foreground">Catálogo vazio.</p>}
+            {!!products.data?.length && catalog.length === 0 && <p className="text-sm text-muted-foreground">Nenhum produto com esses filtros.</p>}
             <ul className="max-h-[480px] divide-y overflow-auto">
               {catalog.map((p) => (
                 <li key={p.id} className="flex items-center gap-3 py-2 text-sm">
