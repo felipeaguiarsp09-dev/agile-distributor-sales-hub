@@ -15,6 +15,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedEcommerceRouteImport } from './routes/_authenticated/ecommerce'
 import { Route as AuthenticatedFluxoDeVendasRouteImport } from './routes/_authenticated/fluxo-de-vendas'
 import { Route as AuthenticatedIndicadoresRouteImport } from './routes/_authenticated/indicadores'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated/admin.importacao'
@@ -23,8 +24,7 @@ import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authen
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
 import { Route as AuthenticatedClientesNovoRouteImport } from './routes/_authenticated/clientes.novo'
-import { Route as AuthenticatedEcommerceIndexRouteImport } from './routes/_authenticated/ecommerce.index'
-import { Route as AuthenticatedEcommercePedidosRouteImport } from './routes/_authenticated/ecommerce.pedidos'
+import { Route as AuthenticatedEcommercePedidosRouteImport } from './routes/_authenticated/ecommerce_.pedidos'
 import { Route as AuthenticatedPedidosIndexRouteImport } from './routes/_authenticated/pedidos.index'
 import { Route as AuthenticatedPedidosIdRouteImport } from './routes/_authenticated/pedidos.$id'
 import { Route as AuthenticatedPedidosNovoRouteImport } from './routes/_authenticated/pedidos.novo'
@@ -63,6 +63,11 @@ const AuthenticatedConfiguracoesRoute =
     path: '/configuracoes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEcommerceRoute = AuthenticatedEcommerceRouteImport.update({
+  id: '/ecommerce',
+  path: '/ecommerce',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFluxoDeVendasRoute =
   AuthenticatedFluxoDeVendasRouteImport.update({
     id: '/fluxo-de-vendas',
@@ -110,15 +115,9 @@ const AuthenticatedClientesNovoRoute =
     path: '/clientes/novo',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedEcommerceIndexRoute =
-  AuthenticatedEcommerceIndexRouteImport.update({
-    id: '/ecommerce/',
-    path: '/ecommerce/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedEcommercePedidosRoute =
   AuthenticatedEcommercePedidosRouteImport.update({
-    id: '/ecommerce/pedidos',
+    id: '/ecommerce_/pedidos',
     path: '/ecommerce/pedidos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
@@ -168,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/ecommerce': typeof AuthenticatedEcommerceRoute
   '/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/indicadores': typeof AuthenticatedIndicadoresRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -182,7 +182,6 @@ export interface FileRoutesByFullPath {
   '/produtos/novo': typeof AuthenticatedProdutosNovoRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
-  '/ecommerce/': typeof AuthenticatedEcommerceIndexRoute
   '/pedidos/': typeof AuthenticatedPedidosIndexRoute
   '/produtos/': typeof AuthenticatedProdutosIndexRoute
 }
@@ -192,6 +191,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/ecommerce': typeof AuthenticatedEcommerceRoute
   '/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/indicadores': typeof AuthenticatedIndicadoresRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -206,7 +206,6 @@ export interface FileRoutesByTo {
   '/produtos/novo': typeof AuthenticatedProdutosNovoRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
-  '/ecommerce': typeof AuthenticatedEcommerceIndexRoute
   '/pedidos': typeof AuthenticatedPedidosIndexRoute
   '/produtos': typeof AuthenticatedProdutosIndexRoute
 }
@@ -218,6 +217,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
+  '/_authenticated/ecommerce': typeof AuthenticatedEcommerceRoute
   '/_authenticated/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/_authenticated/indicadores': typeof AuthenticatedIndicadoresRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -225,14 +225,13 @@ export interface FileRoutesById {
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/novo': typeof AuthenticatedClientesNovoRoute
-  '/_authenticated/ecommerce/pedidos': typeof AuthenticatedEcommercePedidosRoute
+  '/_authenticated/ecommerce_/pedidos': typeof AuthenticatedEcommercePedidosRoute
   '/_authenticated/pedidos/$id': typeof AuthenticatedPedidosIdRoute
   '/_authenticated/pedidos/novo': typeof AuthenticatedPedidosNovoRoute
   '/_authenticated/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/_authenticated/produtos/novo': typeof AuthenticatedProdutosNovoRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
-  '/_authenticated/ecommerce/': typeof AuthenticatedEcommerceIndexRoute
   '/_authenticated/pedidos/': typeof AuthenticatedPedidosIndexRoute
   '/_authenticated/produtos/': typeof AuthenticatedProdutosIndexRoute
 }
@@ -244,6 +243,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/agenda'
     | '/configuracoes'
+    | '/ecommerce'
     | '/fluxo-de-vendas'
     | '/indicadores'
     | '/admin/importacao'
@@ -258,7 +258,6 @@ export interface FileRouteTypes {
     | '/produtos/novo'
     | '/api/public/payment-webhook'
     | '/clientes/'
-    | '/ecommerce/'
     | '/pedidos/'
     | '/produtos/'
   fileRoutesByTo: FileRoutesByTo
@@ -268,6 +267,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/agenda'
     | '/configuracoes'
+    | '/ecommerce'
     | '/fluxo-de-vendas'
     | '/indicadores'
     | '/admin/importacao'
@@ -282,7 +282,6 @@ export interface FileRouteTypes {
     | '/produtos/novo'
     | '/api/public/payment-webhook'
     | '/clientes'
-    | '/ecommerce'
     | '/pedidos'
     | '/produtos'
   id:
@@ -293,6 +292,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/agenda'
     | '/_authenticated/configuracoes'
+    | '/_authenticated/ecommerce'
     | '/_authenticated/fluxo-de-vendas'
     | '/_authenticated/indicadores'
     | '/_authenticated/admin/importacao'
@@ -300,14 +300,13 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/novo'
-    | '/_authenticated/ecommerce/pedidos'
+    | '/_authenticated/ecommerce_/pedidos'
     | '/_authenticated/pedidos/$id'
     | '/_authenticated/pedidos/novo'
     | '/_authenticated/produtos/$id'
     | '/_authenticated/produtos/novo'
     | '/api/public/payment-webhook'
     | '/_authenticated/clientes/'
-    | '/_authenticated/ecommerce/'
     | '/_authenticated/pedidos/'
     | '/_authenticated/produtos/'
   fileRoutesById: FileRoutesById
@@ -362,6 +361,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracoes'
       fullPath: '/configuracoes'
       preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ecommerce': {
+      id: '/_authenticated/ecommerce'
+      path: '/ecommerce'
+      fullPath: '/ecommerce'
+      preLoaderRoute: typeof AuthenticatedEcommerceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fluxo-de-vendas': {
@@ -420,15 +426,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedClientesNovoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/ecommerce/': {
-      id: '/_authenticated/ecommerce/'
-      path: '/ecommerce'
-      fullPath: '/ecommerce/'
-      preLoaderRoute: typeof AuthenticatedEcommerceIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/ecommerce/pedidos': {
-      id: '/_authenticated/ecommerce/pedidos'
+    '/_authenticated/ecommerce_/pedidos': {
+      id: '/_authenticated/ecommerce_/pedidos'
       path: '/ecommerce/pedidos'
       fullPath: '/ecommerce/pedidos'
       preLoaderRoute: typeof AuthenticatedEcommercePedidosRouteImport
@@ -489,6 +488,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
+  AuthenticatedEcommerceRoute: typeof AuthenticatedEcommerceRoute
   AuthenticatedFluxoDeVendasRoute: typeof AuthenticatedFluxoDeVendasRoute
   AuthenticatedIndicadoresRoute: typeof AuthenticatedIndicadoresRoute
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
@@ -502,7 +502,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProdutosIdRoute: typeof AuthenticatedProdutosIdRoute
   AuthenticatedProdutosNovoRoute: typeof AuthenticatedProdutosNovoRoute
   AuthenticatedClientesIndexRoute: typeof AuthenticatedClientesIndexRoute
-  AuthenticatedEcommerceIndexRoute: typeof AuthenticatedEcommerceIndexRoute
   AuthenticatedPedidosIndexRoute: typeof AuthenticatedPedidosIndexRoute
   AuthenticatedProdutosIndexRoute: typeof AuthenticatedProdutosIndexRoute
 }
@@ -510,6 +509,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
+  AuthenticatedEcommerceRoute: AuthenticatedEcommerceRoute,
   AuthenticatedFluxoDeVendasRoute: AuthenticatedFluxoDeVendasRoute,
   AuthenticatedIndicadoresRoute: AuthenticatedIndicadoresRoute,
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
@@ -523,7 +523,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProdutosIdRoute: AuthenticatedProdutosIdRoute,
   AuthenticatedProdutosNovoRoute: AuthenticatedProdutosNovoRoute,
   AuthenticatedClientesIndexRoute: AuthenticatedClientesIndexRoute,
-  AuthenticatedEcommerceIndexRoute: AuthenticatedEcommerceIndexRoute,
   AuthenticatedPedidosIndexRoute: AuthenticatedPedidosIndexRoute,
   AuthenticatedProdutosIndexRoute: AuthenticatedProdutosIndexRoute,
 }
