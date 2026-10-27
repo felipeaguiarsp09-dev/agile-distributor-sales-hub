@@ -107,3 +107,48 @@ export function toProduct(r: Record<string, string>, row: number): ProductRow | 
 
 export const isRowError = (x: unknown): x is RowError =>
   typeof x === "object" && x !== null && "error" in x && "row" in x;
+
+export type OrderLineRow = {
+  order_code: string;
+  customer_code: string;
+  sku: string;
+  quantity: number;
+  unit_price: number | null;
+  created_at: string | null;
+  status: string;
+  discount: number;
+  seller_name: string;
+};
+
+const ORDER_STATUSES = ["rascunho", "aguardando_aprovacao", "aprovado", "recusado", "faturado", "cancelado"];
+
+/** Converte "dd/mm/aaaa" ou "aaaa-mm-dd" em ISO. */
+export function parseDate(v: string): string | null | undefined {
+  if (!v) return null;
+  const br = v.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  const iso = br ? `${br[3]}-${br[2]}-${br[1]}` : v;
+  const d = new Date(iso.length === 10 ? `${iso}T12:00:00-03:00` : iso);
+  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
+}
+
+/** Uma linha por item; linhas com o mesmo código de pedido formam um pedido. */
+export function toOrderLine(r: Record<string, string>, row: number): OrderLineRow | RowError {
+  const order_code = pick(r, "codigo_pedido", "pedido", "numero_pedido", "external_id");
+  const customer_code = pick(r, "codigo_cliente", "cliente_codigo", "cliente");
+  const sku = pick(r, "sku", "codigo_produto", "referencia");
+  if (!order_code) return { row, error: "código do pedido obrigatório" };
+  if (!customer_code) return { row, error: "código do cliente obrigatório" };
+  if (!sku) return { row, error: "sku obrigatório" };
+  const quantity = Number(pick(r, "quantidade", "qtd", "quantity"));
+  if (!Number.isInteger(quantity) || quantity <= 0) return { row, error: "quantidade inválida" };
+  const priceRaw = pick(r, "preco_unitario", "preco", "unit_price");
+  const unit_price = priceRaw ? parseMoney(priceRaw) : null;
+  if (priceRaw && (unit_price === null || unit_price < 0)) return { row, error: "preço inválido" };
+  const created_at = parseDate(pick(r, "data", "data_pedido", "created_at"));
+  if (created_at === undefined) return { row, error: "data inválida" };
+  const status = (pick(r, "status", "situacao") || "faturado").toLowerCase();
+  if (!ORDER_STATUSES.includes(status)) return { row, error: "status inválido" };
+  const discount = parseMoney(pick(r, "desconto", "discount"));
+  if (discount === null || discount < 0) return { row, error: "desconto inválido" };
+  return { order_code, customer_code, sku, quantity, unit_price, created_at, status, discount, seller_name: pick(r, "vendedor", "seller") };
+}

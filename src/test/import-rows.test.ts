@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseCsv } from "@/lib/csv";
-import { parseMoney, toCustomer, toProduct } from "@/lib/import-rows";
+import { parseMoney, toCustomer, toOrderLine, toProduct } from "@/lib/import-rows";
 
 describe("importação da planilha/ERP", () => {
   it("lê CSV com ponto e vírgula e cabeçalhos acentuados", () => {
@@ -22,5 +22,14 @@ describe("importação da planilha/ERP", () => {
   it("produto fica fora do E-commerce por padrão", () => {
     const p = toProduct({ sku: "A1", nome: "Água", preco: "2,50" }, 2);
     expect(p).toMatchObject({ unit_price: 2.5, is_ecommerce_visible: false, is_active: true });
+  });
+});
+
+describe("importação de pedidos", () => {
+  it("exige código do cliente", () => {
+    expect(toOrderLine({ codigo_pedido: "P1", sku: "A1", quantidade: "2" }, 4)).toEqual({ row: 4, error: "código do cliente obrigatório" });
+  });
+  it("status padrão faturado e data brasileira", () => {
+    expect(toOrderLine({ codigo_pedido: "P1", codigo_cliente: "C1", sku: "A1", quantidade: "2", data: "05/03/2025" }, 2)).toMatchObject({ status: "faturado", unit_price: null, created_at: "2025-03-05T15:00:00.000Z" });
   });
 });
