@@ -34,7 +34,7 @@ export async function syncErpStock(sb: SupabaseClient<Database>, orgId: string):
     }
     result = { ok: true, message: `Estoque sincronizado: ${updated} produto(s) atualizado(s)${notFound ? `, ${notFound} SKU(s) sem cadastro` : ""}`, updated, not_found: notFound };
   } catch (e) {
-    result = { ok: false, message: `Falha ao sincronizar com o ERP: ${e instanceof Error ? e.message : "erro desconhecido"}. O estoque anterior foi mantido.`, updated: 0, not_found: 0 };
+    result = { ok: false, message: `Falha ao sincronizar com o ERP: ${e instanceof Error && e.message.startsWith("o ERP") ? e.message : e instanceof Error && e.message.includes("formato") ? e.message : "não foi possível conectar ao endereço configurado"}. O estoque anterior foi mantido.`, updated: 0, not_found: 0 };
   }
   await sb.from("integration_configs").update({
     ...(result.ok ? { last_sync_at: new Date().toISOString() } : {}),
