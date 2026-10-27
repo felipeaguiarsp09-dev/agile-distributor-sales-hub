@@ -22,3 +22,4 @@
 - [ ] Agenda (dia/semana, check-in, registro)
 - [ ] /admin/usuarios (usuários e permissões)
 - [ ] /admin/integracoes (ERP/estoque/financeiro/pagamento + sync-erp-stock)
+- [ ] Revisar estados de vazio, carregamento e erro em todas as páginas; mensagens claras de falha do ERP
