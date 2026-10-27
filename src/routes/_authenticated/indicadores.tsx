@@ -180,6 +180,13 @@ function IndicatorsPage() {
         </div>
         {generating ? (
           <p className="text-sm text-muted-foreground">Gerando leitura...</p>
+        ) : insight.isLoading ? (
+          <p className="text-sm text-muted-foreground">Carregando análise...</p>
+        ) : insight.isError ? (
+          <p className="text-sm text-destructive">
+            Não foi possível carregar a análise.{" "}
+            <button className="underline" onClick={() => insight.refetch()}>Tentar novamente</button>
+          </p>
         ) : insight.data ? (
           <>
             <p className="text-sm leading-relaxed">{insight.data.insight_text}</p>

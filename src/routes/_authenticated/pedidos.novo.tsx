@@ -62,12 +62,19 @@ function NewOrder() {
 
   const customers = useQuery({
     queryKey: ["customers", "picker"],
-    queryFn: async () => (await supabase.from("customers").select("id, name, credit_limit, credit_status").order("name")).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("customers").select("id, name, credit_limit, credit_status").order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
   });
   const products = useQuery({
     queryKey: ["products", "active"],
-    queryFn: async () =>
-      (await supabase.from("products").select("id, name, sku, category, unit_price, stock_quantity").eq("is_active", true).order("name")).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("products").select("id, name, sku, category, unit_price, stock_quantity").eq("is_active", true).order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
   });
 
   // Continua um rascunho existente.
