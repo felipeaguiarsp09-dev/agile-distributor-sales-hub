@@ -5,7 +5,6 @@ import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { parseCsv } from "@/lib/csv";
 import { importErpData } from "@/lib/import.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { EmptyState, ErrorState, NoAccess, RowsSkeleton } from "@/components/shared";
@@ -57,16 +56,18 @@ function ImportPage() {
     if (!file || !profile) return;
     setBusy(true);
     try {
-      const rows = parseCsv(await file.text());
-      if (rows.length === 0) throw new Error("O arquivo não tem linhas para importar");
+      const safeName = file.name.replace(/[^\w.-]+/g, "_");
+      const path = `${profile.organization_id}/${entity}/${Date.now()}-${safeName}`;
+      const { error: upErr } = await supabase.storage.from("imports").upload(path, file, { contentType: "text/csv" });
+      if (upErr) throw new Error("Não foi possível enviar o arquivo");
       const { data: job, error } = await supabase
         .from("import_jobs")
-        .insert({ organization_id: profile.organization_id, entity_type: entity, file_url: file.name, created_by: profile.id })
+        .insert({ organization_id: profile.organization_id, entity_type: entity, file_url: path, created_by: profile.id })
         .select()
         .single();
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["import_jobs"] });
-      const res = await importErpData({ data: { import_job_id: job.id, rows } });
+      const res = await importErpData({ data: { import_job_id: job.id } });
       toast[res.status === "concluido" ? "success" : "error"](
         `${res.rows_imported} de ${res.rows_total} linhas importadas`,
       );
@@ -78,12 +79,13 @@ function ImportPage() {
       void qc.invalidateQueries({ queryKey: ["import_jobs"] });
       void qc.invalidateQueries({ queryKey: ["customers"] });
       void qc.invalidateQueries({ queryKey: ["products"] });
+      void qc.invalidateQueries({ queryKey: ["orders"] });
     }
   }
 
   return (
     <div className="mx-auto max-w-5xl">
-      <PageHeader title="Importação da base" description="Traga clientes e produtos da planilha ou do ERP. Reimportar atualiza pelo código do ERP, sem duplicar." />
+      <PageHeader title="Importação da base" description="Traga clientes, produtos e pedidos da planilha ou do ERP. Reimportar atualiza pelo código do ERP, sem duplicar." />
 
       <div className="grid gap-4 rounded-lg border bg-card p-5 shadow-card sm:grid-cols-[180px_1fr_auto] sm:items-end">
         <div className="space-y-2">
@@ -93,6 +95,7 @@ function ImportPage() {
             <SelectContent>
               <SelectItem value="customers">Clientes</SelectItem>
               <SelectItem value="products">Produtos</SelectItem>
+              <SelectItem value="orders">Pedidos</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -109,6 +112,7 @@ function ImportPage() {
         <summary className="cursor-pointer">Formato do arquivo</summary>
         <p className="mt-2"><strong>Clientes:</strong> codigo, nome, cnpj_cpf, email, telefone, endereco, cidade, uf, cep, limite_de_credito, situacao (ok/restrito/bloqueado), vendedor (nome completo; vazio = administrador).</p>
         <p className="mt-1"><strong>Produtos:</strong> codigo, sku, nome, descricao, categoria, preco, estoque, ecommerce (sim/não), ativo (sim/não).</p>
+        <p className="mt-1"><strong>Pedidos:</strong> uma linha por item — codigo_pedido, codigo_cliente, sku, quantidade, preco_unitario (vazio = preço do catálogo), data (dd/mm/aaaa), status (padrão faturado), desconto, vendedor. Importe clientes e produtos antes.</p>
         <p className="mt-1">Separador vírgula ou ponto e vírgula; valores como 1.234,56 são aceitos.</p>
       </details>
 
@@ -127,7 +131,7 @@ function ImportPage() {
               <div key={j.id} className="rounded-lg border bg-card p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{ENTITY_LABEL[j.entity_type]}</span>
-                  <span className="text-sm text-muted-foreground">{j.file_url}</span>
+                  <span className="text-sm text-muted-foreground">{j.file_url?.split("/").pop()?.replace(/^\d+-/, "")}</span>
                   <Badge variant={j.status === "erro" ? "destructive" : j.status === "concluido" ? "secondary" : "outline"} className="ml-auto">
                     {STATUS_LABEL[j.status]}
                   </Badge>

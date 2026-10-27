@@ -140,7 +140,7 @@ export const importErpData = createServerFn({ method: "POST" })
           const subtotal = items.reduce((s, it) => s + it.line_total, 0);
           const discount = Math.min(head.discount, subtotal);
           const { data: order, error } = await supabaseAdmin.from("orders").insert({
-            organization_id: org, customer_id: cust.id, seller_id: seller, origin: "importacao", status: head.status,
+            organization_id: org, customer_id: cust.id, seller_id: seller, origin: "vendedor", status: head.status,
             total_amount: Math.round((subtotal - discount) * 100) / 100, discount_amount: discount,
             erp_order_id: code, erp_sync_status: "sincronizado", ...(head.created_at ? { created_at: head.created_at } : {}),
           }).select("id").single();
