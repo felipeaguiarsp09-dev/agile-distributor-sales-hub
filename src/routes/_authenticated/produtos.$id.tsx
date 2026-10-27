@@ -103,7 +103,7 @@ function ProductDetail() {
         <EmptyState title="Sem previsão de demanda gerada ainda" />
       ) : (
         <div className="rounded-lg border bg-card p-5 text-sm">
-          <p className="text-xl font-bold">{forecast.data.forecast_quantity} unidades</p>
+          <p className="text-xl font-bold">{Number(forecast.data.forecast_quantity).toLocaleString("pt-BR")} unidades</p>
           <p className="text-muted-foreground">
             {new Date(forecast.data.period_start).toLocaleDateString("pt-BR")} a {new Date(forecast.data.period_end).toLocaleDateString("pt-BR")}
           </p>
