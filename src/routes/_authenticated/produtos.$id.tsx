@@ -41,8 +41,11 @@ function ProductDetail() {
   });
   const forecast = useQuery({
     queryKey: ["demand_forecasts", id],
-    queryFn: async () =>
-      (await supabase.from("demand_forecasts").select("*").eq("product_id", id).order("generated_at", { ascending: false }).limit(1)).data?.[0] ?? null,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("demand_forecasts").select("*").eq("product_id", id).order("generated_at", { ascending: false }).limit(1);
+      if (error) throw error;
+      return data?.[0] ?? null;
+    },
   });
 
   if (product.isLoading) return <div className="mx-auto max-w-4xl"><RowsSkeleton rows={4} /></div>;
