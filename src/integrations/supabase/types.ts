@@ -812,6 +812,17 @@ export type Database = {
           supervisor_id: string
         }[]
       }
+      get_sales_flow: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: {
+          orders_count: number
+          region: string
+          seller_id: string
+          seller_name: string
+          status: string
+          total_amount: number
+        }[]
+      }
       get_seller_indicators: {
         Args: { p_period: string; p_seller_id: string }
         Returns: Json

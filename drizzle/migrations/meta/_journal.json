@@ -36,6 +36,13 @@
       "when": 1793111792424,
       "tag": "0004_imports_storage_and_indicator_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793112377358,
+      "tag": "0005_sales_flow",
+      "breakpoints": true
     }
   ]
 }
