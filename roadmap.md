@@ -10,11 +10,11 @@
 - [ ] Conferir menu do cliente — aguardando criação da conta de cliente
 - [ ] Conferir isolamento de carteira — aguardando contas, vínculo de equipe e clientes de teste; página Clientes ainda em construção
 ## Fase 2 — Construção
-- [x] Importação da base (/admin/importacao + import-erp-data) — clientes e produtos; pedidos históricos entram com o módulo Pedidos
+- [x] Importação da base (/admin/importacao + import-erp-data) — clientes, produtos e pedidos; arquivo guardado no armazenamento
 - [x] Clientes e Produtos (listas, fichas, cadastro/edição pelo admin, carteira por papel)
 - [x] Pedidos (novo, detalhe, sugestão de IA, estoque, envio ao ERP)
 - [x] Menu: adicionar /admin/usuarios e /admin/integracoes (só admin); Configurações com nome e telefone
 - [x] Revisar /login: email+senha, link de acesso para cliente, redirecionamento por papel e acesso pelo RLS
-- [x] Indicadores (cards, gráfico, metas, análise da IA)
+- [ ] Indicadores — erro de carregamento corrigido; tela ainda sem teste completo
 - [ ] Fluxo de Vendas em tempo real
 - [ ] E-commerce, Agenda, /admin/usuarios, /admin/integracoes
