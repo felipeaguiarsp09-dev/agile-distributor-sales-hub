@@ -16,11 +16,28 @@ Continue developing this project in the [Lovable editor](https://lovable.dev/pro
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Prefer working locally? You need Node.js 20+ and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
 git clone <this-repository-url>
 cd <repository-name>
-npm i
+npm install
 npm run dev
 ```
+
+O app sobe em http://localhost:8080 e já aponta para o backend do Lovable Cloud via `.env` (variáveis `VITE_SUPABASE_*`). Sem o `.env`, o login não funciona.
+
+Outros comandos:
+
+```sh
+npm test          # testes (vitest run)
+npm run test:watch
+npm run lint
+npm run build     # build de produção
+npm run preview   # serve o build localmente
+```
+
+Observações:
+- O lockfile do projeto é `bun.lock`; com npm ele é ignorado e o npm gera um `package-lock.json` próprio — as versões podem variar levemente. Para reproduzir exatamente o ambiente do Lovable, use `bun install`.
+- As rotas de tarefas agendadas (`/api/public/jobs/*`) exigem a variável `LOVABLE_CRON_SECRET` no ambiente; sem ela, respondem 401 localmente.
+- Os webhooks de pagamento e as tarefas agendadas só disparam no ambiente publicado.
