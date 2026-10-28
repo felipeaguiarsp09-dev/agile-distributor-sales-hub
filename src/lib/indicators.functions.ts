@@ -13,7 +13,8 @@ export const getDashboardIndicators = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: indicators, error } = await context.supabase.rpc("get_seller_indicators", {
       p_period: data.period,
-      ...(data.seller_id ? { p_seller_id: data.seller_id } : {}),
+      // Generated RPC types omit SQL nullability; null means the user's full permitted scope.
+      p_seller_id: data.seller_id as string,
     });
     if (error) throw new Error(error.message);
     if (!indicators) throw new Error("Não foi possível carregar os indicadores");

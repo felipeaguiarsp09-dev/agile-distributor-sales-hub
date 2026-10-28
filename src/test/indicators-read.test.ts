@@ -26,7 +26,7 @@ describe("Dashboard authenticated first read", () => {
     const metrics = { meta: 6000, vendas_mes: 31.5, ticket_medio: 10.5, pedidos_count: 3, daily: [] };
     rpc.mockResolvedValue({ data: metrics, error: null });
     expect(await getDashboardIndicators({ data: { period: "2026-10", seller_id: null } })).toEqual(metrics);
-    expect(rpc).toHaveBeenCalledExactlyOnceWith("get_seller_indicators", { p_period: "2026-10" });
+    expect(rpc).toHaveBeenCalledExactlyOnceWith("get_seller_indicators", { p_period: "2026-10", p_seller_id: null });
   });
   it("propagates the first RPC failure instead of retrying or showing empty metrics", async () => {
     rpc.mockResolvedValue({ data: null, error: { message: "Read failed" } });
