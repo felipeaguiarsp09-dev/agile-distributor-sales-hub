@@ -7,13 +7,15 @@ import { Button } from "@/components/ui/button";
 export const PasswordInput = forwardRef<HTMLInputElement, ComponentProps<"input">>(
   function PasswordInput(props, ref) {
     const [visible, setVisible] = useState(false);
+    // O tipo controlado pelo olho vence: ignora qualquer "type" recebido.
+    const { type: _ignoredType, ...rest } = props;
     return (
       <div className="relative">
         <Input
           ref={ref}
           type={visible ? "text" : "password"}
           className="pr-11"
-          {...props}
+          {...rest}
         />
         <Button
           type="button"
