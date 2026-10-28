@@ -10,7 +10,13 @@ export const PasswordInput = forwardRef<HTMLInputElement, ComponentProps<"input"
     // O tipo controlado pelo olho vence: ignora qualquer "type" recebido.
     const { type: _ignoredType, ...rest } = props;
     return (
-      <div className="relative">
+      <div
+        className="relative"
+        // Ao sair do campo (clicando fora ou tabulando), esconde de novo.
+        onBlurCapture={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget)) setVisible(false);
+        }}
+      >
         <Input
           ref={ref}
           type={visible ? "text" : "password"}
@@ -24,6 +30,8 @@ export const PasswordInput = forwardRef<HTMLInputElement, ComponentProps<"input"
           className="absolute right-0.5 top-1/2 h-8 w-8 -translate-y-1/2 p-0 text-muted-foreground hover:text-foreground"
           aria-label={visible ? "Ocultar senha" : "Mostrar senha"}
           aria-pressed={visible}
+          // Evita tirar o foco do campo: clicar no olho não conta como sair do campo.
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => setVisible((v) => !v)}
         >
           {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
