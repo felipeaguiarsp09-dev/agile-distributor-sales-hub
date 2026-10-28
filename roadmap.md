@@ -1,5 +1,6 @@
 # Dcalice — roadmap
 ## Fase 1 — Fundação
+- [ ] Recuperação de senha: exigir segundo código por email e verificar a proteção no serviço de autenticação
 - [x] Projeto ligado ao Lovable Cloud
 - [x] Banco de db/schemas.sql com regras de acesso
 - [x] Login email/senha + link de acesso + redirecionamento por papel
