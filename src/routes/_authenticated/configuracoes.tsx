@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ROLE_LABEL, useAuth, type Role } from "@/lib/auth";
 import { PageHeader } from "@/components/ModulePage";
+import { PasswordInput } from "@/components/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -116,7 +117,7 @@ function Settings() {
             <form onSubmit={savePassword} className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="flex-1 space-y-1.5">
                 <Label htmlFor="pw">Nova senha</Label>
-                <Input id="pw" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <PasswordInput id="pw" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
               <Button type="submit" variant="secondary" disabled={savingPw}>
                 {savingPw && <Loader2 className="h-4 w-4 animate-spin" />} Alterar senha
