@@ -32,3 +32,4 @@
 - [x] Logo: marca da Dcalice no app e no ícone, sem texto e sem borda
 - [x] Botões principais com mais contraste no tema grafite
 - [x] Menu lateral com grafite mais claro, tema monocromático mantido
+- [ ] Logo: marca em branco (no app e no ícone da aba)
