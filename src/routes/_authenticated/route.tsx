@@ -45,8 +45,7 @@ function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
   );
 }
 
-function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
-  const { profile, organizationName } = useAuth();
+function SignOutButton({ className }: { className?: string }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   async function handleSignOut() {
@@ -56,7 +55,16 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
     navigate({ to: "/login", replace: true });
   }
   return (
-    <div className="flex h-full flex-col gap-6 p-4">
+    <button onClick={handleSignOut} className={className}>
+      <LogOut className="h-4 w-4" /> Sair
+    </button>
+  );
+}
+
+function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
+  const { profile, organizationName } = useAuth();
+  return (
+    <div className="flex h-full flex-col gap-6 overflow-y-auto p-4">
       <div className="px-2 pt-2">
         <Brand inverted />
       </div>
@@ -88,12 +96,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
             {profile ? ROLE_LABEL[profile.role as Role] : ""} · {organizationName}
           </p>
         </div>
-        <button
-          onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-        >
-          <LogOut className="h-4 w-4" /> Sair
-        </button>
+        <SignOutButton className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
       </div>
     </div>
   );

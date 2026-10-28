@@ -25,9 +25,9 @@ const DESC = "Meta, vendas do mês e ticket médio com análise da IA.";
 export const Route = createFileRoute("/_authenticated/indicadores")({
   head: () => ({
     meta: [
-      { title: "Indicadores — Dcalice" },
+      { title: "Dashboard — Dcalice" },
       { name: "description", content: DESC },
-      { property: "og:title", content: "Indicadores — Dcalice" },
+      { property: "og:title", content: "Dashboard — Dcalice" },
       { property: "og:description", content: DESC },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -110,7 +110,7 @@ function IndicatorsPage() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <PageHeader title="Indicadores" description={DESC} />
+      <PageHeader title="Dashboard" description={DESC} />
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <Select value={period} onValueChange={setPeriod}>
