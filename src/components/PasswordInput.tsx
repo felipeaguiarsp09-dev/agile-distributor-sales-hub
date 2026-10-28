@@ -1,10 +1,10 @@
-import { forwardRef, useState } from "react";
+import { forwardRef, useState, type ComponentProps } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { Input, type InputProps } from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 /** Campo de senha com botão de olho para mostrar/ocultar o valor digitado. */
-export const PasswordInput = forwardRef<HTMLInputElement, InputProps>(
+export const PasswordInput = forwardRef<HTMLInputElement, ComponentProps<"input">>(
   function PasswordInput(props, ref) {
     const [visible, setVisible] = useState(false);
     return (
