@@ -87,7 +87,7 @@ function LoginPage() {
             Indicadores, pedidos, clientes, produtos, e-commerce e agenda em uma única interface.
           </p>
         </div>
-        <p className="text-sm text-sidebar-foreground/50">Força de vendas para distribuidoras</p>
+        <p className="text-sm text-sidebar-foreground/70">Força de vendas para distribuidoras</p>
       </aside>
 
       <main className="flex flex-col items-center justify-center px-5 py-10">

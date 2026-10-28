@@ -30,3 +30,6 @@
 - [x] Confirmar payment-webhook atualizando status
 - [ ] Publicar e testar no ambiente publicado (login dos papéis, importação, pedido com IA, aprovação, compra)
 - [x] Logo: marca da Dcalice no app e no ícone, sem texto e sem borda
+- [x] Botões principais com mais contraste no tema grafite
+- [x] Menu lateral com grafite mais claro, tema monocromático mantido
+- [x] Logo: marca em branco (no app e no ícone da aba)
