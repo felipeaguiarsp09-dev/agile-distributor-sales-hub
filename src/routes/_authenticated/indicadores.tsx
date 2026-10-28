@@ -7,8 +7,8 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { currentPeriod, insightScope, lastPeriods, progressPct, type Indicators } from "@/lib/indicators";
-import { generateIndicatorInsight } from "@/lib/indicators.functions";
+import { currentPeriod, insightScope, lastPeriods, progressPct } from "@/lib/indicators";
+import { generateIndicatorInsight, getDashboardIndicators } from "@/lib/indicators.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { ErrorState, NoAccess, brl } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -43,9 +43,10 @@ const periodLabel = (p: string) => {
 };
 
 function IndicatorsPage() {
-  const { profile } = useAuth();
+  const { profile, ready, session } = useAuth();
   const qc = useQueryClient();
   const insightFn = useServerFn(generateIndicatorInsight);
+  const indicatorsFn = useServerFn(getDashboardIndicators);
   const [period, setPeriod] = useState(currentPeriod());
   const [seller, setSeller] = useState<string>(ALL);
   const [generating, setGenerating] = useState(false);
@@ -53,6 +54,7 @@ function IndicatorsPage() {
   const role = profile?.role;
   const isManager = role === "supervisor" || role === "administrador";
   const sellerId = seller === ALL ? null : seller;
+  const indicatorsReady = ready && !!profile && session?.user.id === profile.id && role !== "cliente";
 
   const sellers = useQuery({
     queryKey: ["indicator-sellers", role, profile?.id],
@@ -67,14 +69,12 @@ function IndicatorsPage() {
   });
 
   const ind = useQuery({
-    queryKey: ["indicators", period, sellerId],
-    enabled: !!profile && role !== "cliente",
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_seller_indicators", { p_seller_id: sellerId as string, p_period: period });
-      if (error) throw error;
-      return data as unknown as Indicators;
-    },
+    queryKey: ["indicators", profile?.id, period, sellerId],
+    enabled: indicatorsReady,
+    retry: false,
+    queryFn: () => indicatorsFn({ data: { period, seller_id: sellerId } }),
   });
+  const indicatorsLoading = !indicatorsReady || ind.isPending;
 
   const scope = profile && role !== "cliente" ? insightScope(role, profile.id, sellerId) : null;
   const insight = useQuery({
@@ -139,9 +139,9 @@ function IndicatorsPage() {
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-3">
-            <Kpi label="Meta" value={d && d.meta > 0 ? brl(d.meta) : null} loading={ind.isLoading} />
-            <Kpi label="Vendas do mês" value={d && !empty ? brl(d.vendas_mes) : null} hint={d && d.pedidos_count ? `${d.pedidos_count} pedido(s) aprovado(s)/faturado(s)` : undefined} loading={ind.isLoading} />
-            <Kpi label="Ticket médio" value={d && d.pedidos_count > 0 ? brl(d.ticket_medio) : null} loading={ind.isLoading} />
+            <Kpi label="Meta" value={d && d.meta > 0 ? brl(d.meta) : null} loading={indicatorsLoading} />
+            <Kpi label="Vendas do mês" value={d && !empty ? brl(d.vendas_mes) : null} hint={d && d.pedidos_count ? `${d.pedidos_count} pedido(s) aprovado(s)/faturado(s)` : undefined} loading={indicatorsLoading} />
+            <Kpi label="Ticket médio" value={d && d.pedidos_count > 0 ? brl(d.ticket_medio) : null} loading={indicatorsLoading} />
           </div>
 
           <section className="mt-4 rounded-lg border bg-card p-5">
@@ -149,9 +149,9 @@ function IndicatorsPage() {
               <span className="font-semibold">Meta × realizado</span>
               <span className="tabular-nums text-muted-foreground">{d && d.meta > 0 ? `${pct}%` : "Sem meta no período"}</span>
             </div>
-            {ind.isLoading ? <Skeleton className="h-3 w-full" /> : <Progress value={Math.min(pct, 100)} />}
+            {indicatorsLoading ? <Skeleton className="h-3 w-full" /> : <Progress value={Math.min(pct, 100)} />}
             <h2 className="mb-2 mt-6 text-sm font-semibold">Vendas por dia</h2>
-            {ind.isLoading ? (
+            {indicatorsLoading ? (
               <Skeleton className="h-56 w-full" />
             ) : d && d.daily.length > 0 ? (
               <ChartContainer config={{ total: { label: "Vendas", color: "var(--primary)" } }} className="h-56 w-full">
@@ -174,7 +174,7 @@ function IndicatorsPage() {
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />
           <h2 className="flex-1 font-semibold">Análise da IA</h2>
-          <Button size="sm" variant="outline" disabled={generating || ind.isLoading} onClick={generate}>
+          <Button size="sm" variant="outline" disabled={generating || indicatorsLoading || ind.isError} onClick={generate}>
             {generating && <Loader2 className="h-4 w-4 animate-spin" />} {insight.data ? "Atualizar análise" : "Gerar análise"}
           </Button>
         </div>
