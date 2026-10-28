@@ -1,5 +1,6 @@
 # Dcalice — roadmap
 ## Fase 1 — Fundação
+- [ ] Recuperação de senha com segundo código por email — bloqueada: a autenticação permite trocar a senha em sessões recentes sem validar o código; não implementar barreira apenas visual
 - [x] Projeto ligado ao Lovable Cloud
 - [x] Banco de db/schemas.sql com regras de acesso
 - [x] Login email/senha + link de acesso + redirecionamento por papel
