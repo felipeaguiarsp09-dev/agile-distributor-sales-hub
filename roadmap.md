@@ -11,6 +11,7 @@
 - [ ] Conferir menu do cliente — aguardando criação da conta de cliente
 - [ ] Conferir isolamento de carteira — aguardando contas, vínculo de equipe e clientes de teste; página Clientes ainda em construção
 ## Fase 2 — Construção
+- [ ] Dashboard: primeira consulta autenticada sem depender de repetição; preservar carregamento e erro
 - [x] Importação da base (/admin/importacao + import-erp-data) — clientes, produtos e pedidos; arquivo guardado no armazenamento
 - [x] Clientes e Produtos (listas, fichas, cadastro/edição pelo admin, carteira por papel)
 - [x] Pedidos (novo, detalhe, sugestão de IA, estoque, envio ao ERP)

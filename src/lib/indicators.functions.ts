@@ -3,6 +3,23 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { insightScope, type Indicators } from "./indicators";
 
+/** Read through the verified request client, never a browser session in transition. */
+export const getDashboardIndicators = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({
+    period: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+    seller_id: z.string().uuid().nullable(),
+  }))
+  .handler(async ({ data, context }) => {
+    const { data: indicators, error } = await context.supabase.rpc("get_seller_indicators", {
+      p_period: data.period,
+      ...(data.seller_id ? { p_seller_id: data.seller_id } : {}),
+    });
+    if (error) throw new Error(error.message);
+    if (!indicators) throw new Error("Não foi possível carregar os indicadores");
+    return indicators as unknown as Indicators;
+  });
+
 /** generate-indicator-insight: leitura analítica dos indicadores pela IA, gravada em indicator_insights. */
 export const generateIndicatorInsight = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
