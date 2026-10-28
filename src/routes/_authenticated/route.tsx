@@ -151,6 +151,7 @@ function AppShell() {
             <Menu className="h-5 w-5" />
           </Button>
           <Brand />
+          <SignOutButton className="ml-auto inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent" />
         </header>
         <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
           <Outlet />
