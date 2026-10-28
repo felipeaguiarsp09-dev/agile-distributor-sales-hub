@@ -6,6 +6,7 @@ import { homeForRole, useAuth } from "@/lib/auth";
 import { Brand } from "@/components/Brand";
 import { PasswordInput } from "@/components/PasswordInput";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
