@@ -3,7 +3,7 @@ import logoMark from "@/assets/dcalice-logo-mark.png";
 export function Brand({ inverted = false }: { inverted?: boolean }) {
   return (
     <div className="flex items-center gap-2.5">
-      <span className="flex h-9 shrink-0 items-center rounded-md bg-primary px-2">
+      <span className="flex h-9 shrink-0 items-center rounded-md bg-card px-2 ring-1 ring-border">
         <img
           src={logoMark}
           alt=""
