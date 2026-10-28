@@ -28,7 +28,7 @@ const INTERNAL: Role[] = ["vendedor", "supervisor", "administrador"];
 
 /** Os 7 módulos do menu, na ordem definida em docs/PAGINAS.md. */
 export const MODULES: ModuleItem[] = [
-  { to: "/indicadores", label: "Indicadores", icon: BarChart3, roles: INTERNAL },
+  { to: "/indicadores", label: "Dashboard", icon: BarChart3, roles: INTERNAL },
   { to: "/fluxo-de-vendas", label: "Fluxo de Vendas", icon: KanbanSquare, roles: INTERNAL },
   { to: "/pedidos", label: "Pedidos", icon: ShoppingCart, roles: INTERNAL },
   { to: "/clientes", label: "Clientes", icon: Users, roles: INTERNAL },

@@ -34,3 +34,5 @@
 - [x] Botões principais com mais contraste no tema grafite
 - [x] Menu lateral com grafite mais claro, tema monocromático mantido
 - [x] Logo: marca em branco (no app e no ícone da aba)
+- [x] Menu: "Indicadores" renomeado para "Dashboard" (menu, título da tela e aba do navegador)
+- [x] Botão "Sair" no topo no celular e sempre visível no menu lateral (lista rola, rodapé fixo)
