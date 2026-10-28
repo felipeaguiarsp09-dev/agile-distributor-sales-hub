@@ -4,8 +4,8 @@ import { Loader2, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { homeForRole, useAuth } from "@/lib/auth";
 import { Brand } from "@/components/Brand";
+import { PasswordInput } from "@/components/PasswordInput";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -131,7 +131,7 @@ function LoginPage() {
                     Esqueci minha senha
                   </button>
                 </div>
-                <Input
+                <PasswordInput
                   id="password"
                   type="password"
                   autoComplete="current-password"
