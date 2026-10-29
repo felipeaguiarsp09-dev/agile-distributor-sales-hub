@@ -17,6 +17,7 @@ import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedEcommerceRouteImport } from './routes/_authenticated/ecommerce'
 import { Route as AuthenticatedFluxoDeVendasRouteImport } from './routes/_authenticated/fluxo-de-vendas'
+import { Route as AuthenticatedHistoricoRouteImport } from './routes/_authenticated/historico'
 import { Route as AuthenticatedIndicadoresRouteImport } from './routes/_authenticated/indicadores'
 import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated/admin.importacao'
@@ -78,6 +79,11 @@ const AuthenticatedFluxoDeVendasRoute =
     path: '/fluxo-de-vendas',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedHistoricoRoute = AuthenticatedHistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedIndicadoresRoute =
   AuthenticatedIndicadoresRouteImport.update({
     id: '/indicadores',
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/ecommerce': typeof AuthenticatedEcommerceRoute
   '/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
+  '/historico': typeof AuthenticatedHistoricoRoute
   '/indicadores': typeof AuthenticatedIndicadoresRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -224,6 +231,7 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/ecommerce': typeof AuthenticatedEcommerceRoute
   '/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
+  '/historico': typeof AuthenticatedHistoricoRoute
   '/indicadores': typeof AuthenticatedIndicadoresRoute
   '/metas': typeof AuthenticatedMetasRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -254,6 +262,7 @@ export interface FileRoutesById {
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/ecommerce': typeof AuthenticatedEcommerceRoute
   '/_authenticated/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
+  '/_authenticated/historico': typeof AuthenticatedHistoricoRoute
   '/_authenticated/indicadores': typeof AuthenticatedIndicadoresRoute
   '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -284,6 +293,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/ecommerce'
     | '/fluxo-de-vendas'
+    | '/historico'
     | '/indicadores'
     | '/metas'
     | '/admin/importacao'
@@ -312,6 +322,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/ecommerce'
     | '/fluxo-de-vendas'
+    | '/historico'
     | '/indicadores'
     | '/metas'
     | '/admin/importacao'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/_authenticated/configuracoes'
     | '/_authenticated/ecommerce'
     | '/_authenticated/fluxo-de-vendas'
+    | '/_authenticated/historico'
     | '/_authenticated/indicadores'
     | '/_authenticated/metas'
     | '/_authenticated/admin/importacao'
@@ -429,6 +441,13 @@ declare module '@tanstack/react-router' {
       path: '/fluxo-de-vendas'
       fullPath: '/fluxo-de-vendas'
       preLoaderRoute: typeof AuthenticatedFluxoDeVendasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/historico': {
+      id: '/_authenticated/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof AuthenticatedHistoricoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/indicadores': {
@@ -572,6 +591,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedEcommerceRoute: typeof AuthenticatedEcommerceRoute
   AuthenticatedFluxoDeVendasRoute: typeof AuthenticatedFluxoDeVendasRoute
+  AuthenticatedHistoricoRoute: typeof AuthenticatedHistoricoRoute
   AuthenticatedIndicadoresRoute: typeof AuthenticatedIndicadoresRoute
   AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
@@ -594,6 +614,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedEcommerceRoute: AuthenticatedEcommerceRoute,
   AuthenticatedFluxoDeVendasRoute: AuthenticatedFluxoDeVendasRoute,
+  AuthenticatedHistoricoRoute: AuthenticatedHistoricoRoute,
   AuthenticatedIndicadoresRoute: AuthenticatedIndicadoresRoute,
   AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
