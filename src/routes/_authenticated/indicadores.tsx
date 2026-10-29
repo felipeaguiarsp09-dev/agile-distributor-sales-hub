@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { subscribeDashboardOrders } from "@/lib/dashboard-realtime";
-import { currentPeriod, insightScope, lastPeriods, progressPct, unmetTargets } from "@/lib/indicators";
+import { currentPeriod, insightScope, lastPeriods, lastUpdatedLabel, progressPct, unmetTargets } from "@/lib/indicators";
 import { generateIndicatorInsight, getDashboardIndicators, getUnservedCustomers } from "@/lib/indicators.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { ErrorState, NoAccess, brl } from "@/components/shared";
@@ -154,6 +154,7 @@ function IndicatorsPage() {
         )}
         {isManager && <Button variant="outline" asChild><Link to="/metas"><Target className="h-4 w-4" /> Metas mensais</Link></Button>}
         <span className="text-sm text-muted-foreground">{scopeLabel}</span>
+        {!indicatorsLoading && <span className="ml-auto text-xs text-muted-foreground">{lastUpdatedLabel(ind.dataUpdatedAt)}</span>}
       </div>
 
       {ind.isError ? (
