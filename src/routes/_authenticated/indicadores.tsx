@@ -154,7 +154,12 @@ function IndicatorsPage() {
         )}
         {isManager && <Button variant="outline" asChild><Link to="/metas"><Target className="h-4 w-4" /> Metas mensais</Link></Button>}
         <span className="text-sm text-muted-foreground">{scopeLabel}</span>
-        {!indicatorsLoading && <span className="ml-auto text-xs text-muted-foreground">{lastUpdatedLabel(ind.dataUpdatedAt)}</span>}
+        {!indicatorsLoading && (
+          <span className="ml-auto flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite">
+            {ind.isFetching && <Loader2 className="h-3 w-3 animate-spin" aria-label="Atualizando" />}
+            {lastUpdatedLabel(ind.dataUpdatedAt)}
+          </span>
+        )}
       </div>
 
       {ind.isError ? (
