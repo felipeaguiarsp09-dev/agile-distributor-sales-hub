@@ -4,6 +4,10 @@ export type Indicators = {
   ticket_medio: number;
   pedidos_count: number;
   daily: { day: string; total: number }[];
+  clientes_atendidos: number;
+  meta_clientes: number | null;
+  clientes_a_atender: number | null;
+  visitas_realizadas: number;
 };
 
 export type InsightScope = { scope: "vendedor" | "equipe" | "global"; scope_ref_id: string | null };
