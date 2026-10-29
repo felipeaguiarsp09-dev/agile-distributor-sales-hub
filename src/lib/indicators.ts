@@ -47,3 +47,9 @@ export function unmetTargets(d: Indicators | null | undefined): UnmetTargets {
     visits: d.meta_visitas != null && d.visitas_realizadas < d.meta_visitas ? Math.max(d.meta_visitas - d.visitas_realizadas, 0) : null,
   };
 }
+
+/** Rótulo do horário da última leitura bem-sucedida dos indicadores (null quando ainda não há leitura). */
+export function lastUpdatedLabel(dataUpdatedAt: number | undefined): string | null {
+  if (!dataUpdatedAt) return null;
+  return `Atualizado às ${new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+}
