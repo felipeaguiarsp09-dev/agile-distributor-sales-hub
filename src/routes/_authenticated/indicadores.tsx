@@ -163,7 +163,7 @@ function IndicatorsPage() {
         )}
       </div>
 
-      {ind.isError ? (
+      {ind.isError && !ind.data ? (
         <ErrorState message="Não foi possível carregar os indicadores" onRetry={() => ind.refetch()} />
       ) : (
         <>
