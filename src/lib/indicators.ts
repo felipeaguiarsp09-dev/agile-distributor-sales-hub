@@ -33,3 +33,15 @@ export function lastPeriods(n: number, d = new Date()) {
 export function progressPct(meta: number, vendas: number) {
   return meta > 0 ? Math.round((vendas / meta) * 100) : 0;
 }
+
+export type UnmetTargets = { sales: number | null; customers: number | null; visits: number | null };
+
+/** Quanto falta em cada meta do período (null = meta atingida ou não definida). */
+export function unmetTargets(d: Indicators | null | undefined): UnmetTargets {
+  if (!d) return { sales: null, customers: null, visits: null };
+  return {
+    sales: d.meta > 0 && d.vendas_mes < d.meta ? d.meta - d.vendas_mes : null,
+    customers: d.meta_clientes != null && d.clientes_atendidos < d.meta_clientes ? Math.max(d.meta_clientes - d.clientes_atendidos, 0) : null,
+    visits: d.meta_visitas != null && d.visitas_realizadas < d.meta_visitas ? Math.max(d.meta_visitas - d.visitas_realizadas, 0) : null,
+  };
+}
