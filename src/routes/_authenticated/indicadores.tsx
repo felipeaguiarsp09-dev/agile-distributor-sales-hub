@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Loader2, Sparkles, Target } from "lucide-react";
+import { Loader2, ShoppingCart, Sparkles, Target } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -288,11 +288,17 @@ function UnservedDialog({ open, onOpenChange, period, query }: { open: boolean; 
         ) : (
           <ul className="divide-y rounded-lg border">
             {query.data.map((c) => (
-              <li key={c.id}>
-                <Link to="/clientes/$id" params={{ id: c.id }} className="block px-4 py-3 transition-colors hover:bg-accent/60">
-                  <p className="text-sm font-medium">{c.name}</p>
-                  <p className="text-xs text-muted-foreground">{[c.cnpj_cpf, c.phone].filter(Boolean).join(" · ") || "Sem contato cadastrado"}</p>
+              <li key={c.id} className="flex items-center gap-2 px-4 py-3">
+                <Link to="/clientes/$id" params={{ id: c.id }} className="min-w-0 flex-1 transition-colors hover:opacity-80">
+                  <p className="truncate text-sm font-medium">{c.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">{[c.cnpj_cpf, c.phone].filter(Boolean).join(" · ") || "Sem contato cadastrado"}</p>
                 </Link>
+                <Button asChild size="sm" variant="outline" className="shrink-0">
+                  <Link to="/pedidos/novo" search={{ cliente: c.id }} aria-label={`Novo pedido para ${c.name}`}>
+                    <ShoppingCart className="h-4 w-4" />
+                    Novo pedido
+                  </Link>
+                </Button>
               </li>
             ))}
           </ul>
