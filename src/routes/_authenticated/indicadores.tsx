@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { currentPeriod, insightScope, lastPeriods, progressPct, unmetTargets } from "@/lib/indicators";
-import { generateIndicatorInsight, getDashboardIndicators } from "@/lib/indicators.functions";
+import { generateIndicatorInsight, getDashboardIndicators, getUnservedCustomers } from "@/lib/indicators.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { ErrorState, NoAccess, brl } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,7 @@ function IndicatorsPage() {
   const [seller, setSeller] = useState<string>(ALL);
   const [generating, setGenerating] = useState(false);
   const [metaOpen, setMetaOpen] = useState(false);
+  const [unservedOpen, setUnservedOpen] = useState(false);
   const role = profile?.role;
   const isManager = role === "supervisor" || role === "administrador";
   const sellerId = seller === ALL ? null : seller;
