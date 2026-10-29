@@ -112,6 +112,7 @@ function NewOrder() {
   const [customerId, setCustomerId] = useState(search.cliente ?? "");
   const [customerOpen, setCustomerOpen] = useState(false);
   const [customerQuery, setCustomerQuery] = useState("");
+  const customerSearchRef = useRef<HTMLInputElement>(null);
   const [lines, setLines] = useState<CartLine[]>([]);
   const [discount, setDiscount] = useState(0);
   const [notes, setNotes] = useState("");
