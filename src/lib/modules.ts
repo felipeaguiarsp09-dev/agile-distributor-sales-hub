@@ -6,6 +6,7 @@ import {
   ShoppingBag,
   ShoppingCart,
   Users,
+  Target,
   type LucideIcon,
 } from "lucide-react";
 import type { Role } from "./auth";
@@ -18,7 +19,8 @@ export type ModuleItem = {
     | "/clientes"
     | "/produtos"
     | "/ecommerce"
-    | "/agenda";
+    | "/agenda"
+    | "/metas";
   label: string;
   icon: LucideIcon;
   roles: Role[];
@@ -35,6 +37,7 @@ export const MODULES: ModuleItem[] = [
   { to: "/produtos", label: "Produtos", icon: Package, roles: INTERNAL },
   { to: "/ecommerce", label: "E-commerce", icon: ShoppingBag, roles: [...INTERNAL, "cliente"] },
   { to: "/agenda", label: "Agenda", icon: CalendarDays, roles: INTERNAL },
+  { to: "/metas", label: "Metas mensais", icon: Target, roles: ["administrador", "supervisor"] },
 ];
 
 export function modulesForRole(role: string | null | undefined) {

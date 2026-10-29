@@ -756,6 +756,7 @@ export type Database = {
           seller_id: string
           target_amount: number
           updated_at: string
+          visit_target: number | null
         }
         Insert: {
           created_at?: string
@@ -766,6 +767,7 @@ export type Database = {
           seller_id: string
           target_amount?: number
           updated_at?: string
+          visit_target?: number | null
         }
         Update: {
           created_at?: string
@@ -776,6 +778,7 @@ export type Database = {
           seller_id?: string
           target_amount?: number
           updated_at?: string
+          visit_target?: number | null
         }
         Relationships: [
           {
