@@ -157,12 +157,13 @@ function IndicatorsPage() {
         {!indicatorsLoading && (
           <span className="ml-auto flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite">
             {ind.isFetching && <Loader2 className="h-3 w-3 animate-spin" aria-label="Atualizando" />}
+            {ind.isError && ind.data && <span className="text-destructive">Falha na atualização · mostrando dados anteriores</span>}
             {lastUpdatedLabel(ind.dataUpdatedAt)}
           </span>
         )}
       </div>
 
-      {ind.isError ? (
+      {ind.isError && !ind.data ? (
         <ErrorState message="Não foi possível carregar os indicadores" onRetry={() => ind.refetch()} />
       ) : (
         <>
