@@ -46,4 +46,30 @@ describe.skipIf(!sessionFile)("live Dashboard coverage rules", () => {
       expect(restore.error).toBeNull();
     }
   });
+
+  it("lists exactly the portfolio customers without an approved/invoiced order in the month", async () => {
+    if (!sessionFile) return;
+    const minted = JSON.parse(readFileSync(sessionFile, "utf8"));
+    const sb = createClient(import.meta.env['VITE_SUPABASE_URL'], import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'], {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: { headers: { Authorization: `Bearer ${minted.session.access_token}` } },
+    });
+    const sellerId = minted.session.user.id;
+    const period = currentPeriod();
+    const from = `${period}-01T00:00:00Z`;
+    const to = new Date(from);
+    to.setUTCMonth(to.getUTCMonth() + 1);
+    const [portfolio, orders, unserved] = await Promise.all([
+      sb.from("customers").select("id").eq("owner_id", sellerId),
+      sb.from("orders").select("customer_id,status").eq("seller_id", sellerId).gte("created_at", from).lt("created_at", to.toISOString()),
+      sb.rpc("get_unserved_customers", { p_seller_id: sellerId, p_period: period }),
+    ]);
+    expect(portfolio.error).toBeNull();
+    expect(orders.error).toBeNull();
+    expect(unserved.error).toBeNull();
+    const served = new Set((orders.data ?? []).filter(o => o.status === "aprovado" || o.status === "faturado").map(o => o.customer_id));
+    const expected = (portfolio.data ?? []).filter(c => !served.has(c.id)).map(c => c.id).sort();
+    const actual = (unserved.data as unknown as { id: string }[]).map(c => c.id).sort();
+    expect(actual).toEqual(expected);
+  });
 });
