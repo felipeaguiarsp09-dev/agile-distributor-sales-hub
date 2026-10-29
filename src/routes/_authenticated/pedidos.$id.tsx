@@ -1,12 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ArrowLeft, Check, Pencil, RefreshCw, Sparkles, X } from "lucide-react";
+import { ArrowLeft, Check, Copy, Pencil, RefreshCw, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber } from "@/lib/orders";
+import { canCreateOrder, ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber } from "@/lib/orders";
 import { pushOrderToErp } from "@/lib/orders.functions";
 import { ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,7 @@ const STEPS = ["rascunho", "aguardando_aprovacao", "aprovado", "faturado"];
 function OrderDetail() {
   const { id } = Route.useParams();
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const pushFn = useServerFn(pushOrderToErp);
   const [busy, setBusy] = useState(false);
@@ -40,7 +41,7 @@ function OrderDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("*, customers(id, name), seller:profiles!orders_seller_id_fkey(full_name), approver:profiles!orders_approved_by_fkey(full_name), order_items(id, quantity, unit_price, line_total, was_ai_suggested, products(name, sku))")
+        .select("*, customers(id, name), seller:profiles!orders_seller_id_fkey(full_name), approver:profiles!orders_approved_by_fkey(full_name), order_items(id, product_id, quantity, unit_price, line_total, was_ai_suggested, products(name, sku))")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
