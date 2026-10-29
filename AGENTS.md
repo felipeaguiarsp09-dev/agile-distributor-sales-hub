@@ -10,6 +10,8 @@
 <!-- LOVABLE:END -->
 
 ## Project rules
+- Customer coverage and completed visits extend the existing RLS-invoker dashboard RPC; customer goals are nullable monthly sales-target fields. Why: preserves the first-read flow and seller isolation.
+- Order quantity buttons share one control and functional cart updates; client history uses a paginated rolling calendar-month window. Why: consistent fast editing and complete permission-scoped history.
 - Dashboard metric reads use an authenticated server function with the verified request client and user-scoped cache keys; initial failures surface without automatic retries so session transitions cannot be masked by a second request.
 - Do not implement email reauthentication as a mandatory recovery security boundary using only a UI gate or updateUser nonce; Cloud Auth skips nonce validation for recent sessions. Why: recovery creates a recent session and direct password updates could bypass the code.
 - The package docs (SKILL.md, db/schemas.sql, docs/*) are the spec; the database schema mirrors db/schemas.sql plus table GRANTs. Why: the user treats them as the single source of truth.

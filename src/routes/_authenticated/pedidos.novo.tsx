@@ -1,12 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
-import { AlertTriangle, Loader2, Minus, Plus, Search, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertTriangle, Loader2, Package, Search, ShoppingBag, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { canCreateOrder, cartTotals, type CartLine } from "@/lib/orders";
+import { canCreateOrder, cartTotals, changeCartQuantity, type CartLine } from "@/lib/orders";
 import { submitOrder, suggestProducts, validateOrderStock } from "@/lib/orders.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { CreditBadge, ErrorState, NoAccess, RowsSkeleton, brl } from "@/components/shared";
@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { QuantityControl } from "@/components/QuantityControl";
 import { Textarea } from "@/components/ui/textarea";
 
 type Search = { cliente?: string | undefined; rascunho?: string | undefined };
@@ -48,6 +49,7 @@ function NewOrder() {
   const validateFn = useServerFn(validateOrderStock);
   const submitFn = useServerFn(submitOrder);
 
+  const cartRef = useRef<HTMLElement>(null);
   const [customerId, setCustomerId] = useState(search.cliente ?? "");
   const [lines, setLines] = useState<CartLine[]>([]);
   const [discount, setDiscount] = useState(0);
@@ -71,7 +73,7 @@ function NewOrder() {
   const products = useQuery({
     queryKey: ["products", "active"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("products").select("id, name, sku, category, unit_price, stock_quantity").eq("is_active", true).order("name");
+      const { data, error } = await supabase.from("products").select("id, name, sku, category, unit_price, stock_quantity, image_url").eq("is_active", true).order("name");
       if (error) throw error;
       return data ?? [];
     },
@@ -79,12 +81,13 @@ function NewOrder() {
 
   // Continua um rascunho existente.
   useEffect(() => {
-    if (!search.rascunho) return;
+    const existingDraft = search.rascunho;
+    if (!existingDraft) return;
     void (async () => {
       const { data } = await supabase
         .from("orders")
         .select("customer_id, discount_amount, notes, status, order_items(product_id, quantity, was_ai_suggested, products(name, unit_price, stock_quantity))")
-        .eq("id", search.rascunho!)
+        .eq("id", existingDraft)
         .maybeSingle();
       if (!data || data.status !== "rascunho") return void setDraftId(null);
       setCustomerId(data.customer_id);
@@ -106,8 +109,15 @@ function NewOrder() {
       return [...ls, { product_id: p.id, name: p.name, unit_price: Number(p.unit_price), stock: p.stock_quantity, quantity: 1, ai_suggestion_id: aiId }];
     });
   }
-  const setQty = (id: string, qty: number) =>
-    setLines((ls) => (qty <= 0 ? ls.filter((l) => l.product_id !== id) : ls.map((l) => (l.product_id === id ? { ...l, quantity: qty } : l))));
+  const adjust = (id: string, delta: number) => {
+    setProblem(null);
+    setLines((ls) => changeCartQuantity(ls, id, delta));
+  };
+  const setQty = (id: string, qty: number) => {
+    if (!Number.isFinite(qty) || qty < 0) return;
+    setProblem(null);
+    setLines((ls) => (qty === 0 ? ls.filter((l) => l.product_id !== id) : ls.map((l) => (l.product_id === id ? { ...l, quantity: Math.trunc(qty) } : l))));
+  };
 
   async function loadSuggestions() {
     if (!customerId) return;
@@ -142,8 +152,10 @@ function NewOrder() {
         if (error) throw new Error("Não foi possível atualizar o rascunho");
         await supabase.from("order_items").delete().eq("order_id", id);
       }
+      if (!id) throw new Error("Não foi possível salvar o pedido");
+      const orderId = id;
       const { error: itemsErr } = await supabase.from("order_items").insert(
-        lines.map((l) => ({ order_id: id!, product_id: l.product_id, quantity: l.quantity, unit_price: l.unit_price, line_total: l.quantity * l.unit_price, was_ai_suggested: !!l.ai_suggestion_id })),
+        lines.map((l) => ({ order_id: orderId, product_id: l.product_id, quantity: l.quantity, unit_price: l.unit_price, line_total: l.quantity * l.unit_price, was_ai_suggested: !!l.ai_suggestion_id })),
       );
       if (itemsErr) throw new Error("Não foi possível salvar os itens");
 
@@ -178,12 +190,12 @@ function NewOrder() {
   const overLimit = customer && totals.total > Number(customer.credit_limit) && Number(customer.credit_limit) > 0;
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl pb-24 lg:pb-0">
       <PageHeader title={draftId ? "Rascunho de pedido" : "Novo pedido"} description="Escolha o cliente, monte o carrinho e confirme." />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="space-y-6">
-          <section className="rounded-lg border bg-card p-4">
+          <section className="border-b pb-5">
             <Label>Cliente</Label>
             <Select value={customerId} onValueChange={(v) => { setCustomerId(v); setSugs([]); setSugState("idle"); }}>
               <SelectTrigger className="mt-2"><SelectValue placeholder="Selecione um cliente da carteira" /></SelectTrigger>
@@ -208,7 +220,7 @@ function NewOrder() {
           </section>
 
           {customerId && (
-            <section className="rounded-lg border border-primary/30 bg-secondary/40 p-4">
+            <section className="border-b pb-5">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <h2 className="flex-1 font-semibold">Sugestões da IA</h2>
@@ -234,7 +246,7 @@ function NewOrder() {
             </section>
           )}
 
-          <section className="rounded-lg border bg-card p-4">
+          <section className="border-b pb-5">
             <h2 className="mb-3 font-semibold">Catálogo</h2>
             <div className="mb-3 flex flex-col gap-2 sm:flex-row">
               <div className="relative flex-1">
@@ -253,25 +265,29 @@ function NewOrder() {
             {products.isError && <ErrorState message="Não foi possível carregar o catálogo" onRetry={() => products.refetch()} />}
             {products.data?.length === 0 && <p className="text-sm text-muted-foreground">Catálogo vazio.</p>}
             {!!products.data?.length && catalog.length === 0 && <p className="text-sm text-muted-foreground">Nenhum produto com esses filtros.</p>}
-            <ul className="max-h-[480px] divide-y overflow-auto">
-              {catalog.map((p) => (
-                <li key={p.id} className="flex items-center gap-3 py-2 text-sm">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{p.name}</p>
-                    <p className="text-xs text-muted-foreground">{p.sku} · {p.stock_quantity} em estoque</p>
-                  </div>
-                  <span className="tabular-nums">{brl(p.unit_price)}</span>
-                  <Button size="icon" variant="outline" aria-label={`Adicionar ${p.name}`} disabled={!customerId} onClick={() => add(p)}>
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </li>
-              ))}
+            <ul className="divide-y">
+              {catalog.map((p) => {
+                const quantity = lines.find((l) => l.product_id === p.id)?.quantity ?? 0;
+                return (
+                  <li key={p.id} className="flex flex-wrap items-center gap-3 py-4 text-sm sm:flex-nowrap">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted">
+                      {p.image_url ? <img src={p.image_url} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : <Package className="h-6 w-6 text-muted-foreground" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="break-words font-semibold">{p.name}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{p.sku} · {p.stock_quantity} em estoque</p>
+                      <p className="mt-1 font-semibold tabular-nums">{brl(p.unit_price)}</p>
+                    </div>
+                    <QuantityControl name={p.name} quantity={quantity} disabled={!customerId || saving} onIncrease={() => add(p)} onDecrease={() => adjust(p.id, -1)} />
+                  </li>
+                );
+              })}
             </ul>
           </section>
         </div>
 
-        <aside className="h-fit space-y-4 rounded-lg border bg-card p-4 lg:sticky lg:top-6">
-          <h2 className="font-semibold">Carrinho</h2>
+        <aside ref={cartRef} id="order-cart" className="scroll-mt-4 h-fit space-y-4 rounded-lg border bg-card p-4 lg:sticky lg:top-6">
+          <h2 className="flex items-center gap-2 font-semibold"><ShoppingBag className="h-4 w-4" /> Carrinho <span className="ml-auto text-sm text-muted-foreground">{lines.reduce((sum, l) => sum + l.quantity, 0)} itens</span></h2>
           {lines.length === 0 ? (
             <p className="text-sm text-muted-foreground">{customerId ? "Adicione produtos do catálogo." : "Selecione um cliente para começar."}</p>
           ) : (
@@ -280,12 +296,12 @@ function NewOrder() {
                 <li key={l.product_id} className="text-sm">
                   <div className="flex items-start gap-2">
                     <p className="flex-1 font-medium">{l.name}{l.ai_suggestion_id && <Sparkles className="ml-1 inline h-3 w-3 text-primary" />}</p>
-                    <button aria-label="Remover" onClick={() => setQty(l.product_id, 0)}><Trash2 className="h-4 w-4 text-muted-foreground" /></button>
+                    <Button size="icon" variant="ghost" aria-label={`Remover ${l.name}`} title={`Remover ${l.name}`} onClick={() => setQty(l.product_id, 0)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                   <div className="mt-1 flex items-center gap-2">
-                    <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => setQty(l.product_id, l.quantity - 1)}><Minus className="h-3 w-3" /></Button>
-                    <Input className="h-7 w-16 text-center" type="number" min={1} value={l.quantity} onChange={(e) => setQty(l.product_id, Math.trunc(Number(e.target.value)))} />
-                    <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => setQty(l.product_id, l.quantity + 1)}><Plus className="h-3 w-3" /></Button>
+                    <QuantityControl name={l.name} quantity={l.quantity} disabled={saving} onIncrease={() => adjust(l.product_id, 1)} onDecrease={() => adjust(l.product_id, -1)}>
+                      <Input aria-label={`Quantidade de ${l.name}`} className="h-10 w-10 shrink-0 px-0 text-center" type="number" min={1} value={l.quantity} disabled={saving} onChange={(e) => { if (e.target.value !== "") setQty(l.product_id, Number(e.target.value)); }} />
+                    </QuantityControl>
                     <span className="ml-auto tabular-nums">{brl(l.quantity * l.unit_price)}</span>
                   </div>
                   {l.quantity > l.stock && <p className="mt-1 text-xs text-destructive">Só {l.stock} em estoque</p>}
@@ -317,6 +333,12 @@ function NewOrder() {
           </Button>
         </aside>
       </div>
+      {lines.length > 0 && <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-background p-3 lg:hidden">
+        <Button className="h-12 w-full justify-between" onClick={() => cartRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}>
+          <span className="flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> Ver carrinho · {lines.reduce((sum, l) => sum + l.quantity, 0)} itens</span>
+          <span className="tabular-nums">{brl(totals.total)}</span>
+        </Button>
+      </div>}
     </div>
   );
 }

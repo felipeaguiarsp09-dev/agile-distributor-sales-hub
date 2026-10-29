@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Sparkles, Target } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
@@ -20,7 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const DESC = "Meta, vendas do mês e ticket médio com análise da IA.";
+const DESC = "Vendas, atendimento de clientes, metas e visitas realizadas.";
 
 export const Route = createFileRoute("/_authenticated/indicadores")({
   head: () => ({
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/indicadores")({
 const ALL = "__all";
 const periodLabel = (p: string) => {
   const [y, m] = p.split("-").map(Number);
-  return new Date(y!, m! - 1, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  return new Date(y ?? 2026, (m ?? 1) - 1, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
 };
 
 function IndicatorsPage() {
@@ -61,7 +61,7 @@ function IndicatorsPage() {
     enabled: isManager,
     queryFn: async () => {
       let q = supabase.from("profiles").select("id, full_name").in("role", ["vendedor", "administrador"]).eq("is_active", true).order("full_name");
-      if (role === "supervisor") q = q.eq("supervisor_id", profile!.id);
+      if (role === "supervisor" && profile) q = q.eq("supervisor_id", profile.id);
       const { data, error } = await q;
       if (error) throw error;
       return data;
@@ -144,7 +144,12 @@ function IndicatorsPage() {
             <Kpi label="Ticket médio" value={d && d.pedidos_count > 0 ? brl(d.ticket_medio) : null} loading={indicatorsLoading} />
           </div>
 
-          <section className="mt-4 rounded-lg border bg-card p-5">
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <Kpi label="Clientes atendidos" value={d ? String(d.clientes_atendidos) : null} hint="Com pedido aprovado ou faturado no mês" loading={indicatorsLoading} />
+            <Kpi label="Clientes a atender" value={d?.clientes_a_atender != null ? String(d.clientes_a_atender) : null} hint={d?.meta_clientes != null ? `Meta mensal: ${d.meta_clientes} clientes` : "Meta de clientes não definida"} loading={indicatorsLoading} />
+            <Kpi label="Visitas realizadas" value={d ? String(d.visitas_realizadas) : null} hint="Visitas concluídas com check-in no mês" loading={indicatorsLoading} />
+          </div>
+          <section className="mt-6 border-t pt-5">
             <div className="mb-2 flex items-center justify-between text-sm">
               <span className="font-semibold">Meta × realizado</span>
               <span className="tabular-nums text-muted-foreground">{d && d.meta > 0 ? `${pct}%` : "Sem meta no período"}</span>
@@ -170,7 +175,7 @@ function IndicatorsPage() {
         </>
       )}
 
-      <section className="mt-4 rounded-lg border bg-card p-5">
+      <section className="mt-6 border-t pt-5">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />
           <h2 className="flex-1 font-semibold">Análise da IA</h2>
@@ -199,8 +204,8 @@ function IndicatorsPage() {
         )}
       </section>
 
-      {sellerId && (
-        <MetaDialog open={metaOpen} onOpenChange={setMetaOpen} sellerId={sellerId} period={period} orgId={profile!.organization_id} current={d?.meta ?? 0} />
+      {sellerId && profile && (
+        <MetaDialog open={metaOpen} onOpenChange={setMetaOpen} sellerId={sellerId} period={period} orgId={profile.organization_id} current={d?.meta ?? 0} currentCustomers={d?.meta_clientes ?? null} />
       )}
     </div>
   );
@@ -216,19 +221,29 @@ function Kpi({ label, value, hint, loading }: { label: string; value: string | n
   );
 }
 
-function MetaDialog({ open, onOpenChange, sellerId, period, orgId, current }: { open: boolean; onOpenChange: (o: boolean) => void; sellerId: string; period: string; orgId: string; current: number }) {
+function MetaDialog({ open, onOpenChange, sellerId, period, orgId, current, currentCustomers }: { open: boolean; onOpenChange: (o: boolean) => void; sellerId: string; period: string; orgId: string; current: number; currentCustomers: number | null }) {
   const qc = useQueryClient();
   const [value, setValue] = useState("");
+  const [customerValue, setCustomerValue] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setValue(String(current).replace(".", ","));
+    setCustomerValue(currentCustomers === null ? "" : String(currentCustomers));
+  }, [open, current, currentCustomers]);
 
   async function save() {
     const amount = Number(value.replace(/\./g, "").replace(",", "."));
     if (!Number.isFinite(amount) || amount < 0) return void toast.error("Informe um valor válido");
+    const customerTarget = customerValue.trim() === "" ? null : Number(customerValue);
+    if (customerTarget !== null && (!Number.isInteger(customerTarget) || customerTarget < 0)) return void toast.error("Informe uma quantidade inteira de clientes");
     setSaving(true);
-    const { data: existing } = await supabase.from("sales_targets").select("id").eq("seller_id", sellerId).eq("period", period).maybeSingle();
+    const { data: existing, error: readError } = await supabase.from("sales_targets").select("id").eq("seller_id", sellerId).eq("period", period).maybeSingle();
+    if (readError) { setSaving(false); toast.error("Não foi possível carregar a meta atual"); return; }
     const { error } = existing
-      ? await supabase.from("sales_targets").update({ target_amount: amount }).eq("id", existing.id)
-      : await supabase.from("sales_targets").insert({ organization_id: orgId, seller_id: sellerId, period, target_amount: amount });
+      ? await supabase.from("sales_targets").update({ target_amount: amount, customer_target: customerTarget }).eq("id", existing.id)
+      : await supabase.from("sales_targets").insert({ organization_id: orgId, seller_id: sellerId, period, target_amount: amount, customer_target: customerTarget });
     setSaving(false);
     if (error) return void toast.error(error.message);
     toast.success("Meta salva");
@@ -237,12 +252,16 @@ function MetaDialog({ open, onOpenChange, sellerId, period, orgId, current }: { 
   }
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (o) setValue(current ? String(current).replace(".", ",") : ""); onOpenChange(o); }}>
+    <Dialog open={open} onOpenChange={(o) => { if (o) { setValue(current ? String(current).replace(".", ",") : ""); setCustomerValue(currentCustomers === null ? "" : String(currentCustomers)); } onOpenChange(o); }}>
       <DialogContent>
         <DialogHeader><DialogTitle>Meta de {periodLabel(period)}</DialogTitle></DialogHeader>
         <div className="space-y-2">
           <Label htmlFor="meta">Valor da meta (R$)</Label>
           <Input id="meta" inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} placeholder="100000,00" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="customer-meta">Meta de clientes atendidos</Label>
+          <Input id="customer-meta" type="number" min={0} step={1} inputMode="numeric" value={customerValue} onChange={(e) => setCustomerValue(e.target.value)} placeholder="Não definida" />
         </div>
         <DialogFooter>
           <Button disabled={saving} onClick={save}>{saving && <Loader2 className="h-4 w-4 animate-spin" />} Salvar meta</Button>

@@ -749,6 +749,7 @@ export type Database = {
       sales_targets: {
         Row: {
           created_at: string
+          customer_target: number | null
           id: string
           organization_id: string
           period: string
@@ -758,6 +759,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          customer_target?: number | null
           id?: string
           organization_id: string
           period: string
@@ -767,6 +769,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          customer_target?: number | null
           id?: string
           organization_id?: string
           period?: string
