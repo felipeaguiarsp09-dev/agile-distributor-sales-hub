@@ -8,6 +8,8 @@ export type Indicators = {
   meta_clientes: number | null;
   clientes_a_atender: number | null;
   visitas_realizadas: number;
+  meta_visitas: number | null;
+  visitas_a_realizar: number | null;
 };
 
 export type InsightScope = { scope: "vendedor" | "equipe" | "global"; scope_ref_id: string | null };

@@ -18,6 +18,7 @@ import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authen
 import { Route as AuthenticatedEcommerceRouteImport } from './routes/_authenticated/ecommerce'
 import { Route as AuthenticatedFluxoDeVendasRouteImport } from './routes/_authenticated/fluxo-de-vendas'
 import { Route as AuthenticatedIndicadoresRouteImport } from './routes/_authenticated/indicadores'
+import { Route as AuthenticatedMetasRouteImport } from './routes/_authenticated/metas'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated/admin.importacao'
 import { Route as AuthenticatedAdminIntegracoesRouteImport } from './routes/_authenticated/admin.integracoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
@@ -83,6 +84,11 @@ const AuthenticatedIndicadoresRoute =
     path: '/indicadores',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMetasRoute = AuthenticatedMetasRouteImport.update({
+  id: '/metas',
+  path: '/metas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminImportacaoRoute =
   AuthenticatedAdminImportacaoRouteImport.update({
     id: '/admin/importacao',
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/ecommerce': typeof AuthenticatedEcommerceRoute
   '/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/indicadores': typeof AuthenticatedIndicadoresRoute
+  '/metas': typeof AuthenticatedMetasRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/admin/integracoes': typeof AuthenticatedAdminIntegracoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByTo {
   '/ecommerce': typeof AuthenticatedEcommerceRoute
   '/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/indicadores': typeof AuthenticatedIndicadoresRoute
+  '/metas': typeof AuthenticatedMetasRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/admin/integracoes': typeof AuthenticatedAdminIntegracoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -247,6 +255,7 @@ export interface FileRoutesById {
   '/_authenticated/ecommerce': typeof AuthenticatedEcommerceRoute
   '/_authenticated/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/_authenticated/indicadores': typeof AuthenticatedIndicadoresRoute
+  '/_authenticated/metas': typeof AuthenticatedMetasRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/_authenticated/admin/integracoes': typeof AuthenticatedAdminIntegracoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
@@ -276,6 +285,7 @@ export interface FileRouteTypes {
     | '/ecommerce'
     | '/fluxo-de-vendas'
     | '/indicadores'
+    | '/metas'
     | '/admin/importacao'
     | '/admin/integracoes'
     | '/admin/usuarios'
@@ -303,6 +313,7 @@ export interface FileRouteTypes {
     | '/ecommerce'
     | '/fluxo-de-vendas'
     | '/indicadores'
+    | '/metas'
     | '/admin/importacao'
     | '/admin/integracoes'
     | '/admin/usuarios'
@@ -331,6 +342,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ecommerce'
     | '/_authenticated/fluxo-de-vendas'
     | '/_authenticated/indicadores'
+    | '/_authenticated/metas'
     | '/_authenticated/admin/importacao'
     | '/_authenticated/admin/integracoes'
     | '/_authenticated/admin/usuarios'
@@ -424,6 +436,13 @@ declare module '@tanstack/react-router' {
       path: '/indicadores'
       fullPath: '/indicadores'
       preLoaderRoute: typeof AuthenticatedIndicadoresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/metas': {
+      id: '/_authenticated/metas'
+      path: '/metas'
+      fullPath: '/metas'
+      preLoaderRoute: typeof AuthenticatedMetasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/importacao': {
@@ -554,6 +573,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEcommerceRoute: typeof AuthenticatedEcommerceRoute
   AuthenticatedFluxoDeVendasRoute: typeof AuthenticatedFluxoDeVendasRoute
   AuthenticatedIndicadoresRoute: typeof AuthenticatedIndicadoresRoute
+  AuthenticatedMetasRoute: typeof AuthenticatedMetasRoute
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
   AuthenticatedAdminIntegracoesRoute: typeof AuthenticatedAdminIntegracoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
@@ -575,6 +595,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEcommerceRoute: AuthenticatedEcommerceRoute,
   AuthenticatedFluxoDeVendasRoute: AuthenticatedFluxoDeVendasRoute,
   AuthenticatedIndicadoresRoute: AuthenticatedIndicadoresRoute,
+  AuthenticatedMetasRoute: AuthenticatedMetasRoute,
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
   AuthenticatedAdminIntegracoesRoute: AuthenticatedAdminIntegracoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,

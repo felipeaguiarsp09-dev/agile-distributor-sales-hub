@@ -21,7 +21,7 @@ describe.skipIf(!sessionFile)("live Dashboard coverage rules", () => {
     const [orders, visits, target] = await Promise.all([
       sb.from("orders").select("customer_id,status").eq("seller_id", sellerId).gte("created_at", from).lt("created_at", to.toISOString()),
       sb.from("agenda_visits").select("status,check_in_at").eq("seller_id", sellerId).gte("check_in_at", from).lt("check_in_at", to.toISOString()),
-      sb.from("sales_targets").select("id,customer_target").eq("seller_id", sellerId).eq("period", period).single(),
+      sb.from("sales_targets").select("id,customer_target,visit_target").eq("seller_id", sellerId).eq("period", period).single(),
     ]);
     expect(orders.error).toBeNull();
     expect(visits.error).toBeNull();
@@ -29,18 +29,20 @@ describe.skipIf(!sessionFile)("live Dashboard coverage rules", () => {
     if (!target.data) throw new Error("A monthly target is required for the integration check");
     const goal = target.data;
     try {
-      const update = await sb.from("sales_targets").update({ customer_target: 10 }).eq("id", goal.id);
+      const update = await sb.from("sales_targets").update({ customer_target: 10, visit_target: 20 }).eq("id", goal.id);
       expect(update.error).toBeNull();
       const metrics = await sb.rpc("get_seller_indicators", { p_seller_id: sellerId, p_period: period });
       expect(metrics.error).toBeNull();
-      const d = metrics.data as unknown as { clientes_atendidos: number; visitas_realizadas: number; meta_clientes: number; clientes_a_atender: number };
+      const d = metrics.data as unknown as { clientes_atendidos: number; visitas_realizadas: number; meta_clientes: number; clientes_a_atender: number; meta_visitas: number; visitas_a_realizar: number };
       const customers = new Set((orders.data ?? []).filter(o => o.status === "aprovado" || o.status === "faturado").map(o => o.customer_id)).size;
       expect(d.clientes_atendidos).toBe(customers);
       expect(d.visitas_realizadas).toBe((visits.data ?? []).filter(v => v.status === "realizada").length);
       expect(d.meta_clientes).toBe(10);
       expect(d.clientes_a_atender).toBe(Math.max(10 - customers, 0));
+      expect(d.meta_visitas).toBe(20);
+      expect(d.visitas_a_realizar).toBe(Math.max(20 - d.visitas_realizadas, 0));
     } finally {
-      const restore = await sb.from("sales_targets").update({ customer_target: goal.customer_target }).eq("id", goal.id);
+      const restore = await sb.from("sales_targets").update({ customer_target: goal.customer_target, visit_target: goal.visit_target }).eq("id", goal.id);
       expect(restore.error).toBeNull();
     }
   });

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -131,6 +131,7 @@ function IndicatorsPage() {
         {isManager && sellerId && (
           <Button variant="outline" onClick={() => setMetaOpen(true)}><Target className="h-4 w-4" /> Definir meta</Button>
         )}
+        {isManager && <Button variant="outline" asChild><Link to="/metas"><Target className="h-4 w-4" /> Metas mensais</Link></Button>}
         <span className="text-sm text-muted-foreground">{scopeLabel}</span>
       </div>
 
@@ -147,7 +148,7 @@ function IndicatorsPage() {
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <Kpi label="Clientes atendidos" value={d ? String(d.clientes_atendidos) : null} hint="Com pedido aprovado ou faturado no mês" loading={indicatorsLoading} />
             <Kpi label="Clientes a atender" value={d?.clientes_a_atender != null ? String(d.clientes_a_atender) : null} hint={d?.meta_clientes != null ? `Meta mensal: ${d.meta_clientes} clientes` : "Meta de clientes não definida"} loading={indicatorsLoading} />
-            <Kpi label="Visitas realizadas" value={d ? String(d.visitas_realizadas) : null} hint="Visitas concluídas com check-in no mês" loading={indicatorsLoading} />
+            <Kpi label="Visitas realizadas" value={d ? String(d.visitas_realizadas) : null} hint={d?.meta_visitas != null ? `Meta mensal: ${d.meta_visitas} visitas · Faltam ${d.visitas_a_realizar ?? 0}` : "Meta de visitas não definida"} loading={indicatorsLoading} />
           </div>
           <section className="mt-6 border-t pt-5">
             <div className="mb-2 flex items-center justify-between text-sm">
