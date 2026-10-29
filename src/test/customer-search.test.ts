@@ -17,6 +17,11 @@ describe("busca de cliente da carteira", () => {
     expect(matchesCustomerSearch(customer, "empório")).toBe(true);
     expect(matchesCustomerSearch(customer, "c-vend")).toBe(true);
   });
+  it("encontra por nome com ou sem acentos", () => {
+    expect(matchesCustomerSearch(customer, "emporio")).toBe(true);
+    expect(matchesCustomerSearch({ name: "Padaria São Jorge" }, "sao jorge")).toBe(true);
+    expect(matchesCustomerSearch({ name: "Padaria Sao Jorge" }, "são")).toBe(true);
+  });
   it("não encontra quando nada combina", () => {
     expect(matchesCustomerSearch(customer, "padaria")).toBe(false);
     expect(matchesCustomerSearch(customer, "99999999")).toBe(false);
