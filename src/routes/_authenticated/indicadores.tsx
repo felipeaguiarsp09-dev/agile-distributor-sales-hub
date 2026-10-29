@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { currentPeriod, insightScope, lastPeriods, progressPct, unmetTargets } from "@/lib/indicators";
-import { generateIndicatorInsight, getDashboardIndicators } from "@/lib/indicators.functions";
+import { generateIndicatorInsight, getDashboardIndicators, getUnservedCustomers } from "@/lib/indicators.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { ErrorState, NoAccess, brl } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -47,10 +47,12 @@ function IndicatorsPage() {
   const qc = useQueryClient();
   const insightFn = useServerFn(generateIndicatorInsight);
   const indicatorsFn = useServerFn(getDashboardIndicators);
+  const unservedFn = useServerFn(getUnservedCustomers);
   const [period, setPeriod] = useState(currentPeriod());
   const [seller, setSeller] = useState<string>(ALL);
   const [generating, setGenerating] = useState(false);
   const [metaOpen, setMetaOpen] = useState(false);
+  const [unservedOpen, setUnservedOpen] = useState(false);
   const role = profile?.role;
   const isManager = role === "supervisor" || role === "administrador";
   const sellerId = seller === ALL ? null : seller;
@@ -75,6 +77,13 @@ function IndicatorsPage() {
     queryFn: () => indicatorsFn({ data: { period, seller_id: sellerId } }),
   });
   const indicatorsLoading = !indicatorsReady || ind.isPending;
+
+  const unserved = useQuery({
+    queryKey: ["unserved-customers", profile?.id, period, sellerId],
+    enabled: indicatorsReady && unservedOpen,
+    retry: false,
+    queryFn: () => unservedFn({ data: { period, seller_id: sellerId } }),
+  });
 
   const scope = profile && role !== "cliente" ? insightScope(role, profile.id, sellerId) : null;
   const insight = useQuery({
@@ -165,7 +174,7 @@ function IndicatorsPage() {
               attention={unmet.customers != null}
               loading={indicatorsLoading}
             />
-            <Kpi label="Clientes a atender" value={d?.clientes_a_atender != null ? String(d.clientes_a_atender) : null} hint={d?.meta_clientes != null ? `Meta mensal: ${d.meta_clientes} clientes` : "Meta de clientes não definida"} loading={indicatorsLoading} />
+            <Kpi label="Clientes a atender" value={d?.clientes_a_atender != null ? String(d.clientes_a_atender) : null} hint={d?.meta_clientes != null ? `Meta mensal: ${d.meta_clientes} clientes · toque para ver a lista` : "Toque para ver os clientes da carteira sem pedido no mês"} loading={indicatorsLoading} onClick={() => setUnservedOpen(true)} />
             <Kpi
               label="Visitas realizadas"
               value={d ? String(d.visitas_realizadas) : null}
@@ -241,6 +250,7 @@ function IndicatorsPage() {
         )}
       </section>
 
+      <UnservedDialog open={unservedOpen} onOpenChange={setUnservedOpen} period={period} query={unserved} />
       {sellerId && profile && (
         <MetaDialog open={metaOpen} onOpenChange={setMetaOpen} sellerId={sellerId} period={period} orgId={profile.organization_id} current={d?.meta ?? 0} currentCustomers={d?.meta_clientes ?? null} />
       )}
@@ -248,16 +258,47 @@ function IndicatorsPage() {
   );
 }
 
-function Kpi({ label, value, hint, loading, attention }: { label: string; value: string | null; hint?: string | undefined; loading: boolean; attention?: boolean }) {
-  return (
-    <div className={attention && !loading ? "rounded-lg border bg-card p-5 ring-1 ring-primary/50" : "rounded-lg border bg-card p-5"}>
+function Kpi({ label, value, hint, loading, attention, onClick }: { label: string; value: string | null; hint?: string | undefined; loading: boolean; attention?: boolean; onClick?: () => void }) {
+  const className = (attention && !loading ? "rounded-lg border bg-card p-5 ring-1 ring-primary/50" : "rounded-lg border bg-card p-5") + (onClick ? " w-full cursor-pointer text-left transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" : "");
+  const body = (
+    <>
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm text-muted-foreground">{label}</p>
         {attention && !loading && <span className="whitespace-nowrap rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">Meta não atingida</span>}
       </div>
       {loading ? <Skeleton className="mt-2 h-8 w-32" /> : value ? <p className="mt-1 text-2xl font-bold tabular-nums">{value}</p> : <p className="mt-2 text-sm text-muted-foreground">Sem dados para o período</p>}
       {hint && !loading && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
-    </div>
+    </>
+  );
+  return onClick ? <button type="button" className={className} onClick={onClick}>{body}</button> : <div className={className}>{body}</div>;
+}
+
+function UnservedDialog({ open, onOpenChange, period, query }: { open: boolean; onOpenChange: (o: boolean) => void; period: string; query: { data: { id: string; name: string; cnpj_cpf: string | null; phone: string | null }[] | undefined; isPending: boolean; isError: boolean; refetch: () => void } }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[85vh] overflow-y-auto">
+        <DialogHeader><DialogTitle className="pr-6">Clientes ainda não atendidos em {periodLabel(period)}</DialogTitle></DialogHeader>
+        <p className="text-sm text-muted-foreground">Clientes da carteira sem pedido aprovado ou faturado no mês selecionado.</p>
+        {query.isPending ? (
+          <div className="space-y-2">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
+        ) : query.isError ? (
+          <ErrorState message="Não foi possível carregar a lista de clientes" onRetry={() => query.refetch()} />
+        ) : !query.data || query.data.length === 0 ? (
+          <p className="py-6 text-center text-sm text-muted-foreground">Todos os clientes da carteira já foram atendidos neste mês.</p>
+        ) : (
+          <ul className="divide-y rounded-lg border">
+            {query.data.map((c) => (
+              <li key={c.id}>
+                <Link to="/clientes/$id" params={{ id: c.id }} className="block px-4 py-3 transition-colors hover:bg-accent/60">
+                  <p className="text-sm font-medium">{c.name}</p>
+                  <p className="text-xs text-muted-foreground">{[c.cnpj_cpf, c.phone].filter(Boolean).join(" · ") || "Sem contato cadastrado"}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { insightScope, type Indicators } from "./indicators";
+import { insightScope, type Indicators, type UnservedCustomer } from "./indicators";
 
 /** Read through the verified request client, never a browser session in transition. */
 export const getDashboardIndicators = createServerFn({ method: "POST" })
@@ -19,6 +19,22 @@ export const getDashboardIndicators = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!indicators) throw new Error("Não foi possível carregar os indicadores");
     return indicators as unknown as Indicators;
+  });
+
+/** Carteira ainda não atendida no mês (sem pedido aprovado/faturado), no mesmo escopo dos indicadores. */
+export const getUnservedCustomers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(z.object({
+    period: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
+    seller_id: z.string().uuid().nullable(),
+  }))
+  .handler(async ({ data, context }) => {
+    const { data: customers, error } = await context.supabase.rpc("get_unserved_customers", {
+      p_period: data.period,
+      p_seller_id: data.seller_id as string,
+    });
+    if (error) throw new Error(error.message);
+    return (customers ?? []) as unknown as UnservedCustomer[];
   });
 
 /** generate-indicator-insight: leitura analítica dos indicadores pela IA, gravada em indicator_insights. */

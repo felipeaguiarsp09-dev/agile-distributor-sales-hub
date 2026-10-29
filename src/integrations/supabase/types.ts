@@ -833,6 +833,10 @@ export type Database = {
         Args: { p_period: string; p_seller_id: string }
         Returns: Json
       }
+      get_unserved_customers: {
+        Args: { p_period: string; p_seller_id: string }
+        Returns: Json
+      }
       set_order_erp_result: {
         Args: { p_erp_order_id: string; p_order_id: string; p_status: string }
         Returns: undefined
