@@ -112,6 +112,7 @@ function NewOrder() {
   const [customerId, setCustomerId] = useState(search.cliente ?? "");
   const [customerOpen, setCustomerOpen] = useState(false);
   const [customerQuery, setCustomerQuery] = useState("");
+  const customerSearchRef = useRef<HTMLInputElement>(null);
   const [lines, setLines] = useState<CartLine[]>([]);
   const [discount, setDiscount] = useState(0);
   const [notes, setNotes] = useState("");
@@ -133,6 +134,14 @@ function NewOrder() {
   const lastSnapshotRef = useRef<string | null>(null);
   const savingDraftRef = useRef(false);
   const resaveRef = useRef(false);
+
+  // Ao abrir o seletor, foca o campo de busca para o teclado subir no celular.
+  useEffect(() => {
+    if (!customerOpen) return;
+    const t = setTimeout(() => customerSearchRef.current?.focus(), 30);
+    return () => clearTimeout(t);
+  }, [customerOpen]);
+
   const submittedRef = useRef(false);
 
   const customers = useQuery({
@@ -430,7 +439,7 @@ function NewOrder() {
               </PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                 <Command shouldFilter={false}>
-                  <CommandInput placeholder="Buscar por nome, CNPJ ou código..." value={customerQuery} onValueChange={setCustomerQuery} />
+                  <CommandInput ref={customerSearchRef} placeholder="Buscar por nome, CNPJ ou código..." value={customerQuery} onValueChange={setCustomerQuery} />
                   <CommandList>
                     <CommandEmpty>Nenhum cliente encontrado na sua carteira.</CommandEmpty>
                     <CommandGroup>
