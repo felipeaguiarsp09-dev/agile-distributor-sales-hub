@@ -1,6 +1,32 @@
+import { useState } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+function EditableQuantity({ name, quantity, disabled, onQuantityChange }: {
+  name: string; quantity: number; disabled: boolean | undefined; onQuantityChange: (qty: number) => void;
+}) {
+  const [text, setText] = useState<string | null>(null);
+  return (
+    <Input
+      aria-label={`Quantidade de ${name}`}
+      className="h-10 w-16 shrink-0 px-1 text-center font-semibold tabular-nums"
+      type="number"
+      min={1}
+      inputMode="numeric"
+      pattern="[0-9]*"
+      value={text ?? String(quantity)}
+      disabled={disabled}
+      onFocus={(e) => e.target.select()}
+      onChange={(e) => {
+        const v = e.target.value;
+        setText(v);
+        if (v !== "") onQuantityChange(Number(v));
+      }}
+      onBlur={() => setText(null)}
+    />
+  );
+}
 
 export function QuantityControl({ name, quantity, disabled, children, onIncrease, onDecrease, onQuantityChange }: {
   name: string; quantity: number; disabled?: boolean; children?: React.ReactNode;
@@ -13,18 +39,7 @@ export function QuantityControl({ name, quantity, disabled, children, onIncrease
           {quantity === 1 ? <Trash2 className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
         </Button>
         {children ?? (onQuantityChange ? (
-          <Input
-            aria-label={`Quantidade de ${name}`}
-            className="h-10 w-16 shrink-0 px-1 text-center font-semibold tabular-nums"
-            type="number"
-            min={1}
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={quantity}
-            disabled={disabled}
-            onFocus={(e) => e.target.select()}
-            onChange={(e) => { if (e.target.value !== "") onQuantityChange(Number(e.target.value)); }}
-          />
+          <EditableQuantity name={name} quantity={quantity} disabled={disabled} onQuantityChange={onQuantityChange} />
         ) : (
           <span className="w-8 text-center font-semibold tabular-nums" aria-label={`Quantidade de ${name}`}>{quantity}</span>
         ))}
