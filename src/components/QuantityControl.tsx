@@ -19,8 +19,10 @@ export function QuantityControl({ name, quantity, disabled, children, onIncrease
             type="number"
             min={1}
             inputMode="numeric"
+            pattern="[0-9]*"
             value={quantity}
             disabled={disabled}
+            onFocus={(e) => e.target.select()}
             onChange={(e) => { if (e.target.value !== "") onQuantityChange(Number(e.target.value)); }}
           />
         ) : (
