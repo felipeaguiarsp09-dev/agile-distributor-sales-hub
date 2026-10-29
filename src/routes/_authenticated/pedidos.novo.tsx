@@ -567,7 +567,7 @@ function NewOrder() {
 
           <section className="border-b pb-5">
             <h2 className="mb-3 font-semibold">Catálogo</h2>
-            <div className="mb-3 flex flex-col gap-2 sm:flex-row max-lg:sticky max-lg:top-16 max-lg:z-20 max-lg:-mx-4 max-lg:px-4 max-lg:py-2 max-lg:bg-background">
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row max-lg:sticky max-lg:top-[60px] max-lg:z-0 max-lg:-mx-4 max-lg:px-4 max-lg:py-2 max-lg:bg-background">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input ref={catalogSearchRef} className="scroll-mt-20 pl-9" placeholder="Buscar por nome ou SKU" value={q} onChange={(e) => setQ(e.target.value)} />
