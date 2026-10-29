@@ -1,12 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ArrowLeft, Check, Pencil, RefreshCw, Sparkles, X } from "lucide-react";
+import { ArrowLeft, Check, Copy, Pencil, RefreshCw, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber } from "@/lib/orders";
+import { canCreateOrder, ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber } from "@/lib/orders";
 import { pushOrderToErp } from "@/lib/orders.functions";
 import { ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,7 @@ const STEPS = ["rascunho", "aguardando_aprovacao", "aprovado", "faturado"];
 function OrderDetail() {
   const { id } = Route.useParams();
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const pushFn = useServerFn(pushOrderToErp);
   const [busy, setBusy] = useState(false);
@@ -40,7 +41,7 @@ function OrderDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("*, customers(id, name), seller:profiles!orders_seller_id_fkey(full_name), approver:profiles!orders_approved_by_fkey(full_name), order_items(id, quantity, unit_price, line_total, was_ai_suggested, products(name, sku))")
+        .select("*, customers(id, name), seller:profiles!orders_seller_id_fkey(full_name), approver:profiles!orders_approved_by_fkey(full_name), order_items(id, product_id, quantity, unit_price, line_total, was_ai_suggested, products(name, sku))")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
@@ -59,6 +60,33 @@ function OrderDetail() {
   const canEdit = o.status === "rascunho" && (isOwner || role === "administrador");
   const canCancel = role === "administrador" && !["cancelado", "faturado"].includes(o.status);
   const canPush = (role === "supervisor" || role === "administrador") && ["aprovado", "faturado"].includes(o.status) && !o.erp_order_id;
+  const canManage = canCreateOrder(role) && (isOwner || role === "administrador");
+  const canRepeat = canManage && ["aprovado", "faturado"].includes(o.status);
+  const canRestart = canManage && o.status === "recusado";
+
+  async function copyToDraft() {
+    setBusy(true);
+    try {
+      if (!profile || !o) throw new Error("Sem sessão ativa");
+      const { data: created, error } = await supabase
+        .from("orders")
+        .insert({ organization_id: o.organization_id, customer_id: o.customer_id, seller_id: profile.id, origin: "vendedor", discount_amount: o.discount_amount, notes: o.notes })
+        .select("id")
+        .single();
+      if (error) throw new Error("Não foi possível copiar o pedido");
+      const { error: itemsErr } = await supabase.from("order_items").insert(
+        o.order_items.map((i) => ({ order_id: created.id, product_id: i.product_id, quantity: i.quantity, unit_price: i.unit_price, line_total: i.line_total, was_ai_suggested: i.was_ai_suggested })),
+      );
+      if (itemsErr) throw new Error("Não foi possível copiar os itens");
+      toast.success("Pedido copiado para um novo rascunho");
+      await qc.invalidateQueries({ queryKey: ["orders"] });
+      navigate({ to: "/pedidos/novo", search: { rascunho: created.id } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao copiar o pedido");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function setStatus(status: string, msg: string) {
     setBusy(true);
@@ -109,6 +137,8 @@ function OrderDetail() {
 
       <div className="mb-6 flex flex-wrap gap-2">
         {canEdit && <Button asChild variant="outline"><Link to="/pedidos/novo" search={{ rascunho: o.id }}><Pencil className="h-4 w-4" /> Continuar edição</Link></Button>}
+        {canRepeat && <Button asChild variant="outline"><Link to="/pedidos/novo" search={{ repetir: o.id }}><RefreshCw className="h-4 w-4" /> Pedir de novo</Link></Button>}
+        {canRestart && <Button disabled={busy} variant="outline" onClick={copyToDraft}><Copy className="h-4 w-4" /> Editar em novo rascunho</Button>}
         {canApprove && (
           <>
             <Button disabled={busy} onClick={() => setStatus("aprovado", "Pedido aprovado")}><Check className="h-4 w-4" /> Aprovar</Button>
