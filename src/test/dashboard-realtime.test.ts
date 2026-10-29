@@ -51,6 +51,35 @@ describe("Dashboard order refresh", () => {
     stopMetrics(); stopList(); cleanup(); qc.clear();
   });
 
+  it.each(["aprovado", "faturado"])("recalculates sales and coverage after cancellation of an %s order in the selected month", async (previousStatus) => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    const metricKey = ["indicators", "seller-1", "2025-03", null];
+    const listKey = ["unserved-customers", "seller-1", "2025-03", null];
+    const otherMonth = ["indicators", "seller-1", "2026-10", null];
+    let orderStatus = previousStatus;
+    const calculate = () => {
+      const counted = orderStatus === "aprovado" || orderStatus === "faturado";
+      return { vendas_mes: counted ? 75 : 0, clientes_atendidos: counted ? 1 : 0, clientes_a_atender: counted ? 9 : 10 };
+    };
+    qc.setQueryData(metricKey, calculate());
+    qc.setQueryData(listKey, []);
+    qc.setQueryData(otherMonth, { vendas_mes: 100 });
+    const metrics = new QueryObserver(qc, { queryKey: metricKey, queryFn: async () => calculate() });
+    const customers = new QueryObserver(qc, { queryKey: listKey, queryFn: async () => orderStatus === "cancelado" ? [{ id: "customer-1" }] : [] });
+    const stopMetrics = metrics.subscribe(() => {});
+    const stopCustomers = customers.subscribe(() => {});
+    const rt = realtime();
+    const cleanup = subscribeDashboardOrders(rt.client, qc, "seller-1");
+    orderStatus = "cancelado";
+    rt.change({ eventType: "UPDATE", old: { status: previousStatus }, new: { status: "cancelado", created_at: "2025-03-15T12:00:00Z" } });
+    await vi.waitFor(() => {
+      expect(qc.getQueryData(metricKey)).toEqual({ vendas_mes: 0, clientes_atendidos: 0, clientes_a_atender: 10 });
+      expect(qc.getQueryData(listKey)).toEqual([{ id: "customer-1" }]);
+    });
+    expect(qc.getQueryData(otherMonth)).toEqual({ vendas_mes: 100 });
+    stopMetrics(); stopCustomers(); cleanup(); qc.clear();
+  });
+
   it("invalidates a closed list on connection/reconnection and removes its unique channel on unmount", () => {
     const qc = new QueryClient();
     const key = ["unserved-customers", "seller-1", "2025-03", null];
