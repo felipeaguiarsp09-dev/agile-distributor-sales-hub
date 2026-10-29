@@ -429,7 +429,7 @@ function NewOrder() {
               </PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                 <Command>
-                  <CommandInput placeholder="Buscar cliente da carteira..." />
+                  <CommandInput placeholder="Buscar por nome, CNPJ ou código..." />
                   <CommandList>
                     <CommandEmpty>Nenhum cliente encontrado na sua carteira.</CommandEmpty>
                     <CommandGroup>
