@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { AlertTriangle, History, Loader2, Package, RefreshCw, Search, ShoppingBag, Sparkles, Trash2 } from "lucide-react";
+import { AlertTriangle, Check, ChevronsUpDown, History, Loader2, Package, RefreshCw, Search, ShoppingBag, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -18,6 +18,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { QuantityControl } from "@/components/QuantityControl";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -107,6 +110,7 @@ function NewOrder() {
 
   const cartRef = useRef<HTMLElement>(null);
   const [customerId, setCustomerId] = useState(search.cliente ?? "");
+  const [customerOpen, setCustomerOpen] = useState(false);
   const [lines, setLines] = useState<CartLine[]>([]);
   const [discount, setDiscount] = useState(0);
   const [notes, setNotes] = useState("");
@@ -416,12 +420,30 @@ function NewOrder() {
         <div className="space-y-6">
           <section className="border-b pb-5">
             <Label>Cliente</Label>
-            <Select value={customerId} onValueChange={(v) => { setCustomerId(v); setSugs([]); setSugState("idle"); }}>
-              <SelectTrigger className="mt-2"><SelectValue placeholder="Selecione um cliente da carteira" /></SelectTrigger>
-              <SelectContent>
-                {(customers.data ?? []).map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" aria-expanded={customerOpen} aria-label="Cliente" className="mt-2 w-full justify-between font-normal">
+                  <span className="truncate">{customer ? customer.name : "Selecione um cliente da carteira"}</span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Buscar cliente da carteira..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhum cliente encontrado na sua carteira.</CommandEmpty>
+                    <CommandGroup>
+                      {(customers.data ?? []).map((c) => (
+                        <CommandItem key={c.id} value={c.name} onSelect={() => { setCustomerId(c.id); setSugs([]); setSugState("idle"); setCustomerOpen(false); }}>
+                          <Check className={cn("mr-2 h-4 w-4", customerId === c.id ? "opacity-100" : "opacity-0")} />
+                          {c.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {customer && (
               <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
                 <CreditBadge status={customer.credit_status} />
