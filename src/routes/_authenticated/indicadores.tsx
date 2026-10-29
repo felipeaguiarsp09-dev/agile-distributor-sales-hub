@@ -7,7 +7,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { currentPeriod, insightScope, lastPeriods, progressPct } from "@/lib/indicators";
+import { currentPeriod, insightScope, lastPeriods, progressPct, unmetTargets } from "@/lib/indicators";
 import { generateIndicatorInsight, getDashboardIndicators } from "@/lib/indicators.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { ErrorState, NoAccess, brl } from "@/components/shared";
@@ -106,6 +106,9 @@ function IndicatorsPage() {
   const d = ind.data;
   const empty = d && d.meta === 0 && d.pedidos_count === 0;
   const pct = d ? progressPct(d.meta, d.vendas_mes) : 0;
+  const unmet = unmetTargets(d);
+  const anyTarget = !!d && (d.meta > 0 || d.meta_clientes != null || d.meta_visitas != null);
+  const unmetCount = [unmet.sales, unmet.customers, unmet.visits].filter((x) => x != null).length;
   const scopeLabel = sellerId ? sellers.data?.find((s) => s.id === sellerId)?.full_name : role === "administrador" ? "Toda a distribuidora" : role === "supervisor" ? "Sua equipe" : "Seus números";
 
   return (
@@ -144,15 +147,45 @@ function IndicatorsPage() {
         <>
           <div className="grid gap-4 sm:grid-cols-3">
             <Kpi label="Meta" value={d && d.meta > 0 ? brl(d.meta) : null} loading={indicatorsLoading} />
-            <Kpi label="Vendas do mês" value={d && !empty ? brl(d.vendas_mes) : null} hint={d && d.pedidos_count ? `${d.pedidos_count} pedido(s) aprovado(s)/faturado(s)` : undefined} loading={indicatorsLoading} />
+            <Kpi
+              label="Vendas do mês"
+              value={d && !empty ? brl(d.vendas_mes) : null}
+              hint={d && d.meta > 0 ? (unmet.sales != null ? `Faltam ${brl(unmet.sales)} para a meta · ${pct}% atingido` : "Meta atingida") : d && d.pedidos_count ? `${d.pedidos_count} pedido(s) aprovado(s)/faturado(s)` : undefined}
+              attention={unmet.sales != null}
+              loading={indicatorsLoading}
+            />
             <Kpi label="Ticket médio" value={d && d.pedidos_count > 0 ? brl(d.ticket_medio) : null} loading={indicatorsLoading} />
           </div>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <Kpi label="Clientes atendidos" value={d ? String(d.clientes_atendidos) : null} hint={d?.meta_clientes != null ? `Meta mensal: ${d.meta_clientes} clientes · ${progressPct(d.meta_clientes, d.clientes_atendidos)}% atingido` : "Meta de clientes não definida"} loading={indicatorsLoading} />
+            <Kpi
+              label="Clientes atendidos"
+              value={d ? String(d.clientes_atendidos) : null}
+              hint={d?.meta_clientes != null ? (unmet.customers != null ? `Faltam ${unmet.customers} clientes para a meta · ${progressPct(d.meta_clientes, d.clientes_atendidos)}% atingido` : "Meta mensal atingida") : "Meta de clientes não definida"}
+              attention={unmet.customers != null}
+              loading={indicatorsLoading}
+            />
             <Kpi label="Clientes a atender" value={d?.clientes_a_atender != null ? String(d.clientes_a_atender) : null} hint={d?.meta_clientes != null ? `Meta mensal: ${d.meta_clientes} clientes` : "Meta de clientes não definida"} loading={indicatorsLoading} />
-            <Kpi label="Visitas realizadas" value={d ? String(d.visitas_realizadas) : null} hint={d?.meta_visitas != null ? `Meta mensal: ${d.meta_visitas} visitas · Faltam ${d.visitas_a_realizar ?? 0}` : "Meta de visitas não definida"} loading={indicatorsLoading} />
+            <Kpi
+              label="Visitas realizadas"
+              value={d ? String(d.visitas_realizadas) : null}
+              hint={d?.meta_visitas != null ? (unmet.visits != null ? `Faltam ${unmet.visits} visitas para a meta · ${progressPct(d.meta_visitas, d.visitas_realizadas)}% atingido` : "Meta mensal atingida") : "Meta de visitas não definida"}
+              attention={unmet.visits != null}
+              loading={indicatorsLoading}
+            />
           </div>
+
+          {!indicatorsLoading && d && unmetCount > 0 && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border bg-card p-4">
+              <span className="text-sm font-semibold">Metas não atingidas em {periodLabel(period)}:</span>
+              {unmet.sales != null && <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Faltam {brl(unmet.sales)} em vendas</span>}
+              {unmet.customers != null && <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Faltam {unmet.customers} clientes</span>}
+              {unmet.visits != null && <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Faltam {unmet.visits} visitas</span>}
+            </div>
+          )}
+          {!indicatorsLoading && d && unmetCount === 0 && anyTarget && (
+            <p className="mt-4 text-sm text-muted-foreground">Todas as metas definidas foram atingidas em {periodLabel(period)}.</p>
+          )}
           <section className="mt-6 border-t pt-5">
             <div className="mb-2 flex items-center justify-between text-sm">
               <span className="font-semibold">Meta × realizado</span>
@@ -215,10 +248,13 @@ function IndicatorsPage() {
   );
 }
 
-function Kpi({ label, value, hint, loading }: { label: string; value: string | null; hint?: string | undefined; loading: boolean }) {
+function Kpi({ label, value, hint, loading, attention }: { label: string; value: string | null; hint?: string | undefined; loading: boolean; attention?: boolean }) {
   return (
-    <div className="rounded-lg border bg-card p-5">
-      <p className="text-sm text-muted-foreground">{label}</p>
+    <div className={attention && !loading ? "rounded-lg border bg-card p-5 ring-1 ring-primary/50" : "rounded-lg border bg-card p-5"}>
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        {attention && !loading && <span className="whitespace-nowrap rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">Meta não atingida</span>}
+      </div>
       {loading ? <Skeleton className="mt-2 h-8 w-32" /> : value ? <p className="mt-1 text-2xl font-bold tabular-nums">{value}</p> : <p className="mt-2 text-sm text-muted-foreground">Sem dados para o período</p>}
       {hint && !loading && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
