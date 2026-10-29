@@ -419,12 +419,30 @@ function NewOrder() {
         <div className="space-y-6">
           <section className="border-b pb-5">
             <Label>Cliente</Label>
-            <Select value={customerId} onValueChange={(v) => { setCustomerId(v); setSugs([]); setSugState("idle"); }}>
-              <SelectTrigger className="mt-2"><SelectValue placeholder="Selecione um cliente da carteira" /></SelectTrigger>
-              <SelectContent>
-                {(customers.data ?? []).map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" aria-expanded={customerOpen} aria-label="Cliente" className="mt-2 w-full justify-between font-normal">
+                  <span className="truncate">{customer ? customer.name : "Selecione um cliente da carteira"}</span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Buscar cliente da carteira..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhum cliente encontrado na sua carteira.</CommandEmpty>
+                    <CommandGroup>
+                      {(customers.data ?? []).map((c) => (
+                        <CommandItem key={c.id} value={c.name} onSelect={() => { setCustomerId(c.id); setSugs([]); setSugState("idle"); setCustomerOpen(false); }}>
+                          <Check className={cn("mr-2 h-4 w-4", customerId === c.id ? "opacity-100" : "opacity-0")} />
+                          {c.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {customer && (
               <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
                 <CreditBadge status={customer.credit_status} />
