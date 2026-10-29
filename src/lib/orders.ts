@@ -85,3 +85,21 @@ export function lastPurchase(orders: HistoryOrder[]): { lines: CartLine[]; disco
   }));
   return { lines, discountAmount: Number(last.discount_amount) };
 }
+
+/** Busca de cliente da carteira por nome, código ERP ou CNPJ/CPF (com ou sem pontuação). */
+export function matchesCustomerSearch(
+  c: { name: string; cnpj_cpf?: string | null; external_id?: string | null },
+  query: string,
+): boolean {
+  const term = query.trim().toLowerCase();
+  if (!term) return true;
+  const doc = (c.cnpj_cpf ?? "").toLowerCase();
+  const digits = term.replace(/\D/g, "");
+  const docDigits = doc.replace(/\D/g, "");
+  return (
+    c.name.toLowerCase().includes(term) ||
+    (c.external_id ?? "").toLowerCase().includes(term) ||
+    doc.includes(term) ||
+    (digits.length >= 3 && docDigits.includes(digits))
+  );
+}
