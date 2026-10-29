@@ -544,7 +544,7 @@ function NewOrder() {
                   </div>
                   <div className="mt-1 flex items-center gap-2">
                     <QuantityControl name={l.name} quantity={l.quantity} disabled={saving} onIncrease={() => adjust(l.product_id, 1)} onDecrease={() => adjust(l.product_id, -1)}>
-                      <Input aria-label={`Quantidade de ${l.name}`} className="h-10 w-10 shrink-0 px-0 text-center" type="number" min={1} value={l.quantity} disabled={saving} onChange={(e) => { if (e.target.value !== "") setQty(l.product_id, Number(e.target.value)); }} />
+                      <Input aria-label={`Quantidade de ${l.name}`} className="h-10 w-10 shrink-0 px-0 text-center" type="number" min={1} inputMode="numeric" pattern="[0-9]*" value={l.quantity} disabled={saving} onFocus={(e) => e.target.select()} onChange={(e) => { if (e.target.value !== "") setQty(l.product_id, Number(e.target.value)); }} />
                     </QuantityControl>
                     <span className="ml-auto tabular-nums">{brl(l.quantity * l.unit_price)}</span>
                   </div>
