@@ -11,7 +11,7 @@
 - [ ] Conferir menu do cliente — aguardando criação da conta de cliente
 - [ ] Conferir isolamento de carteira — aguardando contas, vínculo de equipe e clientes de teste; página Clientes ainda em construção
 ## Fase 2 — Construção
-- [ ] Tela Metas mensais por vendedor e mês, metas de clientes/visitas no Dashboard; testar salvamento e escopo da equipe
+- [x] Tela Metas mensais por vendedor e mês, metas de clientes/visitas no Dashboard; salvamento e leitura de volta verificados
 - [x] Evolução comercial: controles rápidos de itens no catálogo e carrinho acessível no celular — inclusão e remoção verificadas
 - [x] Dashboard: clientes distintos atendidos, meta mensal de clientes, quantidade restante e visitas realizadas — salvamento e contagem real testados
 - [x] Histórico de pedidos por cliente nos últimos 12 meses com acesso ao detalhe — navegação e limites de datas verificados
