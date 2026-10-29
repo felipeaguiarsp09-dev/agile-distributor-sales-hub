@@ -113,12 +113,15 @@ function IndicatorsPage() {
       <PageHeader title="Dashboard" description={DESC} />
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
+        <div className="space-y-1">
+        <Label htmlFor="dashboard-month">Mês de referência</Label>
         <Select value={period} onValueChange={setPeriod}>
-          <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+          <SelectTrigger id="dashboard-month" className="w-56" aria-label="Mês de referência"><SelectValue /></SelectTrigger>
           <SelectContent>
             {lastPeriods(36).map((p) => <SelectItem key={p} value={p} className="capitalize">{periodLabel(p)}</SelectItem>)}
           </SelectContent>
         </Select>
+        </div>
         {isManager && (
           <Select value={seller} onValueChange={setSeller}>
             <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
@@ -146,7 +149,7 @@ function IndicatorsPage() {
           </div>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
-            <Kpi label="Clientes atendidos" value={d ? String(d.clientes_atendidos) : null} hint="Com pedido aprovado ou faturado no mês" loading={indicatorsLoading} />
+            <Kpi label="Clientes atendidos" value={d ? String(d.clientes_atendidos) : null} hint={d?.meta_clientes != null ? `Meta mensal: ${d.meta_clientes} clientes · ${progressPct(d.meta_clientes, d.clientes_atendidos)}% atingido` : "Meta de clientes não definida"} loading={indicatorsLoading} />
             <Kpi label="Clientes a atender" value={d?.clientes_a_atender != null ? String(d.clientes_a_atender) : null} hint={d?.meta_clientes != null ? `Meta mensal: ${d.meta_clientes} clientes` : "Meta de clientes não definida"} loading={indicatorsLoading} />
             <Kpi label="Visitas realizadas" value={d ? String(d.visitas_realizadas) : null} hint={d?.meta_visitas != null ? `Meta mensal: ${d.meta_visitas} visitas · Faltam ${d.visitas_a_realizar ?? 0}` : "Meta de visitas não definida"} loading={indicatorsLoading} />
           </div>
