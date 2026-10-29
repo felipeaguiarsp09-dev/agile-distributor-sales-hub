@@ -113,6 +113,7 @@ function NewOrder() {
   const [customerOpen, setCustomerOpen] = useState(false);
   const [customerQuery, setCustomerQuery] = useState("");
   const customerSearchRef = useRef<HTMLInputElement>(null);
+  const catalogSearchRef = useRef<HTMLInputElement>(null);
   const [lines, setLines] = useState<CartLine[]>([]);
   const [discount, setDiscount] = useState(0);
   const [notes, setNotes] = useState("");
@@ -445,7 +446,7 @@ function NewOrder() {
                     <CommandEmpty>Nenhum cliente encontrado na sua carteira.</CommandEmpty>
                     <CommandGroup>
                       {(customers.data ?? []).filter((c) => matchesCustomerSearch(c, customerQuery)).map((c) => (
-                        <CommandItem key={c.id} value={c.name} onSelect={() => { setCustomerId(c.id); setSugs([]); setSugState("idle"); customerSearchRef.current?.blur(); setCustomerOpen(false); setCustomerQuery(""); }}>
+                        <CommandItem key={c.id} value={c.name} onSelect={() => { setCustomerId(c.id); setSugs([]); setSugState("idle"); customerSearchRef.current?.blur(); setCustomerOpen(false); setCustomerQuery(""); if (window.matchMedia("(max-width: 1023px)").matches) setTimeout(() => catalogSearchRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80); }}>
                           <Check className={cn("mr-2 h-4 w-4", customerId === c.id ? "opacity-100" : "opacity-0")} />
                           <span className="min-w-0">
                             <span className="block truncate">{c.name}</span>
@@ -569,7 +570,7 @@ function NewOrder() {
             <div className="mb-3 flex flex-col gap-2 sm:flex-row">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input className="pl-9" placeholder="Buscar por nome ou SKU" value={q} onChange={(e) => setQ(e.target.value)} />
+                <Input ref={catalogSearchRef} className="scroll-mt-20 pl-9" placeholder="Buscar por nome ou SKU" value={q} onChange={(e) => setQ(e.target.value)} />
               </div>
               <Select value={cat} onValueChange={setCat}>
                 <SelectTrigger className="sm:w-48"><SelectValue /></SelectTrigger>
