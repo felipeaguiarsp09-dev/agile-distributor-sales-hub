@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber } from "@/lib/orders";
+import { useAuth } from "@/lib/auth";
+import { ORDER_STATUS_LABEL, ORIGIN_LABEL, canCreateOrder, orderNumber } from "@/lib/orders";
 import { orderHistoryWindow } from "@/lib/order-history";
 import { PageHeader } from "@/components/ModulePage";
 import { EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/_authenticated/historico")({
 });
 
 function OrderHistoryPage() {
+  const { profile } = useAuth();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("todos");
   const [customerId, setCustomerId] = useState("todos");
@@ -50,7 +52,7 @@ function OrderHistoryPage() {
     queryFn: async () => {
       let query = supabase
         .from("orders")
-        .select("id, created_at, status, origin, total_amount, customers!inner(name)", { count: "exact" })
+        .select("id, created_at, status, origin, total_amount, seller_id, customers!inner(name)", { count: "exact" })
         .gte("created_at", historyWindow.from)
         .lte("created_at", historyWindow.to)
         .neq("status", "rascunho")
