@@ -273,7 +273,7 @@ function Kpi({ label, value, hint, loading, attention, onClick }: { label: strin
   return onClick ? <button type="button" className={className} onClick={onClick}>{body}</button> : <div className={className}>{body}</div>;
 }
 
-function UnservedDialog({ open, onOpenChange, period, query }: { open: boolean; onOpenChange: (o: boolean) => void; period: string; query: { data?: { id: string; name: string; cnpj_cpf: string | null; phone: string | null }[]; isPending: boolean; isError: boolean; refetch: () => void } }) {
+function UnservedDialog({ open, onOpenChange, period, query }: { open: boolean; onOpenChange: (o: boolean) => void; period: string; query: { data: { id: string; name: string; cnpj_cpf: string | null; phone: string | null }[] | undefined; isPending: boolean; isError: boolean; refetch: () => void } }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
