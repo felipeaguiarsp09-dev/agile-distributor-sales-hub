@@ -180,7 +180,7 @@ function NewOrder() {
         toast.success("Último pedido carregado no carrinho");
       }
       setReady(true);
-      void navigate({ search: (prev: Search) => ({ ...prev, repetir: undefined }), replace: true });
+      void navigate({ to: "/pedidos/novo", search: (prev: Search) => ({ ...prev, repetir: undefined }), replace: true });
     })();
     return () => {
       cancelled = true;
