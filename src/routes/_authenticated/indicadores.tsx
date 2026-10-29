@@ -7,6 +7,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { subscribeDashboardOrders } from "@/lib/dashboard-realtime";
 import { currentPeriod, insightScope, lastPeriods, progressPct, unmetTargets } from "@/lib/indicators";
 import { generateIndicatorInsight, getDashboardIndicators, getUnservedCustomers } from "@/lib/indicators.functions";
 import { PageHeader } from "@/components/ModulePage";
@@ -57,6 +58,11 @@ function IndicatorsPage() {
   const isManager = role === "supervisor" || role === "administrador";
   const sellerId = seller === ALL ? null : seller;
   const indicatorsReady = ready && !!profile && session?.user.id === profile.id && role !== "cliente";
+
+  useEffect(() => {
+    if (!indicatorsReady || !profile?.id) return;
+    return subscribeDashboardOrders(supabase, qc, profile.id);
+  }, [indicatorsReady, profile?.id, qc]);
 
   const sellers = useQuery({
     queryKey: ["indicator-sellers", role, profile?.id],
