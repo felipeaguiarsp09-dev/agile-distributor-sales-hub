@@ -137,7 +137,7 @@ function NewOrder() {
   const customers = useQuery({
     queryKey: ["customers", "picker"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("customers").select("id, name, credit_limit, credit_status").order("name");
+      const { data, error } = await supabase.from("customers").select("id, name, cnpj_cpf, external_id, credit_limit, credit_status").order("name");
       if (error) throw error;
       return data ?? [];
     },
@@ -434,9 +434,16 @@ function NewOrder() {
                     <CommandEmpty>Nenhum cliente encontrado na sua carteira.</CommandEmpty>
                     <CommandGroup>
                       {(customers.data ?? []).map((c) => (
-                        <CommandItem key={c.id} value={c.name} onSelect={() => { setCustomerId(c.id); setSugs([]); setSugState("idle"); setCustomerOpen(false); }}>
+                        <CommandItem key={c.id} value={`${c.name} ${c.cnpj_cpf ?? ""} ${c.external_id ?? ""}`} onSelect={() => { setCustomerId(c.id); setSugs([]); setSugState("idle"); setCustomerOpen(false); }}>
                           <Check className={cn("mr-2 h-4 w-4", customerId === c.id ? "opacity-100" : "opacity-0")} />
-                          {c.name}
+                          <span className="min-w-0">
+                            <span className="block truncate">{c.name}</span>
+                            {(c.cnpj_cpf || c.external_id) && (
+                              <span className="block truncate text-xs text-muted-foreground">
+                                {[c.cnpj_cpf, c.external_id && `Cód. ${c.external_id}`].filter(Boolean).join(" · ")}
+                              </span>
+                            )}
+                          </span>
                         </CommandItem>
                       ))}
                     </CommandGroup>
