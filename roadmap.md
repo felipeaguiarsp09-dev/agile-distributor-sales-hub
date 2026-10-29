@@ -11,7 +11,7 @@
 - [ ] Conferir menu do cliente — aguardando criação da conta de cliente
 - [ ] Conferir isolamento de carteira — aguardando contas, vínculo de equipe e clientes de teste; página Clientes ainda em construção
 ## Fase 2 — Construção
-- [ ] Dashboard: verificar recálculo automático após cancelamento de pedido aprovado/faturado no mês selecionado
+- [x] Dashboard: recálculo automático após cancelamento de pedido aprovado/faturado — vendas e clientes recalculados entre abas, mês histórico preservado, pedido de teste restaurado
 - [x] Dashboard: atualizar automaticamente indicadores e clientes ainda não atendidos após aprovação/faturamento, preservando mês e permissões — aprovação em outra aba e faturamento com março selecionado verificados
 - [x] Tela Metas mensais por vendedor e mês, metas de clientes/visitas no Dashboard; salvamento e leitura de volta verificados
 - [x] Evolução comercial: controles rápidos de itens no catálogo e carrinho acessível no celular — inclusão e remoção verificadas
