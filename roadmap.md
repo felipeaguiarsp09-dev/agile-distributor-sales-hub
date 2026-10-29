@@ -11,7 +11,7 @@
 - [ ] Conferir menu do cliente — aguardando criação da conta de cliente
 - [ ] Conferir isolamento de carteira — aguardando contas, vínculo de equipe e clientes de teste; página Clientes ainda em construção
 ## Fase 2 — Construção
-- [ ] Pedidos: seletor de cliente foca o campo de busca ao abrir (teclado sobe no celular) e busca ignora acentos no nome
+- [x] Pedidos: seletor de cliente foca o campo de busca ao abrir (teclado sobe no celular) e busca ignora acentos no nome
 
 - [x] Dashboard: recálculo automático após cancelamento de pedido aprovado/faturado — vendas e clientes recalculados entre abas, mês histórico preservado, pedido de teste restaurado
 - [x] Dashboard: atualizar automaticamente indicadores e clientes ainda não atendidos após aprovação/faturamento, preservando mês e permissões — aprovação em outra aba e faturamento com março selecionado verificados
