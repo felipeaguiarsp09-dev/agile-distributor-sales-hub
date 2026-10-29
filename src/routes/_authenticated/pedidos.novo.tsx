@@ -430,7 +430,8 @@ function NewOrder() {
         <div className="space-y-6">
           <section className="border-b pb-5">
             <Label>Cliente</Label>
-            <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
+            {/* Reabrir o seletor limpa a busca anterior, mas mantém o cliente já selecionado até trocar. */}
+            <Popover open={customerOpen} onOpenChange={(open) => { setCustomerOpen(open); if (!open) setCustomerQuery(""); }}>
               <PopoverTrigger asChild>
                 <Button variant="outline" role="combobox" aria-expanded={customerOpen} aria-label="Cliente" className="mt-2 w-full justify-between font-normal">
                   <span className="truncate">{customer ? customer.name : "Selecione um cliente da carteira"}</span>
