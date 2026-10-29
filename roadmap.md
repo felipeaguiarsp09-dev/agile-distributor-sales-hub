@@ -14,6 +14,7 @@
 - [x] Tela Metas mensais por vendedor e mês, metas de clientes/visitas no Dashboard; salvamento e leitura de volta verificados
 - [x] Evolução comercial: controles rápidos de itens no catálogo e carrinho acessível no celular — inclusão e remoção verificadas
 - [x] Dashboard: clientes distintos atendidos, meta mensal de clientes, quantidade restante e visitas realizadas — salvamento e contagem real testados
+- [x] Dashboard: clique no saldo "Clientes a atender" abre a lista da carteira sem pedido aprovado/faturado no mês (RPC get_unserved_customers, mesmo escopo dos indicadores)
 - [x] Histórico de pedidos por cliente nos últimos 12 meses com acesso ao detalhe — navegação e limites de datas verificados
 - [x] Dashboard: primeira consulta autenticada sem depender de repetição; carregamento, erro e Tentar novamente verificados
 - [x] Importação da base (/admin/importacao + import-erp-data) — clientes, produtos e pedidos; arquivo guardado no armazenamento

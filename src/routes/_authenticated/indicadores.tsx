@@ -277,7 +277,7 @@ function UnservedDialog({ open, onOpenChange, period, query }: { open: boolean; 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>Clientes ainda não atendidos em {periodLabel(period)}</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="pr-6">Clientes ainda não atendidos em {periodLabel(period)}</DialogTitle></DialogHeader>
         <p className="text-sm text-muted-foreground">Clientes da carteira sem pedido aprovado ou faturado no mês selecionado.</p>
         {query.isPending ? (
           <div className="space-y-2">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
