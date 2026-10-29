@@ -5,9 +5,10 @@ import { ArrowLeft, Pencil, ShoppingCart, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { canCreateOrder } from "@/lib/orders";
+import { canCreateOrder, ORDER_STATUS_LABEL, orderNumber } from "@/lib/orders";
 import { CreditBadge, EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { CustomerForm } from "@/components/CustomerForm";
+import { orderHistoryWindow } from "@/lib/order-history";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -31,6 +32,7 @@ function CustomerDetail() {
   const isAdmin = profile?.role === "administrador";
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const [historyWindow] = useState(() => orderHistoryWindow());
   const [editing, setEditing] = useState(false);
 
   const customer = useQuery({
@@ -47,11 +49,17 @@ function CustomerDetail() {
     queryFn: async () => (await supabase.from("profiles").select("full_name").eq("id", customer.data!.owner_id).maybeSingle()).data,
   });
   const orders = useQuery({
-    queryKey: ["orders", "customer", id],
+    queryKey: ["orders", "customer", profile?.id, id, historyWindow.from, historyWindow.to],
     queryFn: async () => {
-      const { data, error } = await supabase.from("orders").select("id, created_at, status, total_amount, origin").eq("customer_id", id).order("created_at", { ascending: false });
-      if (error) throw error;
-      return data;
+      const rows: { id: string; created_at: string; status: string; total_amount: number; origin: string }[] = [];
+      for (let offset = 0; ; offset += 500) {
+        const { data, error } = await supabase.from("orders").select("id, created_at, status, total_amount, origin")
+          .eq("customer_id", id).gte("created_at", historyWindow.from).lte("created_at", historyWindow.to)
+          .order("created_at", { ascending: false }).order("id").range(offset, offset + 499);
+        if (error) throw error;
+        rows.push(...(data ?? []));
+        if (!data || data.length < 500) return rows;
+      }
     },
   });
 
@@ -128,21 +136,21 @@ function CustomerDetail() {
         </div>
       )}
 
-      <h2 className="mb-3 mt-8 text-lg font-semibold">Histórico de compras</h2>
+      <h2 className="mb-3 mt-8 text-lg font-semibold">Pedidos nos últimos 12 meses</h2>
       {orders.isLoading ? (
         <RowsSkeleton rows={3} />
       ) : orders.isError ? (
         <ErrorState message="Falha ao carregar o histórico" onRetry={() => orders.refetch()} />
       ) : !orders.data?.length ? (
-        <EmptyState title="Nenhuma compra registrada ainda" />
+        <EmptyState title="Nenhum pedido nos últimos 12 meses" />
       ) : (
         <ul className="divide-y rounded-lg border bg-card">
           {orders.data.map((o) => (
-            <li key={o.id} className="flex items-center gap-4 px-4 py-3 text-sm">
-              <span className="flex-1">{new Date(o.created_at).toLocaleDateString("pt-BR")}</span>
-              <Badge variant="outline">{o.status}</Badge>
+            <li key={o.id}><Link to="/pedidos/$id" params={{ id: o.id }} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm hover:bg-muted">
+              <span className="min-w-0 flex-1 font-medium">{orderNumber(o.id)}<span className="mt-1 block text-xs text-muted-foreground">{new Date(o.created_at).toLocaleDateString("pt-BR")}</span></span>
+              <Badge variant="outline">{ORDER_STATUS_LABEL[o.status] ?? o.status}</Badge>
               <span className="tabular-nums">{brl(o.total_amount)}</span>
-            </li>
+            </Link></li>
           ))}
         </ul>
       )}
