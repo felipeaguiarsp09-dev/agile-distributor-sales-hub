@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Loader2, ShoppingCart, Sparkles, Target } from "lucide-react";
+import { Loader2, ShoppingCart, Sparkles, Target, TriangleAlert } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -157,7 +157,12 @@ function IndicatorsPage() {
         {!indicatorsLoading && (
           <span className="ml-auto flex items-center gap-2 text-xs text-muted-foreground" aria-live="polite">
             {ind.isFetching && <Loader2 className="h-3 w-3 animate-spin" aria-label="Atualizando" />}
-            {ind.isError && ind.data && <span className="text-destructive">Falha na atualização · mostrando dados anteriores</span>}
+            {ind.isError && ind.data && (
+              <span className="flex items-center gap-1 font-medium">
+                <TriangleAlert className="h-3 w-3" aria-hidden />
+                Falha na atualização · mostrando dados anteriores
+              </span>
+            )}
             {lastUpdatedLabel(ind.dataUpdatedAt)}
           </span>
         )}
