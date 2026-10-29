@@ -53,6 +53,7 @@ function OrderHistoryPage() {
         .select("id, created_at, status, origin, total_amount, customers!inner(name)", { count: "exact" })
         .gte("created_at", historyWindow.from)
         .lte("created_at", historyWindow.to)
+        .neq("status", "rascunho")
         .order("created_at", { ascending: false });
       if (status !== "todos") query = query.eq("status", status);
       if (customerId !== "todos") query = query.eq("customer_id", customerId);
