@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 function EditableQuantity({ name, quantity, disabled, onQuantityChange }: {
-  name: string; quantity: number; disabled?: boolean; onQuantityChange: (qty: number) => void;
+  name: string; quantity: number; disabled: boolean | undefined; onQuantityChange: (qty: number) => void;
 }) {
   const [text, setText] = useState<string | null>(null);
   return (
