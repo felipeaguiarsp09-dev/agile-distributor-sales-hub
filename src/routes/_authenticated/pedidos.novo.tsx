@@ -6,7 +6,7 @@ import { AlertTriangle, Check, ChevronsUpDown, History, Loader2, Package, Refres
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { canCreateOrder, cartTotals, changeCartQuantity, lastPurchase, purchasedProducts, type CartLine, type HistoryOrder } from "@/lib/orders";
+import { canCreateOrder, cartTotals, changeCartQuantity, lastPurchase, matchesCustomerSearch, purchasedProducts, type CartLine, type HistoryOrder } from "@/lib/orders";
 import { submitOrder, suggestProducts, validateOrderStock } from "@/lib/orders.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { CreditBadge, ErrorState, NoAccess, RowsSkeleton, brl } from "@/components/shared";
@@ -111,6 +111,7 @@ function NewOrder() {
   const cartRef = useRef<HTMLElement>(null);
   const [customerId, setCustomerId] = useState(search.cliente ?? "");
   const [customerOpen, setCustomerOpen] = useState(false);
+  const [customerQuery, setCustomerQuery] = useState("");
   const [lines, setLines] = useState<CartLine[]>([]);
   const [discount, setDiscount] = useState(0);
   const [notes, setNotes] = useState("");
@@ -428,13 +429,13 @@ function NewOrder() {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                <Command>
-                  <CommandInput placeholder="Buscar por nome, CNPJ ou código..." />
+                <Command shouldFilter={false}>
+                  <CommandInput placeholder="Buscar por nome, CNPJ ou código..." value={customerQuery} onValueChange={setCustomerQuery} />
                   <CommandList>
                     <CommandEmpty>Nenhum cliente encontrado na sua carteira.</CommandEmpty>
                     <CommandGroup>
-                      {(customers.data ?? []).map((c) => (
-                        <CommandItem key={c.id} value={`${c.name} ${c.cnpj_cpf ?? ""} ${c.external_id ?? ""}`} onSelect={() => { setCustomerId(c.id); setSugs([]); setSugState("idle"); setCustomerOpen(false); }}>
+                      {(customers.data ?? []).filter((c) => matchesCustomerSearch(c, customerQuery)).map((c) => (
+                        <CommandItem key={c.id} value={c.name} onSelect={() => { setCustomerId(c.id); setSugs([]); setSugState("idle"); setCustomerOpen(false); setCustomerQuery(""); }}>
                           <Check className={cn("mr-2 h-4 w-4", customerId === c.id ? "opacity-100" : "opacity-0")} />
                           <span className="min-w-0">
                             <span className="block truncate">{c.name}</span>
