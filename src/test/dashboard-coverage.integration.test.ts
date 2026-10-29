@@ -9,7 +9,7 @@ describe.skipIf(!sessionFile)("live Dashboard coverage rules", () => {
   it("counts distinct purchasing customers, completed visits and remaining monthly goal", async () => {
     if (!sessionFile) return;
     const minted = JSON.parse(readFileSync(sessionFile, "utf8"));
-    const sb = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY, {
+    const sb = createClient(import.meta.env['VITE_SUPABASE_URL'], import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'], {
       auth: { persistSession: false, autoRefreshToken: false },
       global: { headers: { Authorization: `Bearer ${minted.session.access_token}` } },
     });

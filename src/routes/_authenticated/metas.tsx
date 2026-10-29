@@ -47,7 +47,7 @@ function MonthlyTargetsPage() {
   });
   if (profile && !allowed) return <NoAccess />;
   return <div className="mx-auto max-w-5xl">
-    <PageHeader title="Metas mensais" />
+    <PageHeader title="Metas mensais" description={DESC} />
     <div className="mb-6 max-w-56 space-y-2"><Label htmlFor="target-month">Mês de referência</Label><Input id="target-month" type="month" value={period} onChange={e => setPeriod(e.target.value)} /></div>
     {rows.isError ? <ErrorState message="Não foi possível carregar as metas" onRetry={() => rows.refetch()} /> : rows.isPending ? <Skeleton className="h-40 w-full" /> : rows.data?.length === 0 ? <p className="py-10 text-center text-muted-foreground">Nenhum vendedor ativo neste período.</p> :
       <div className="divide-y border-y">{rows.data?.map(row => <TargetRow key={`${period}-${row.id}-${row.goal?.customer_target}-${row.goal?.visit_target}`} seller={row} period={period} orgId={profile?.organization_id ?? ""} />)}</div>}
