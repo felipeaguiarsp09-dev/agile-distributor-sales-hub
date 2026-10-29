@@ -15,6 +15,7 @@
 - [x] Dashboard: atualizar automaticamente indicadores e clientes ainda não atendidos após aprovação/faturamento, preservando mês e permissões — aprovação em outra aba e faturamento com março selecionado verificados
 - [x] Tela Metas mensais por vendedor e mês, metas de clientes/visitas no Dashboard; salvamento e leitura de volta verificados
 - [x] Evolução comercial: controles rápidos de itens no catálogo e carrinho acessível no celular — inclusão e remoção verificadas
+- [x] Pedidos: repetir último pedido, produtos comprados antes em destaque, editar pedido recusado em novo rascunho e rascunho salvo automaticamente
 - [x] Dashboard: clientes distintos atendidos, meta mensal de clientes, quantidade restante e visitas realizadas — salvamento e contagem real testados
 - [x] Dashboard: clique no saldo "Clientes a atender" abre a lista da carteira sem pedido aprovado/faturado no mês (RPC get_unserved_customers, mesmo escopo dos indicadores)
 - [x] Histórico de pedidos por cliente nos últimos 12 meses com acesso ao detalhe — navegação e limites de datas verificados
