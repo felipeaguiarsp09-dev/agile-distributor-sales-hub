@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Sparkles, Target } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
@@ -226,6 +226,12 @@ function MetaDialog({ open, onOpenChange, sellerId, period, orgId, current, curr
   const [value, setValue] = useState("");
   const [customerValue, setCustomerValue] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setValue(String(current).replace(".", ","));
+    setCustomerValue(currentCustomers === null ? "" : String(currentCustomers));
+  }, [open, current, currentCustomers]);
 
   async function save() {
     const amount = Number(value.replace(/\./g, "").replace(",", "."));

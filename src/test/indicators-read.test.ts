@@ -23,7 +23,7 @@ import { getDashboardIndicators } from "@/lib/indicators.functions";
 describe("Dashboard authenticated first read", () => {
   beforeEach(() => rpc.mockReset());
   it("returns metrics from one verified RPC without a seller filter for the default scope", async () => {
-    const metrics = { meta: 6000, vendas_mes: 31.5, ticket_medio: 10.5, pedidos_count: 3, daily: [] };
+    const metrics = { meta: 6000, vendas_mes: 31.5, ticket_medio: 10.5, pedidos_count: 3, daily: [], clientes_atendidos: 2, meta_clientes: 10, clientes_a_atender: 8, visitas_realizadas: 1 };
     rpc.mockResolvedValue({ data: metrics, error: null });
     expect(await getDashboardIndicators({ data: { period: "2026-10", seller_id: null } })).toEqual(metrics);
     expect(rpc).toHaveBeenCalledExactlyOnceWith("get_seller_indicators", { p_period: "2026-10", p_seller_id: null });

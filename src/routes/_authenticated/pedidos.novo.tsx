@@ -299,8 +299,9 @@ function NewOrder() {
                     <Button size="icon" variant="ghost" aria-label={`Remover ${l.name}`} title={`Remover ${l.name}`} onClick={() => setQty(l.product_id, 0)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                   <div className="mt-1 flex items-center gap-2">
-                    <QuantityControl name={l.name} quantity={l.quantity} disabled={saving} onIncrease={() => adjust(l.product_id, 1)} onDecrease={() => adjust(l.product_id, -1)} />
-                    <Input aria-label={`Quantidade de ${l.name}`} className="h-10 w-16 text-center" type="number" min={1} value={l.quantity} disabled={saving} onChange={(e) => { if (e.target.value !== "") setQty(l.product_id, Number(e.target.value)); }} />
+                    <QuantityControl name={l.name} quantity={l.quantity} disabled={saving} onIncrease={() => adjust(l.product_id, 1)} onDecrease={() => adjust(l.product_id, -1)}>
+                      <Input aria-label={`Quantidade de ${l.name}`} className="h-10 w-10 shrink-0 px-0 text-center" type="number" min={1} value={l.quantity} disabled={saving} onChange={(e) => { if (e.target.value !== "") setQty(l.product_id, Number(e.target.value)); }} />
+                    </QuantityControl>
                     <span className="ml-auto tabular-nums">{brl(l.quantity * l.unit_price)}</span>
                   </div>
                   {l.quantity > l.stock && <p className="mt-1 text-xs text-destructive">Só {l.stock} em estoque</p>}
