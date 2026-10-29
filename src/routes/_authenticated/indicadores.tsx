@@ -106,6 +106,9 @@ function IndicatorsPage() {
   const d = ind.data;
   const empty = d && d.meta === 0 && d.pedidos_count === 0;
   const pct = d ? progressPct(d.meta, d.vendas_mes) : 0;
+  const unmet = unmetTargets(d);
+  const anyTarget = !!d && (d.meta > 0 || d.meta_clientes != null || d.meta_visitas != null);
+  const unmetCount = [unmet.sales, unmet.customers, unmet.visits].filter((x) => x != null).length;
   const scopeLabel = sellerId ? sellers.data?.find((s) => s.id === sellerId)?.full_name : role === "administrador" ? "Toda a distribuidora" : role === "supervisor" ? "Sua equipe" : "Seus números";
 
   return (
