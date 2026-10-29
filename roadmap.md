@@ -11,6 +11,9 @@
 - [ ] Conferir menu do cliente — aguardando criação da conta de cliente
 - [ ] Conferir isolamento de carteira — aguardando contas, vínculo de equipe e clientes de teste; página Clientes ainda em construção
 ## Fase 2 — Construção
+- [ ] Evolução comercial: controles rápidos de itens no catálogo e carrinho acessível no celular
+- [ ] Dashboard: clientes distintos atendidos, meta mensal de clientes, quantidade restante e visitas realizadas
+- [ ] Histórico de pedidos por cliente nos últimos 12 meses com acesso ao detalhe
 - [x] Dashboard: primeira consulta autenticada sem depender de repetição; carregamento, erro e Tentar novamente verificados
 - [x] Importação da base (/admin/importacao + import-erp-data) — clientes, produtos e pedidos; arquivo guardado no armazenamento
 - [x] Clientes e Produtos (listas, fichas, cadastro/edição pelo admin, carteira por papel)
