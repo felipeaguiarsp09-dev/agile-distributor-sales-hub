@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Project rules
+- Dashboard subscribes once per mounted identity to RLS-scoped order changes and invalidates that user's metric/coverage caches; active month/seller queries refetch and inactive ones become stale. Why: live approvals and invoicing stay consistent without replacing authenticated reads or resetting filters.
 - Customer and visit goals are nullable monthly sales-target fields managed on /metas; coverage and visit metrics extend the existing RLS-invoker dashboard RPC. Why: preserves the first-read flow, existing monetary goals and seller isolation.
 - Order quantity buttons share one control and functional cart updates; client history uses a paginated rolling calendar-month window. Why: consistent fast editing and complete permission-scoped history.
 - Dashboard metric reads use an authenticated server function with the verified request client and user-scoped cache keys; initial failures surface without automatic retries so session transitions cannot be masked by a second request.
