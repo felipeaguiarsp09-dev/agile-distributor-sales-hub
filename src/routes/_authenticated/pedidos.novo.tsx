@@ -441,6 +441,7 @@ function NewOrder() {
                           disabled={saving}
                           onIncrease={() => add({ id: p.product_id, name: p.name, unit_price: p.unit_price, stock_quantity: p.stock_quantity })}
                           onDecrease={() => adjust(p.product_id, -1)}
+                          onQuantityChange={(qty) => setQty(p.product_id, qty)}
                         />
                       </li>
                     );
@@ -521,7 +522,7 @@ function NewOrder() {
                       <p className="mt-1 text-xs text-muted-foreground">{p.sku} · {p.stock_quantity} em estoque</p>
                       <p className="mt-1 font-semibold tabular-nums">{brl(p.unit_price)}</p>
                     </div>
-                    <QuantityControl name={p.name} quantity={quantity} disabled={!customerId || saving} onIncrease={() => add(p)} onDecrease={() => adjust(p.id, -1)} />
+                    <QuantityControl name={p.name} quantity={quantity} disabled={!customerId || saving} onIncrease={() => add(p)} onDecrease={() => adjust(p.id, -1)} onQuantityChange={(qty) => setQty(p.id, qty)} />
                   </li>
                 );
               })}
