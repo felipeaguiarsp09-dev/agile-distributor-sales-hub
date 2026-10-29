@@ -47,6 +47,7 @@ function IndicatorsPage() {
   const qc = useQueryClient();
   const insightFn = useServerFn(generateIndicatorInsight);
   const indicatorsFn = useServerFn(getDashboardIndicators);
+  const unservedFn = useServerFn(getUnservedCustomers);
   const [period, setPeriod] = useState(currentPeriod());
   const [seller, setSeller] = useState<string>(ALL);
   const [generating, setGenerating] = useState(false);
@@ -76,6 +77,13 @@ function IndicatorsPage() {
     queryFn: () => indicatorsFn({ data: { period, seller_id: sellerId } }),
   });
   const indicatorsLoading = !indicatorsReady || ind.isPending;
+
+  const unserved = useQuery({
+    queryKey: ["unserved-customers", profile?.id, period, sellerId],
+    enabled: indicatorsReady && unservedOpen,
+    retry: false,
+    queryFn: () => unservedFn({ data: { period, seller_id: sellerId } }),
+  });
 
   const scope = profile && role !== "cliente" ? insightScope(role, profile.id, sellerId) : null;
   const insight = useQuery({
