@@ -50,6 +50,13 @@
       "when": 1793113307111,
       "tag": "0006_submit_order_caller_check",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793281597687,
+      "tag": "0007_dashboard_customer_targets",
+      "breakpoints": true
     }
   ]
 }
