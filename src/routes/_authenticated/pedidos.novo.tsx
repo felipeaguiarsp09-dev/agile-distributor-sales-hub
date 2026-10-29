@@ -445,7 +445,7 @@ function NewOrder() {
                     <CommandEmpty>Nenhum cliente encontrado na sua carteira.</CommandEmpty>
                     <CommandGroup>
                       {(customers.data ?? []).filter((c) => matchesCustomerSearch(c, customerQuery)).map((c) => (
-                        <CommandItem key={c.id} value={c.name} onSelect={() => { setCustomerId(c.id); setSugs([]); setSugState("idle"); setCustomerOpen(false); setCustomerQuery(""); }}>
+                        <CommandItem key={c.id} value={c.name} onSelect={() => { setCustomerId(c.id); setSugs([]); setSugState("idle"); customerSearchRef.current?.blur(); setCustomerOpen(false); setCustomerQuery(""); }}>
                           <Check className={cn("mr-2 h-4 w-4", customerId === c.id ? "opacity-100" : "opacity-0")} />
                           <span className="min-w-0">
                             <span className="block truncate">{c.name}</span>
