@@ -12,6 +12,8 @@ export type Indicators = {
   visitas_a_realizar: number | null;
 };
 
+export type UnservedCustomer = { id: string; name: string; cnpj_cpf: string | null; phone: string | null };
+
 export type InsightScope = { scope: "vendedor" | "equipe" | "global"; scope_ref_id: string | null };
 
 /** Escopo da leitura da IA conforme o papel (docs/PAGINAS.md → /indicadores). */

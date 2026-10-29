@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { insightScope, type Indicators } from "./indicators";
+import { insightScope, type Indicators, type UnservedCustomer } from "./indicators";
 
 /** Read through the verified request client, never a browser session in transition. */
 export const getDashboardIndicators = createServerFn({ method: "POST" })
