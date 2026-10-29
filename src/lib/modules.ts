@@ -6,6 +6,7 @@ import {
   ShoppingBag,
   ShoppingCart,
   Users,
+  Target,
   type LucideIcon,
 } from "lucide-react";
 import type { Role } from "./auth";
@@ -19,6 +20,7 @@ export type ModuleItem = {
     | "/produtos"
     | "/ecommerce"
     | "/agenda";
+  // Targets are managed by administrators and supervisors only.
   label: string;
   icon: LucideIcon;
   roles: Role[];
