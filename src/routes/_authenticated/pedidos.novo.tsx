@@ -43,6 +43,40 @@ export const Route = createFileRoute("/_authenticated/pedidos/novo")({
 });
 
 type Suggestion = { id: string | null; product: { id: string; name: string; unit_price: number; stock_quantity: number }; reason: string; score: number };
+
+function CartQuantityInput({ name, value, disabled, onCommit }: { name: string; value: number; disabled?: boolean; onCommit: (qty: number) => void }) {
+  const [text, setText] = useState<string | null>(null);
+  return (
+    <Input
+      aria-label={`Quantidade de ${name}`}
+      className="h-10 w-10 shrink-0 px-0 text-center"
+      type="number"
+      min={1}
+      inputMode="numeric"
+      pattern="[0-9]*"
+      enterKeyHint="next"
+      data-cart-qty
+      value={text ?? String(value)}
+      disabled={disabled}
+      onFocus={(e) => e.target.select()}
+      onChange={(e) => {
+        const v = e.target.value;
+        setText(v);
+        if (v !== "") onCommit(Number(v));
+      }}
+      onBlur={() => setText(null)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          setText(null);
+          const fields = Array.from(document.querySelectorAll<HTMLInputElement>("[data-cart-qty]"));
+          const next = fields[fields.indexOf(e.currentTarget) + 1];
+          if (next) { next.focus(); next.select(); } else e.currentTarget.blur();
+        }
+      }}
+    />
+  );
+}
 type RepeatOrder = {
   id: string;
   customer_id: string;
@@ -544,7 +578,7 @@ function NewOrder() {
                   </div>
                   <div className="mt-1 flex items-center gap-2">
                     <QuantityControl name={l.name} quantity={l.quantity} disabled={saving} onIncrease={() => adjust(l.product_id, 1)} onDecrease={() => adjust(l.product_id, -1)}>
-                      <Input aria-label={`Quantidade de ${l.name}`} className="h-10 w-10 shrink-0 px-0 text-center" type="number" min={1} inputMode="numeric" pattern="[0-9]*" enterKeyHint="next" data-cart-qty value={l.quantity} disabled={saving} onFocus={(e) => e.target.select()} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); const fields = Array.from(document.querySelectorAll<HTMLInputElement>("[data-cart-qty]")); const next = fields[fields.indexOf(e.currentTarget) + 1]; if (next) { next.focus(); next.select(); } else e.currentTarget.blur(); } }} onChange={(e) => { if (e.target.value !== "") setQty(l.product_id, Number(e.target.value)); }} />
+                      <CartQuantityInput name={l.name} value={l.quantity} disabled={saving} onCommit={(qty) => setQty(l.product_id, qty)} />
                     </QuantityControl>
                     <span className="ml-auto tabular-nums">{brl(l.quantity * l.unit_price)}</span>
                   </div>
