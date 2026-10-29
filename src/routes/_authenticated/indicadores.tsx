@@ -250,6 +250,7 @@ function IndicatorsPage() {
         )}
       </section>
 
+      <UnservedDialog open={unservedOpen} onOpenChange={setUnservedOpen} period={period} query={unserved} />
       {sellerId && profile && (
         <MetaDialog open={metaOpen} onOpenChange={setMetaOpen} sellerId={sellerId} period={period} orgId={profile.organization_id} current={d?.meta ?? 0} currentCustomers={d?.meta_clientes ?? null} />
       )}
