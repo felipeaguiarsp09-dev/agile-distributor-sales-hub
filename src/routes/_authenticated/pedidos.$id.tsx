@@ -67,7 +67,7 @@ function OrderDetail() {
   async function copyToDraft() {
     setBusy(true);
     try {
-      if (!profile) throw new Error("Sem sessão ativa");
+      if (!profile || !o) throw new Error("Sem sessão ativa");
       const { data: created, error } = await supabase
         .from("orders")
         .insert({ organization_id: o.organization_id, customer_id: o.customer_id, seller_id: profile.id, origin: "vendedor", discount_amount: o.discount_amount, notes: o.notes })

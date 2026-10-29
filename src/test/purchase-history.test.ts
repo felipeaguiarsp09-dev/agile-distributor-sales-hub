@@ -35,7 +35,7 @@ describe("purchasedProducts", () => {
       order("2026-02-01", "aprovado", [item("b", "B")]),
     ];
     expect(purchasedProducts(orders).map((p) => p.product_id)).toEqual(["a", "b", "c"]);
-    expect(purchasedProducts(orders)[0].ordersCount).toBe(2);
+    expect(purchasedProducts(orders)[0]?.ordersCount).toBe(2);
   });
 
   it("respeita o limite informado", () => {
