@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, RefreshCw, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber } from "@/lib/orders";
+import { useAuth } from "@/lib/auth";
+import { ORDER_STATUS_LABEL, ORIGIN_LABEL, canCreateOrder, orderNumber } from "@/lib/orders";
 import { orderHistoryWindow } from "@/lib/order-history";
 import { PageHeader } from "@/components/ModulePage";
 import { EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/_authenticated/historico")({
 });
 
 function OrderHistoryPage() {
+  const { profile } = useAuth();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("todos");
   const [customerId, setCustomerId] = useState("todos");
@@ -50,7 +52,7 @@ function OrderHistoryPage() {
     queryFn: async () => {
       let query = supabase
         .from("orders")
-        .select("id, created_at, status, origin, total_amount, customers!inner(name)", { count: "exact" })
+        .select("id, created_at, status, origin, total_amount, seller_id, customers!inner(name)", { count: "exact" })
         .gte("created_at", historyWindow.from)
         .lte("created_at", historyWindow.to)
         .neq("status", "rascunho")
@@ -131,34 +133,47 @@ function OrderHistoryPage() {
             {list.data.total} pedido{list.data.total === 1 ? "" : "s"} encontrado{list.data.total === 1 ? "" : "s"}
           </p>
           <ul className="divide-y rounded-lg border bg-card">
-            {list.data.rows.map((o) => (
-              <li key={o.id}>
-                <Link
-                  to="/pedidos/$id"
-                  params={{ id: o.id }}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 hover:bg-muted/50"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{o.customers?.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {orderNumber(o.id)} · {new Date(o.created_at).toLocaleDateString("pt-BR")} · {ORIGIN_LABEL[o.origin]}
-                    </p>
-                  </div>
-                  <span className="text-sm font-semibold tabular-nums">{brl(o.total_amount)}</span>
-                  <Badge
-                    variant={
-                      o.status === "recusado" || o.status === "cancelado"
-                        ? "destructive"
-                        : o.status === "aguardando_aprovacao"
-                          ? "outline"
-                          : "secondary"
-                    }
+            {list.data.rows.map((o) => {
+              const canRepeat =
+                canCreateOrder(profile?.role) &&
+                (o.seller_id === profile?.id || profile?.role === "administrador") &&
+                ["aprovado", "faturado"].includes(o.status);
+              return (
+                <li key={o.id} className="flex items-center gap-2 pr-2">
+                  <Link
+                    to="/pedidos/$id"
+                    params={{ id: o.id }}
+                    className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 hover:bg-muted/50"
                   >
-                    {ORDER_STATUS_LABEL[o.status]}
-                  </Badge>
-                </Link>
-              </li>
-            ))}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium">{o.customers?.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {orderNumber(o.id)} · {new Date(o.created_at).toLocaleDateString("pt-BR")} · {ORIGIN_LABEL[o.origin]}
+                      </p>
+                    </div>
+                    <span className="text-sm font-semibold tabular-nums">{brl(o.total_amount)}</span>
+                    <Badge
+                      variant={
+                        o.status === "recusado" || o.status === "cancelado"
+                          ? "destructive"
+                          : o.status === "aguardando_aprovacao"
+                            ? "outline"
+                            : "secondary"
+                      }
+                    >
+                      {ORDER_STATUS_LABEL[o.status]}
+                    </Badge>
+                  </Link>
+                  {canRepeat && (
+                    <Button asChild variant="outline" size="sm" className="shrink-0">
+                      <Link to="/pedidos/novo" search={{ repetir: o.id }}>
+                        <RefreshCw className="h-4 w-4" /> Pedir de novo
+                      </Link>
+                    </Button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between">
