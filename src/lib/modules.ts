@@ -1,6 +1,7 @@
 import {
   BarChart3,
   CalendarDays,
+  History,
   KanbanSquare,
   Package,
   ShoppingBag,
