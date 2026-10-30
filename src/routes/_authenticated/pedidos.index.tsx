@@ -184,7 +184,7 @@ function OrdersPage() {
         </div>
       )}
 
-      <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_180px_160px_150px_150px]">
+      <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_180px_160px_150px_150px_auto]">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -217,6 +217,17 @@ function OrdersPage() {
         </Select>
         <Input type="date" aria-label="De" value={from} onChange={(e) => setFilters({ de: e.target.value || undefined })} />
         <Input type="date" aria-label="Até" value={to} onChange={(e) => setFilters({ ate: e.target.value || undefined })} />
+        {hasActiveFilters && (
+          <Button
+            variant="outline"
+            aria-label="Limpar filtros"
+            title="Limpar filtros"
+            className="justify-center"
+            onClick={clearFilters}
+          >
+            <X className="h-4 w-4" /> Limpar
+          </Button>
+        )}
       </div>
 
       {list.isLoading ? (
