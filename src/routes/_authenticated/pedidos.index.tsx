@@ -217,17 +217,24 @@ function OrdersPage() {
         </Select>
         <Input type="date" aria-label="De" value={from} onChange={(e) => setFilters({ de: e.target.value || undefined })} />
         <Input type="date" aria-label="Até" value={to} onChange={(e) => setFilters({ ate: e.target.value || undefined })} />
-        {hasActiveFilters && (
-          <Button
-            variant="outline"
-            aria-label="Limpar filtros"
-            title="Limpar filtros"
-            className="justify-center"
-            onClick={clearFilters}
-          >
-            <X className="h-4 w-4" /> Limpar
-          </Button>
-        )}
+        <div className="flex items-center gap-2 sm:justify-end">
+          {list.data && (
+            <span className="whitespace-nowrap text-sm text-muted-foreground" aria-live="polite">
+              {list.data.total} pedido{list.data.total === 1 ? "" : "s"}
+            </span>
+          )}
+          {hasActiveFilters && (
+            <Button
+              variant="outline"
+              aria-label="Limpar filtros"
+              title="Limpar filtros"
+              className="justify-center"
+              onClick={clearFilters}
+            >
+              <X className="h-4 w-4" /> Limpar
+            </Button>
+          )}
+        </div>
       </div>
 
       {list.isLoading ? (
