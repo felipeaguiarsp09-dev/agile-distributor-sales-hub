@@ -11,6 +11,7 @@ import {
   ORIGIN_LABEL,
   orderNumber,
   orderNumberSearch,
+  orderListSearch,
   escapeSearchTerm,
 } from "@/lib/orders";
 import { orderHistoryWindow } from "@/lib/order-history";
@@ -24,17 +25,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const PAGE_SIZE = 20;
 
 // Filtros e página ficam na URL para sobreviverem à ida ao detalhe do pedido e à volta.
-type Search = { q?: string | undefined; status?: string | undefined; origem?: string | undefined; de?: string | undefined; ate?: string | undefined; pagina?: number | undefined };
+type Search = ReturnType<typeof orderListSearch>;
 
 export const Route = createFileRoute("/_authenticated/pedidos/")({
-  validateSearch: (s: Record<string, unknown>): Search => ({
-    q: typeof s["q"] === "string" ? s["q"] : undefined,
-    status: typeof s["status"] === "string" ? s["status"] : undefined,
-    origem: typeof s["origem"] === "string" ? s["origem"] : undefined,
-    de: typeof s["de"] === "string" ? s["de"] : undefined,
-    ate: typeof s["ate"] === "string" ? s["ate"] : undefined,
-    pagina: typeof s["pagina"] === "number" && s["pagina"] > 0 ? Math.floor(s["pagina"]) : undefined,
-  }),
+  validateSearch: orderListSearch,
   head: () => ({
     meta: [
       { title: "Pedidos — Dcalice" },
