@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, useElementScrollRestoration } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, RefreshCw, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, RefreshCw, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import {
@@ -54,6 +54,7 @@ function OrdersPage() {
   const restoreKey = JSON.stringify(search);
   const restoredKey = useRef<string | null>(null);
   const restorationTarget = useRef(savedScroll);
+  const clearPending = useRef(false);
   const [historyWindow] = useState(() => orderHistoryWindow());
 
   const q = search.q ?? "";
@@ -62,6 +63,14 @@ function OrdersPage() {
   const from = search.de ?? "";
   const to = search.ate ?? "";
   const page = Math.max(0, (search.pagina ?? 1) - 1);
+
+  const hasActiveFilters = !!(search.q || search.status || search.origem || search.de || search.ate);
+
+  // Limpar volta à lista sem filtros, na primeira página e no topo.
+  const clearFilters = () => {
+    clearPending.current = true;
+    navigate({ search: {}, replace: true });
+  };
 
   // Qualquer mudança de filtro volta para a primeira página; só a paginação muda "pagina".
   const setFilters = (patch: Partial<Search>) =>
@@ -129,6 +138,15 @@ function OrdersPage() {
   }, [restoreKey]);
 
   useEffect(() => {
+    // Após limpar os filtros, a lista volta ao topo em vez de restaurar a rolagem anterior.
+    if (clearPending.current && !list.isLoading) {
+      clearPending.current = false;
+      const frame = requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        restoredKey.current = restoreKey;
+      });
+      return () => cancelAnimationFrame(frame);
+    }
     // Router restoration can run while the loading skeleton is still too short.
     // Reapply once the rows render, only once per list context, never on refetch.
     if (list.isLoading || restoredKey.current === restoreKey) return;
@@ -166,7 +184,7 @@ function OrdersPage() {
         </div>
       )}
 
-      <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_180px_160px_150px_150px]">
+      <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_180px_160px_150px_150px_auto]">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -199,6 +217,17 @@ function OrdersPage() {
         </Select>
         <Input type="date" aria-label="De" value={from} onChange={(e) => setFilters({ de: e.target.value || undefined })} />
         <Input type="date" aria-label="Até" value={to} onChange={(e) => setFilters({ ate: e.target.value || undefined })} />
+        {hasActiveFilters && (
+          <Button
+            variant="outline"
+            aria-label="Limpar filtros"
+            title="Limpar filtros"
+            className="justify-center"
+            onClick={clearFilters}
+          >
+            <X className="h-4 w-4" /> Limpar
+          </Button>
+        )}
       </div>
 
       {list.isLoading ? (
