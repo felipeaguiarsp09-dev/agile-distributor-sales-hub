@@ -188,7 +188,7 @@ function OrdersPage() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            className="h-11 pl-9 md:h-9"
+            className="h-11 pl-9 text-base md:h-9 md:text-sm"
             placeholder="Buscar cliente ou número"
             value={q}
             onChange={(e) => setFilters({ q: e.target.value || undefined })}
@@ -198,7 +198,7 @@ function OrdersPage() {
           value={status}
           onValueChange={(v) => setFilters({ status: v === "todos" ? undefined : v })}
         >
-          <SelectTrigger className="h-11 md:h-9"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-11 text-base md:h-9 md:text-sm"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
             {Object.entries(ORDER_STATUS_LABEL).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}
@@ -208,15 +208,15 @@ function OrdersPage() {
           value={origin}
           onValueChange={(v) => setFilters({ origem: v === "todas" ? undefined : v })}
         >
-          <SelectTrigger className="h-11 md:h-9"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-11 text-base md:h-9 md:text-sm"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todas">Todas as origens</SelectItem>
             <SelectItem value="vendedor">Vendedor</SelectItem>
             <SelectItem value="ecommerce">E-commerce</SelectItem>
           </SelectContent>
         </Select>
-        <Input type="date" aria-label="De" className="h-11 md:h-9" value={from} onChange={(e) => setFilters({ de: e.target.value || undefined })} />
-        <Input type="date" aria-label="Até" className="h-11 md:h-9" value={to} onChange={(e) => setFilters({ ate: e.target.value || undefined })} />
+        <Input type="date" aria-label="De" className="h-11 text-base md:h-9 md:text-sm" value={from} onChange={(e) => setFilters({ de: e.target.value || undefined })} />
+        <Input type="date" aria-label="Até" className="h-11 text-base md:h-9 md:text-sm" value={to} onChange={(e) => setFilters({ ate: e.target.value || undefined })} />
         <div className="flex items-center gap-2 md:col-span-full lg:col-span-1 lg:justify-end">
           {list.data && (
             <span className="whitespace-nowrap text-sm text-muted-foreground" aria-live="polite">
