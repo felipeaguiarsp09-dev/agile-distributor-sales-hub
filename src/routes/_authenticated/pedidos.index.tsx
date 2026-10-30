@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, RefreshCw, Search } from "lucide-react";
@@ -23,7 +23,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const PAGE_SIZE = 20;
 
+// Filtros e página ficam na URL para sobreviverem à ida ao detalhe do pedido e à volta.
+type Search = { q?: string | undefined; status?: string | undefined; origem?: string | undefined; de?: string | undefined; ate?: string | undefined; pagina?: number | undefined };
+
 export const Route = createFileRoute("/_authenticated/pedidos/")({
+  validateSearch: (s: Record<string, unknown>): Search => ({
+    q: typeof s["q"] === "string" ? s["q"] : undefined,
+    status: typeof s["status"] === "string" ? s["status"] : undefined,
+    origem: typeof s["origem"] === "string" ? s["origem"] : undefined,
+    de: typeof s["de"] === "string" ? s["de"] : undefined,
+    ate: typeof s["ate"] === "string" ? s["ate"] : undefined,
+    pagina: typeof s["pagina"] === "number" && s["pagina"] > 0 ? Math.floor(s["pagina"]) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Pedidos — Dcalice" },
@@ -39,13 +50,22 @@ export const Route = createFileRoute("/_authenticated/pedidos/")({
 
 function OrdersPage() {
   const { profile } = useAuth();
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState("todos");
-  const [origin, setOrigin] = useState("todas");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [page, setPage] = useState(0);
+  const navigate = useNavigate({ from: Route.fullPath });
+  const search = Route.useSearch();
   const [historyWindow] = useState(() => orderHistoryWindow());
+
+  const q = search.q ?? "";
+  const status = search.status ?? "todos";
+  const origin = search.origem ?? "todas";
+  const from = search.de ?? "";
+  const to = search.ate ?? "";
+  const page = Math.max(0, (search.pagina ?? 1) - 1);
+
+  // Qualquer mudança de filtro volta para a primeira página; só a paginação muda "pagina".
+  const setFilters = (patch: Partial<Search>) =>
+    navigate({ search: (prev) => ({ ...prev, ...patch, pagina: undefined }), replace: true });
+  const setPage = (p: number) =>
+    navigate({ search: (prev) => ({ ...prev, pagina: p + 1 > 1 ? p + 1 : undefined }), replace: true });
 
   const term = q.trim();
   const numberRange = orderNumberSearch(term);
@@ -100,7 +120,6 @@ function OrdersPage() {
   });
 
   const totalPages = Math.max(1, Math.ceil((list.data?.total ?? 0) / PAGE_SIZE));
-  const resetPage = () => setPage(0);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -119,10 +138,7 @@ function OrdersPage() {
           {Object.entries(ORDER_STATUS_LABEL).map(([k, label]) => (
             <button
               key={k}
-              onClick={() => {
-                setStatus(status === k ? "todos" : k);
-                resetPage();
-              }}
+              onClick={() => setFilters({ status: status === k ? undefined : k })}
               className={`rounded-md border px-3 py-1.5 text-sm ${status === k ? "border-primary bg-secondary" : "bg-card"}`}
             >
               {label} <span className="font-semibold tabular-nums">{counts.data?.[k] ?? 0}</span>
@@ -138,18 +154,12 @@ function OrdersPage() {
             className="pl-9"
             placeholder="Buscar cliente ou número"
             value={q}
-            onChange={(e) => {
-              setQ(e.target.value);
-              resetPage();
-            }}
+            onChange={(e) => setFilters({ q: e.target.value || undefined })}
           />
         </div>
         <Select
           value={status}
-          onValueChange={(v) => {
-            setStatus(v);
-            resetPage();
-          }}
+          onValueChange={(v) => setFilters({ status: v === "todos" ? undefined : v })}
         >
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -159,10 +169,7 @@ function OrdersPage() {
         </Select>
         <Select
           value={origin}
-          onValueChange={(v) => {
-            setOrigin(v);
-            resetPage();
-          }}
+          onValueChange={(v) => setFilters({ origem: v === "todas" ? undefined : v })}
         >
           <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -171,8 +178,8 @@ function OrdersPage() {
             <SelectItem value="ecommerce">E-commerce</SelectItem>
           </SelectContent>
         </Select>
-        <Input type="date" aria-label="De" value={from} onChange={(e) => { setFrom(e.target.value); resetPage(); }} />
-        <Input type="date" aria-label="Até" value={to} onChange={(e) => { setTo(e.target.value); resetPage(); }} />
+        <Input type="date" aria-label="De" value={from} onChange={(e) => setFilters({ de: e.target.value || undefined })} />
+        <Input type="date" aria-label="Até" value={to} onChange={(e) => setFilters({ ate: e.target.value || undefined })} />
       </div>
 
       {list.isLoading ? (
