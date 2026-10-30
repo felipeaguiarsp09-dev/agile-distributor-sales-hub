@@ -298,7 +298,11 @@ function OrdersPage() {
                 <ChevronLeft className="h-4 w-4 shrink-0" /> Anterior
               </Button>
               <span className="truncate text-center text-sm text-muted-foreground tabular-nums">
-                Página {page + 1} de {totalPages}
+                Página{" "}
+                <span className="rounded-md border bg-secondary px-1.5 py-0.5 font-semibold text-foreground">
+                  {page + 1}
+                </span>{" "}
+                de {totalPages}
               </span>
               <Button variant="outline" size="sm" className="min-h-11 whitespace-nowrap px-3 md:min-h-9 md:py-1" disabled={page + 1 >= totalPages} onClick={() => setPage(page + 1)}>
                 Próxima <ChevronRight className="h-4 w-4 shrink-0" />
