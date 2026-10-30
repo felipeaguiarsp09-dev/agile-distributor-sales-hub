@@ -1,8 +1,7 @@
-import { ChevronLeft, ChevronRight, Plus, RefreshCw, Search, X } from "lucide-react";
 import { createFileRoute, Link, useNavigate, useElementScrollRestoration } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, RefreshCw, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, RefreshCw, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import {
