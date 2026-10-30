@@ -136,12 +136,19 @@ export type OrderListSearch = {
 };
 
 export function orderListSearch(s: Record<string, unknown>): OrderListSearch {
+  const pg = s["pagina"];
+  const pagina =
+    typeof pg === "number" && pg > 0
+      ? Math.floor(pg)
+      : typeof pg === "string" && /^\d+$/.test(pg) && Number(pg) > 0
+        ? Number(pg)
+        : undefined;
   return {
     q: typeof s["q"] === "string" ? s["q"] : undefined,
     status: typeof s["status"] === "string" ? s["status"] : undefined,
     origem: typeof s["origem"] === "string" ? s["origem"] : undefined,
     de: typeof s["de"] === "string" ? s["de"] : undefined,
     ate: typeof s["ate"] === "string" ? s["ate"] : undefined,
-    pagina: typeof s["pagina"] === "number" && s["pagina"] > 0 ? Math.floor(s["pagina"]) : undefined,
+    pagina,
   };
 }

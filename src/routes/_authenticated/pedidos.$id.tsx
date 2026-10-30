@@ -36,7 +36,10 @@ function OrderDetail() {
   const pushFn = useServerFn(pushOrderToErp);
   const [busy, setBusy] = useState(false);
   // Filtros/página vindos da lista, devolvidos ao link "Pedidos" para a volta manter o contexto.
-  const listSearch = useRouterState({ select: (s) => orderListSearch(s.location.search as Record<string, unknown>) });
+  // A rota de detalhe não valida search params, então lemos a query string crua.
+  const listSearch = useRouterState({
+    select: (s) => orderListSearch(Object.fromEntries(new URLSearchParams(s.location.searchStr))),
+  });
 
   const order = useQuery({
     queryKey: ["orders", id],
