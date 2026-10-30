@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 1;
 
 // Filtros e página ficam na URL para sobreviverem à ida ao detalhe do pedido e à volta.
 type Search = ReturnType<typeof orderListSearch>;
