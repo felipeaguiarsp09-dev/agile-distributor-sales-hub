@@ -138,6 +138,15 @@ function OrdersPage() {
   }, [restoreKey]);
 
   useEffect(() => {
+    // Após limpar os filtros, a lista volta ao topo em vez de restaurar a rolagem anterior.
+    if (clearPending.current && !list.isLoading) {
+      clearPending.current = false;
+      const frame = requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        restoredKey.current = restoreKey;
+      });
+      return () => cancelAnimationFrame(frame);
+    }
     // Router restoration can run while the loading skeleton is still too short.
     // Reapply once the rows render, only once per list context, never on refetch.
     if (list.isLoading || restoredKey.current === restoreKey) return;
