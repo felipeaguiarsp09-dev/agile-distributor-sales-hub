@@ -247,9 +247,6 @@ function OrdersPage() {
         </EmptyState>
       ) : (
         <>
-          <p className="mb-2 text-sm text-muted-foreground">
-            {list.data.total} pedido{list.data.total === 1 ? "" : "s"} encontrado{list.data.total === 1 ? "" : "s"}
-          </p>
           <ul className="divide-y rounded-lg border bg-card">
             {list.data.rows.map((o) => {
               const canRepeat =
