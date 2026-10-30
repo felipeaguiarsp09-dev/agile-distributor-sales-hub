@@ -68,7 +68,7 @@ function OrdersPage() {
         // Número digitado busca pelo id do pedido; texto busca pelo nome do cliente.
         query = numberRange
           ? query.gte("id", numberRange.gte).lt("id", numberRange.lt)
-          : query.ilike("customers.name", like);
+          : query.ilike("customers.name_search", like);
       }
       const { data, error, count } = await query.range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
       if (error) throw error;
@@ -91,7 +91,7 @@ function OrdersPage() {
         // Número digitado busca pelo id do pedido; texto busca pelo nome do cliente.
         query = numberRange
           ? query.gte("id", numberRange.gte).lt("id", numberRange.lt)
-          : query.ilike("customers.name", like);
+          : query.ilike("customers.name_search", like);
       }
       const { data, error } = await query.range(0, 9999);
       if (error) throw error;
