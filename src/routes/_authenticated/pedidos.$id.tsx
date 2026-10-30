@@ -35,6 +35,8 @@ function OrderDetail() {
   const qc = useQueryClient();
   const pushFn = useServerFn(pushOrderToErp);
   const [busy, setBusy] = useState(false);
+  // Filtros/página vindos da lista, devolvidos ao link "Pedidos" para a volta manter o contexto.
+  const listSearch = useRouterState({ select: (s) => orderListSearch(s.location.search as Record<string, unknown>) });
 
   const order = useQuery({
     queryKey: ["orders", id],
@@ -121,7 +123,7 @@ function OrderDetail() {
     <div className="mx-auto max-w-4xl">
       <Link
         to="/pedidos"
-        search={(prev) => prev}
+        search={listSearch}
         className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" /> Pedidos
