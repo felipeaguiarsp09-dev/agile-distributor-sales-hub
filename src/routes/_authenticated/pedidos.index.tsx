@@ -184,7 +184,7 @@ function OrdersPage() {
         </div>
       )}
 
-      <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_180px_160px_150px_150px_auto]">
+      <div className="mb-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_180px_160px_150px_150px] lg:grid-cols-[minmax(0,1fr)_180px_160px_150px_150px_auto]">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -217,7 +217,7 @@ function OrdersPage() {
         </Select>
         <Input type="date" aria-label="De" value={from} onChange={(e) => setFilters({ de: e.target.value || undefined })} />
         <Input type="date" aria-label="Até" value={to} onChange={(e) => setFilters({ ate: e.target.value || undefined })} />
-        <div className="flex items-center gap-2 sm:justify-end">
+        <div className="flex items-center gap-2 md:col-span-full lg:col-span-1 lg:justify-end">
           {list.data && (
             <span className="whitespace-nowrap text-sm text-muted-foreground" aria-live="polite">
               {list.data.total} pedido{list.data.total === 1 ? "" : "s"}
