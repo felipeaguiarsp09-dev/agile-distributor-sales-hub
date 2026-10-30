@@ -54,6 +54,7 @@ function OrdersPage() {
   const restoreKey = JSON.stringify(search);
   const restoredKey = useRef<string | null>(null);
   const restorationTarget = useRef(savedScroll);
+  const clearPending = useRef(false);
   const [historyWindow] = useState(() => orderHistoryWindow());
 
   const q = search.q ?? "";
