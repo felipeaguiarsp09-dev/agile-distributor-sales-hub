@@ -294,7 +294,13 @@ function OrdersPage() {
           </ul>
           {totalPages > 1 && (
             <div className="mt-4 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2">
-              <Button variant="outline" size="sm" className="min-h-11 whitespace-nowrap px-3 md:min-h-9 md:py-1" disabled={page === 0} onClick={() => setPage(page - 1)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-h-11 whitespace-nowrap px-3 md:min-h-9 md:py-1 disabled:text-muted-foreground disabled:opacity-100"
+                disabled={page === 0}
+                onClick={() => setPage(page - 1)}
+              >
                 <ChevronLeft className="h-4 w-4 shrink-0" /> Anterior
               </Button>
               <span className="truncate text-center text-sm text-muted-foreground tabular-nums">
@@ -304,7 +310,13 @@ function OrdersPage() {
                 </span>{" "}
                 de {totalPages}
               </span>
-              <Button variant="outline" size="sm" className="min-h-11 whitespace-nowrap px-3 md:min-h-9 md:py-1" disabled={page + 1 >= totalPages} onClick={() => setPage(page + 1)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-h-11 whitespace-nowrap px-3 md:min-h-9 md:py-1 disabled:text-muted-foreground disabled:opacity-100"
+                disabled={page + 1 >= totalPages}
+                onClick={() => setPage(page + 1)}
+              >
                 Próxima <ChevronRight className="h-4 w-4 shrink-0" />
               </Button>
             </div>
