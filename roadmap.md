@@ -21,6 +21,7 @@
 - [x] Dashboard: clientes distintos atendidos, meta mensal de clientes, quantidade restante e visitas realizadas — salvamento e contagem real testados
 - [x] Dashboard: clique no saldo "Clientes a atender" abre a lista da carteira sem pedido aprovado/faturado no mês (RPC get_unserved_customers, mesmo escopo dos indicadores)
 - [x] Histórico de pedidos por cliente nos últimos 12 meses com acesso ao detalhe — navegação e limites de datas verificados
+- [x] Histórico unificado dentro de Pedidos: uma página só com 12 meses, filtros, paginação e "Pedir de novo" — menu sem Histórico; /historico redireciona para /pedidos
 - [x] Dashboard: primeira consulta autenticada sem depender de repetição; carregamento, erro e Tentar novamente verificados
 - [x] Importação da base (/admin/importacao + import-erp-data) — clientes, produtos e pedidos; arquivo guardado no armazenamento
 - [x] Clientes e Produtos (listas, fichas, cadastro/edição pelo admin, carteira por papel)

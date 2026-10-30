@@ -64,6 +64,13 @@
       "when": 1793281973202,
       "tag": "0008_visit_targets",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793362834455,
+      "tag": "0009_customers_name_search_fold",
+      "breakpoints": true
     }
   ]
 }

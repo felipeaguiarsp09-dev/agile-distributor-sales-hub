@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cartTotals } from "@/lib/orders";
+import { cartTotals, escapeSearchTerm, orderNumberSearch } from "@/lib/orders";
 
 const line = (quantity: number, unit_price: number) => ({ product_id: "p", name: "x", unit_price, stock: 99, quantity, ai_suggestion_id: null });
 
@@ -9,5 +9,21 @@ describe("totais do pedido", () => {
   });
   it("desconto nunca passa do subtotal", () => {
     expect(cartTotals([line(1, 10)], 50).total).toBe(0);
+  });
+});
+
+describe("busca de pedidos por número e nome", () => {
+  it("converte o número do pedido em faixa de id, com ou sem #", () => {
+    expect(orderNumberSearch("#ABC123")).toEqual({
+      gte: "abc12300-0000-0000-0000-000000000000",
+      lt: "abc123ff-ffff-ffff-ffff-ffffffffffff",
+    });
+  });
+  it("termo que não é número de pedido não filtra por id", () => {
+    expect(orderNumberSearch("Empório")).toBeNull();
+    expect(orderNumberSearch("")).toBeNull();
+  });
+  it("limpa caracteres especiais do termo de busca", () => {
+    expect(escapeSearchTerm('  João, (a) "x"  ')).toBe("João a x");
   });
 });

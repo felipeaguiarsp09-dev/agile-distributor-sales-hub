@@ -1,7 +1,6 @@
 import {
   BarChart3,
   CalendarDays,
-  History,
   KanbanSquare,
   Package,
   ShoppingBag,
@@ -17,7 +16,6 @@ export type ModuleItem = {
     | "/indicadores"
     | "/fluxo-de-vendas"
     | "/pedidos"
-    | "/historico"
     | "/clientes"
     | "/produtos"
     | "/ecommerce"
@@ -30,12 +28,11 @@ export type ModuleItem = {
 
 const INTERNAL: Role[] = ["vendedor", "supervisor", "administrador"];
 
-/** Os 7 módulos do menu, na ordem definida em docs/PAGINAS.md. */
+/** Os módulos do menu; o histórico dos últimos 12 meses vive dentro de Pedidos. */
 export const MODULES: ModuleItem[] = [
   { to: "/indicadores", label: "Dashboard", icon: BarChart3, roles: INTERNAL },
   { to: "/fluxo-de-vendas", label: "Fluxo de Vendas", icon: KanbanSquare, roles: INTERNAL },
   { to: "/pedidos", label: "Pedidos", icon: ShoppingCart, roles: INTERNAL },
-  { to: "/historico", label: "Histórico", icon: History, roles: INTERNAL },
   { to: "/clientes", label: "Clientes", icon: Users, roles: INTERNAL },
   { to: "/produtos", label: "Produtos", icon: Package, roles: INTERNAL },
   { to: "/ecommerce", label: "E-commerce", icon: ShoppingBag, roles: [...INTERNAL, "cliente"] },

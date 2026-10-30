@@ -109,3 +109,18 @@ export function matchesCustomerSearch(
     (digits.length >= 3 && docDigits.includes(digits))
   );
 }
+
+/** Prefixo do número do pedido (8 primeiros caracteres do id, exibidos em maiúsculas). */
+export function orderNumberSearch(term: string): { gte: string; lt: string } | null {
+  const digits = term.trim().replace(/^#/, "").toLowerCase();
+  if (!/^[0-9a-f]{1,8}$/.test(digits)) return null;
+  return {
+    gte: `${digits.padEnd(8, "0")}-0000-0000-0000-000000000000`,
+    lt: `${digits.padEnd(8, "f")}-ffff-ffff-ffff-ffffffffffff`,
+  };
+}
+
+/** Remove caracteres que são sintaxe dos filtros do PostgREST (ilike/or). */
+export function escapeSearchTerm(term: string) {
+  return term.trim().replace(/[%_,()"*]/g, "");
+}

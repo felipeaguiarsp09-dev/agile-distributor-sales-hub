@@ -154,6 +154,7 @@ export type Database = {
           external_id: string | null
           id: string
           name: string
+          name_search: string | null
           organization_id: string
           owner_id: string
           phone: string | null
@@ -170,6 +171,7 @@ export type Database = {
           external_id?: string | null
           id?: string
           name: string
+          name_search?: string | null
           organization_id: string
           owner_id: string
           phone?: string | null
@@ -186,6 +188,7 @@ export type Database = {
           external_id?: string | null
           id?: string
           name?: string
+          name_search?: string | null
           organization_id?: string
           owner_id?: string
           phone?: string | null
@@ -837,6 +840,7 @@ export type Database = {
         Args: { p_period: string; p_seller_id: string }
         Returns: Json
       }
+      search_fold: { Args: { t: string }; Returns: string }
       set_order_erp_result: {
         Args: { p_erp_order_id: string; p_order_id: string; p_status: string }
         Returns: undefined
