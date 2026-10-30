@@ -1,12 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Copy, Pencil, RefreshCw, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { canCreateOrder, ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber } from "@/lib/orders";
+import { canCreateOrder, ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber, orderListSearch } from "@/lib/orders";
 import { pushOrderToErp } from "@/lib/orders.functions";
 import { ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,12 @@ function OrderDetail() {
   const qc = useQueryClient();
   const pushFn = useServerFn(pushOrderToErp);
   const [busy, setBusy] = useState(false);
+  // Filtros/página vindos da lista, devolvidos ao link "Pedidos" para a volta manter o contexto.
+  // A rota de detalhe não valida search params, então lemos a query string crua após montar.
+  const [listSearch, setListSearch] = useState<ReturnType<typeof orderListSearch>>({});
+  useEffect(() => {
+    setListSearch(orderListSearch(Object.fromEntries(new URLSearchParams(window.location.search))));
+  }, []);
 
   const order = useQuery({
     queryKey: ["orders", id],
@@ -119,7 +125,11 @@ function OrderDetail() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link to="/pedidos" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+      <Link
+        to="/pedidos"
+        search={listSearch}
+        className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="h-4 w-4" /> Pedidos
       </Link>
       <div className="mb-6 flex flex-wrap items-start gap-3">

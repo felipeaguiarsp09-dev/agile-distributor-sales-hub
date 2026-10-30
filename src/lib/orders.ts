@@ -124,3 +124,31 @@ export function orderNumberSearch(term: string): { gte: string; lt: string } | n
 export function escapeSearchTerm(term: string) {
   return term.trim().replace(/[%_,()"*]/g, "");
 }
+
+/** Filtros da lista de pedidos na URL, para sobreviverem à ida ao detalhe e à volta. */
+export type OrderListSearch = {
+  q?: string | undefined;
+  status?: string | undefined;
+  origem?: string | undefined;
+  de?: string | undefined;
+  ate?: string | undefined;
+  pagina?: number | undefined;
+};
+
+export function orderListSearch(s: Record<string, unknown>): OrderListSearch {
+  const pg = s["pagina"];
+  const pagina =
+    typeof pg === "number" && pg > 0
+      ? Math.floor(pg)
+      : typeof pg === "string" && /^\d+$/.test(pg) && Number(pg) > 0
+        ? Number(pg)
+        : undefined;
+  return {
+    q: typeof s["q"] === "string" ? s["q"] : undefined,
+    status: typeof s["status"] === "string" ? s["status"] : undefined,
+    origem: typeof s["origem"] === "string" ? s["origem"] : undefined,
+    de: typeof s["de"] === "string" ? s["de"] : undefined,
+    ate: typeof s["ate"] === "string" ? s["ate"] : undefined,
+    pagina,
+  };
+}
