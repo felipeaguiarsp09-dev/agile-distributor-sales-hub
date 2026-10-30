@@ -65,8 +65,9 @@ function OrdersPage() {
       if (from) query = query.gte("created_at", `${from}T00:00:00`);
       if (to) query = query.lte("created_at", `${to}T23:59:59`);
       if (term) {
+        // Número digitado busca pelo id do pedido; texto busca pelo nome do cliente.
         query = numberRange
-          ? query.or(`customers.name.ilike.${like},and(id.gte.${numberRange.gte},id.lt.${numberRange.lt})`)
+          ? query.gte("id", numberRange.gte).lt("id", numberRange.lt)
           : query.ilike("customers.name", like);
       }
       const { data, error, count } = await query.range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
@@ -87,8 +88,9 @@ function OrdersPage() {
       if (from) query = query.gte("created_at", `${from}T00:00:00`);
       if (to) query = query.lte("created_at", `${to}T23:59:59`);
       if (term) {
+        // Número digitado busca pelo id do pedido; texto busca pelo nome do cliente.
         query = numberRange
-          ? query.or(`customers.name.ilike.${like},and(id.gte.${numberRange.gte},id.lt.${numberRange.lt})`)
+          ? query.gte("id", numberRange.gte).lt("id", numberRange.lt)
           : query.ilike("customers.name", like);
       }
       const { data, error } = await query.range(0, 9999);
