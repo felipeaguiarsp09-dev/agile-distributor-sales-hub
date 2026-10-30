@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cartTotals } from "@/lib/orders";
+import { cartTotals, escapeSearchTerm, orderNumberSearch } from "@/lib/orders";
 
 const line = (quantity: number, unit_price: number) => ({ product_id: "p", name: "x", unit_price, stock: 99, quantity, ai_suggestion_id: null });
 
