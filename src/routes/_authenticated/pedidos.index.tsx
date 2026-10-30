@@ -64,6 +64,14 @@ function OrdersPage() {
   const to = search.ate ?? "";
   const page = Math.max(0, (search.pagina ?? 1) - 1);
 
+  const hasActiveFilters = !!(search.q || search.status || search.origem || search.de || search.ate);
+
+  // Limpar volta à lista sem filtros, na primeira página e no topo.
+  const clearFilters = () => {
+    clearPending.current = true;
+    navigate({ search: {}, replace: true });
+  };
+
   // Qualquer mudança de filtro volta para a primeira página; só a paginação muda "pagina".
   const setFilters = (patch: Partial<Search>) =>
     navigate({ search: (prev) => ({ ...prev, ...patch, pagina: undefined }), replace: true });
