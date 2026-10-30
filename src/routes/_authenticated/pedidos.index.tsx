@@ -228,7 +228,7 @@ function OrdersPage() {
               variant="outline"
               aria-label="Limpar filtros"
               title="Limpar filtros"
-              className="justify-center"
+              className="justify-center min-h-11 px-5 md:min-h-9 md:px-3 md:py-1"
               onClick={clearFilters}
             >
               <X className="h-4 w-4" /> Limpar
