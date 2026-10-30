@@ -206,6 +206,7 @@ function OrdersPage() {
                   <Link
                     to="/pedidos/$id"
                     params={{ id: o.id }}
+                    search={(prev) => prev}
                     className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 hover:bg-muted/50"
                   >
                     <div className="min-w-0 flex-1">

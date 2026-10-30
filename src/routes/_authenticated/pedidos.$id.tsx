@@ -121,14 +121,8 @@ function OrderDetail() {
     <div className="mx-auto max-w-4xl">
       <Link
         to="/pedidos"
+        search={(prev) => prev}
         className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        onClick={(e) => {
-          // Se veio da lista, volta no histórico para manter filtros e página; senão, abre a lista limpa.
-          if (document.referrer.startsWith(window.location.origin)) {
-            e.preventDefault();
-            window.history.back();
-          }
-        }}
       >
         <ArrowLeft className="h-4 w-4" /> Pedidos
       </Link>
