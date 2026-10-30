@@ -1,7 +1,7 @@
-import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Copy, Pencil, RefreshCw, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,10 +36,11 @@ function OrderDetail() {
   const pushFn = useServerFn(pushOrderToErp);
   const [busy, setBusy] = useState(false);
   // Filtros/página vindos da lista, devolvidos ao link "Pedidos" para a volta manter o contexto.
-  // A rota de detalhe não valida search params, então lemos a query string crua.
-  const listSearch = useRouterState({
-    select: (s) => orderListSearch(Object.fromEntries(new URLSearchParams(s.location.searchStr))),
-  });
+  // A rota de detalhe não valida search params, então lemos a query string crua após montar.
+  const [listSearch, setListSearch] = useState<ReturnType<typeof orderListSearch>>({});
+  useEffect(() => {
+    setListSearch(orderListSearch(Object.fromEntries(new URLSearchParams(window.location.search))));
+  }, []);
 
   const order = useQuery({
     queryKey: ["orders", id],
