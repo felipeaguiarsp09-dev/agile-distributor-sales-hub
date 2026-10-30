@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useElementScrollRestoration } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, RefreshCw, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -15,6 +15,7 @@ import {
   escapeSearchTerm,
 } from "@/lib/orders";
 import { orderHistoryWindow } from "@/lib/order-history";
+import { getAppScrollRestorationKey } from "@/lib/order-scroll";
 import { PageHeader } from "@/components/ModulePage";
 import { EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +47,13 @@ function OrdersPage() {
   const { profile } = useAuth();
   const navigate = useNavigate({ from: Route.fullPath });
   const search = Route.useSearch();
+  const savedScroll = useElementScrollRestoration({
+    getElement: () => window,
+    getKey: getAppScrollRestorationKey,
+  });
+  const restoreKey = JSON.stringify(search);
+  const restoredKey = useRef<string | null>(null);
+  const restorationTarget = useRef(savedScroll);
   const [historyWindow] = useState(() => orderHistoryWindow());
 
   const q = search.q ?? "";
@@ -114,6 +122,23 @@ function OrdersPage() {
   });
 
   const totalPages = Math.max(1, Math.ceil((list.data?.total ?? 0) / PAGE_SIZE));
+
+  useEffect(() => {
+    restorationTarget.current = savedScroll;
+    restoredKey.current = null;
+  }, [restoreKey]);
+
+  useEffect(() => {
+    // Router restoration can run while the loading skeleton is still too short.
+    // Reapply once the rows render, only once per list context, never on refetch.
+    if (list.isLoading || restoredKey.current === restoreKey) return;
+    const target = restorationTarget.current;
+    const frame = requestAnimationFrame(() => {
+      if (target) window.scrollTo({ top: target.scrollY, left: target.scrollX, behavior: "instant" });
+      restoredKey.current = restoreKey;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [list.isLoading, restoreKey]);
 
   return (
     <div className="mx-auto max-w-6xl">
