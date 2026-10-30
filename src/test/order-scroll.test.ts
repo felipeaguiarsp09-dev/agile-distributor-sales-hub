@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { getAppScrollRestorationKey } from "@/lib/order-scroll";
 
 function location(pathname: string, search: Record<string, unknown>, key: string): ParsedLocation {
-  return { pathname, search, state: { __TSR_key: key }, href: pathname, hash: "", searchStr: "" };
+  return { pathname, search, state: { __TSR_key: key, __TSR_index: 0 }, href: pathname, hash: "", searchStr: "" };
 }
 
 describe("Orders list scroll restoration", () => {
