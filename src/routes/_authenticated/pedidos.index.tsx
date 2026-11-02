@@ -297,7 +297,7 @@ function OrdersPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="min-h-11 whitespace-nowrap px-3 md:min-h-9 md:py-1 disabled:text-muted-foreground disabled:opacity-100"
+                className="min-h-11 whitespace-nowrap px-3 md:min-h-9 md:py-1 focus-visible:ring-4 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:text-muted-foreground disabled:opacity-100"
                 disabled={page === 0}
                 onClick={() => setPage(page - 1)}
               >
@@ -313,7 +313,7 @@ function OrdersPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="min-h-11 whitespace-nowrap px-3 md:min-h-9 md:py-1 disabled:text-muted-foreground disabled:opacity-100"
+                className="min-h-11 whitespace-nowrap px-3 md:min-h-9 md:py-1 focus-visible:ring-4 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:text-muted-foreground disabled:opacity-100"
                 disabled={page + 1 >= totalPages}
                 onClick={() => setPage(page + 1)}
               >
