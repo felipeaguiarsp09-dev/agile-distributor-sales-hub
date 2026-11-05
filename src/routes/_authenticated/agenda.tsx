@@ -258,15 +258,33 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
     <Dialog open={!!visit} onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader><DialogTitle>Check-in — {visit?.customers?.name}</DialogTitle></DialogHeader>
-        <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
-          <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
-          {geoState === "buscando" && <span className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Obtendo sua localização...</span>}
-          {geoState === "erro" && <span className="text-muted-foreground">Localização indisponível — o check-in será salvo sem ela.</span>}
-          {geo && (
-            <span className="text-muted-foreground">
-              Localização capturada (precisão de ~{Math.round(geo.accuracy)} m) ·{" "}
-              <a href={mapsUrl(geo.lat, geo.lng)} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">ver no mapa</a>
-            </span>
+        <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+            {geoState === "buscando" && <span className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Obtendo sua localização...</span>}
+            {geoState === "erro" && (
+              <span className="text-muted-foreground">
+                {geoDenied ? "Permissão de localização negada." : "Não foi possível obter sua localização."}
+              </span>
+            )}
+            {geo && (
+              <span className="text-muted-foreground">
+                Localização capturada (precisão de ~{Math.round(geo.accuracy)} m) ·{" "}
+                <a href={mapsUrl(geo.lat, geo.lng)} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">ver no mapa</a>
+              </span>
+            )}
+          </div>
+          {geoState === "erro" && (
+            <div className="mt-2 space-y-2 border-t pt-2">
+              <p className="text-xs text-muted-foreground">
+                {geoDenied
+                  ? "Para concluir o check-in, ative a localização: toque no cadeado (ou ícone de ajustes) na barra de endereço do navegador, abra as permissões do site e permita a Localização. No celular, verifique também se a localização do aparelho está ligada."
+                  : "Verifique se o GPS do aparelho está ligado e se há sinal, depois tente novamente."}
+              </p>
+              <Button type="button" variant="outline" size="sm" className="h-11 w-full sm:h-8 sm:w-auto" onClick={capture}>
+                <RefreshCw className="h-4 w-4" /> Tentar novamente
+              </Button>
+            </div>
           )}
         </div>
         <div className="space-y-1">
