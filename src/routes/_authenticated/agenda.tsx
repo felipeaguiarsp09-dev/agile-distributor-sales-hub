@@ -216,6 +216,8 @@ function NewVisitDialog({ open, onOpenChange, defaultDate }: { open: boolean; on
 type GeoFix = { lat: number; lng: number; accuracy: number };
 
 function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => void }) {
+  const { profile } = useAuth();
+  const canViewLocation = profile?.role === "supervisor" || profile?.role === "administrador";
   const qc = useQueryClient();
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
@@ -271,8 +273,13 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
             )}
             {geo && (
               <span className="text-muted-foreground">
-                Localização capturada (precisão de ~{Math.round(geo.accuracy)} m) ·{" "}
-                <a href={mapsUrl(geo.lat, geo.lng)} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">ver no mapa</a>
+                Localização capturada (precisão de ~{Math.round(geo.accuracy)} m)
+                {canViewLocation && (
+                  <>
+                    {" · "}
+                    <a href={mapsUrl(geo.lat, geo.lng)} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">ver no mapa</a>
+                  </>
+                )}
               </span>
             )}
           </div>
