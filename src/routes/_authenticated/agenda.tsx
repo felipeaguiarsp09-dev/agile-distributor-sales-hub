@@ -219,22 +219,27 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
   const [busy, setBusy] = useState(false);
   const [geo, setGeo] = useState<GeoFix | null>(null);
   const [geoState, setGeoState] = useState<"idle" | "buscando" | "erro">("idle");
+  const [geoDenied, setGeoDenied] = useState(false);
 
-  // Captura o GPS ao abrir o diálogo, para o check-in já sair com a localização.
-  useEffect(() => {
-    if (!visit) return;
+  // Captura o GPS ao abrir o diálogo; o check-in exige a localização.
+  const capture = useCallback(() => {
     setGeo(null);
+    setGeoDenied(false);
     if (!("geolocation" in navigator)) { setGeoState("erro"); return; }
     setGeoState("buscando");
     navigator.geolocation.getCurrentPosition(
       (pos) => { setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }); setGeoState("idle"); },
-      () => setGeoState("erro"),
+      (err) => { setGeoDenied(err.code === err.PERMISSION_DENIED); setGeoState("erro"); },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
     );
-  }, [visit?.id]);
+  }, []);
+
+  useEffect(() => {
+    if (visit) capture();
+  }, [visit?.id, capture]);
 
   async function save() {
-    if (!visit) return;
+    if (!visit || !geo) return;
     setBusy(true);
     const text = [visit.notes, notes.trim()].filter(Boolean).join("\n— Registro: ");
     const { error } = await supabase.from("agenda_visits").update({
