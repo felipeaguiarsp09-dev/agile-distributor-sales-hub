@@ -34,7 +34,9 @@ const dayKey = (d: Date) => d.toLocaleDateString("sv-SE");
 function startOfWeek(d: Date) { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
 function addDays(d: Date, n: number) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
 
-type Visit = { id: string; scheduled_at: string; status: string; check_in_at: string | null; notes: string | null; seller_id: string; customers: { name: string; address: unknown } | null; seller: { full_name: string } | null };
+type Visit = { id: string; scheduled_at: string; status: string; check_in_at: string | null; check_in_lat: number | null; check_in_lng: number | null; check_in_accuracy_m: number | null; notes: string | null; seller_id: string; customers: { name: string; address: unknown } | null; seller: { full_name: string } | null };
+
+const mapsUrl = (lat: number, lng: number) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
 function AgendaPage() {
   const { profile } = useAuth();
@@ -52,7 +54,7 @@ function AgendaPage() {
     enabled: !!allowed,
     queryFn: async () => {
       const { data, error } = await supabase.from("agenda_visits")
-        .select("id, scheduled_at, status, check_in_at, notes, seller_id, customers(name, address), seller:profiles!agenda_visits_seller_id_fkey(full_name)")
+        .select("id, scheduled_at, status, check_in_at, check_in_lat, check_in_lng, check_in_accuracy_m, notes, seller_id, customers(name, address), seller:profiles!agenda_visits_seller_id_fkey(full_name)")
         .gte("scheduled_at", from.toISOString()).lt("scheduled_at", to.toISOString()).order("scheduled_at");
       if (error) throw error;
       return data as Visit[];
@@ -118,6 +120,11 @@ function AgendaPage() {
                         {(addr["street"] || addr["city"]) && <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="h-3 w-3" /> {[addr["street"], addr["city"], addr["state"]].filter(Boolean).join(", ")}</p>}
                         {profile.role !== "vendedor" && <p className="text-xs text-muted-foreground">Vendedor: {v.seller?.full_name}</p>}
                         {v.check_in_at && <p className="mt-1 text-xs text-muted-foreground">Check-in às {new Date(v.check_in_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>}
+                        {v.check_in_lat != null && v.check_in_lng != null && (
+                          <a href={mapsUrl(v.check_in_lat, v.check_in_lng)} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-foreground underline underline-offset-2">
+                            <MapPin className="h-3 w-3" /> Ver local do check-in no Google Maps
+                          </a>
+                        )}
                         {v.notes && <p className="mt-2 whitespace-pre-line text-sm">{v.notes}</p>}
                         {mine && v.status === "planejada" && (
                           <div className="mt-3 flex flex-wrap gap-2">
