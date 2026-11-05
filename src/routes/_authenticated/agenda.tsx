@@ -46,6 +46,8 @@ function AgendaPage() {
   const [newOpen, setNewOpen] = useState(false);
   const [record, setRecord] = useState<Visit | null>(null);
   const allowed = profile && profile.role !== "cliente";
+  // Só supervisor e administrador visualizam a localização dos check-ins.
+  const canViewLocation = profile?.role === "supervisor" || profile?.role === "administrador";
   const from = view === "dia" ? anchor : startOfWeek(anchor);
   const to = addDays(from, view === "dia" ? 1 : 7);
 
@@ -120,7 +122,7 @@ function AgendaPage() {
                         {(addr["street"] || addr["city"]) && <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="h-3 w-3" /> {[addr["street"], addr["city"], addr["state"]].filter(Boolean).join(", ")}</p>}
                         {profile.role !== "vendedor" && <p className="text-xs text-muted-foreground">Vendedor: {v.seller?.full_name}</p>}
                         {v.check_in_at && <p className="mt-1 text-xs text-muted-foreground">Check-in às {new Date(v.check_in_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>}
-                        {v.check_in_lat != null && v.check_in_lng != null && (
+                        {canViewLocation && v.check_in_lat != null && v.check_in_lng != null && (
                           <a href={mapsUrl(v.check_in_lat, v.check_in_lng)} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-foreground underline underline-offset-2">
                             <MapPin className="h-3 w-3" /> Ver local do check-in no Google Maps
                           </a>
@@ -214,6 +216,8 @@ function NewVisitDialog({ open, onOpenChange, defaultDate }: { open: boolean; on
 type GeoFix = { lat: number; lng: number; accuracy: number };
 
 function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => void }) {
+  const { profile } = useAuth();
+  const canViewLocation = profile?.role === "supervisor" || profile?.role === "administrador";
   const qc = useQueryClient();
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
@@ -269,8 +273,13 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
             )}
             {geo && (
               <span className="text-muted-foreground">
-                Localização capturada (precisão de ~{Math.round(geo.accuracy)} m) ·{" "}
-                <a href={mapsUrl(geo.lat, geo.lng)} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">ver no mapa</a>
+                Localização capturada (precisão de ~{Math.round(geo.accuracy)} m)
+                {canViewLocation && (
+                  <>
+                    {" · "}
+                    <a href={mapsUrl(geo.lat, geo.lng)} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">ver no mapa</a>
+                  </>
+                )}
               </span>
             )}
           </div>
