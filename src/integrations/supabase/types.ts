@@ -16,7 +16,10 @@ export type Database = {
     Tables: {
       agenda_visits: {
         Row: {
+          check_in_accuracy_m: number | null
           check_in_at: string | null
+          check_in_lat: number | null
+          check_in_lng: number | null
           created_at: string
           customer_id: string
           id: string
@@ -28,7 +31,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          check_in_accuracy_m?: number | null
           check_in_at?: string | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
           created_at?: string
           customer_id: string
           id?: string
@@ -40,7 +46,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          check_in_accuracy_m?: number | null
           check_in_at?: string | null
+          check_in_lat?: number | null
+          check_in_lng?: number | null
           created_at?: string
           customer_id?: string
           id?: string
