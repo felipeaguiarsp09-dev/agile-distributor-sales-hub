@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarPlus, ChevronLeft, ChevronRight, Loader2, MapPin, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -211,19 +211,41 @@ function NewVisitDialog({ open, onOpenChange, defaultDate }: { open: boolean; on
   );
 }
 
+type GeoFix = { lat: number; lng: number; accuracy: number };
+
 function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => void }) {
   const qc = useQueryClient();
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
+  const [geo, setGeo] = useState<GeoFix | null>(null);
+  const [geoState, setGeoState] = useState<"idle" | "buscando" | "erro">("idle");
+
+  // Captura o GPS ao abrir o diálogo, para o check-in já sair com a localização.
+  useEffect(() => {
+    if (!visit) return;
+    setGeo(null);
+    if (!("geolocation" in navigator)) { setGeoState("erro"); return; }
+    setGeoState("buscando");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }); setGeoState("idle"); },
+      () => setGeoState("erro"),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
+    );
+  }, [visit?.id]);
+
   async function save() {
     if (!visit) return;
     setBusy(true);
     const text = [visit.notes, notes.trim()].filter(Boolean).join("\n— Registro: ");
-    const { error } = await supabase.from("agenda_visits").update({ status: "realizada", check_in_at: new Date().toISOString(), notes: text || null }).eq("id", visit.id);
+    const { error } = await supabase.from("agenda_visits").update({
+      status: "realizada", check_in_at: new Date().toISOString(), notes: text || null,
+      check_in_lat: geo?.lat ?? null, check_in_lng: geo?.lng ?? null, check_in_accuracy_m: geo?.accuracy ?? null,
+    }).eq("id", visit.id);
     setBusy(false);
     if (error) return void toast.error("Não foi possível registrar a visita");
-    toast.success("Check-in registrado");
+    toast.success(geo ? "Check-in registrado com localização" : "Check-in registrado");
     setNotes("");
+    setGeo(null);
     onClose();
     void qc.invalidateQueries({ queryKey: ["agenda_visits"] });
   }
@@ -231,11 +253,22 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
     <Dialog open={!!visit} onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader><DialogTitle>Check-in — {visit?.customers?.name}</DialogTitle></DialogHeader>
+        <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
+          <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+          {geoState === "buscando" && <span className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Obtendo sua localização...</span>}
+          {geoState === "erro" && <span className="text-muted-foreground">Localização indisponível — o check-in será salvo sem ela.</span>}
+          {geo && (
+            <span className="text-muted-foreground">
+              Localização capturada (precisão de ~{Math.round(geo.accuracy)} m) ·{" "}
+              <a href={mapsUrl(geo.lat, geo.lng)} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">ver no mapa</a>
+            </span>
+          )}
+        </div>
         <div className="space-y-1">
           <Label htmlFor="r-notes">O que foi feito na visita</Label>
           <Textarea id="r-notes" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: cliente pediu reposição de água na próxima semana" />
         </div>
-        <DialogFooter><Button disabled={busy} onClick={save}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} Registrar visita</Button></DialogFooter>
+        <DialogFooter><Button disabled={busy || geoState === "buscando"} onClick={save}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} Registrar visita</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
