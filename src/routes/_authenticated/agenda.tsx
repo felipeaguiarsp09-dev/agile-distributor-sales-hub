@@ -244,11 +244,11 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
     const text = [visit.notes, notes.trim()].filter(Boolean).join("\n— Registro: ");
     const { error } = await supabase.from("agenda_visits").update({
       status: "realizada", check_in_at: new Date().toISOString(), notes: text || null,
-      check_in_lat: geo?.lat ?? null, check_in_lng: geo?.lng ?? null, check_in_accuracy_m: geo?.accuracy ?? null,
+      check_in_lat: geo.lat, check_in_lng: geo.lng, check_in_accuracy_m: geo.accuracy,
     }).eq("id", visit.id);
     setBusy(false);
     if (error) return void toast.error("Não foi possível registrar a visita");
-    toast.success(geo ? "Check-in registrado com localização" : "Check-in registrado");
+    toast.success("Check-in registrado com localização");
     setNotes("");
     setGeo(null);
     onClose();
