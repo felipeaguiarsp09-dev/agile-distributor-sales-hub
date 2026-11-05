@@ -291,7 +291,7 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
           <Label htmlFor="r-notes">O que foi feito na visita</Label>
           <Textarea id="r-notes" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: cliente pediu reposição de água na próxima semana" />
         </div>
-        <DialogFooter><Button disabled={busy || geoState === "buscando"} onClick={save}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} Registrar visita</Button></DialogFooter>
+        <DialogFooter><Button disabled={busy || !geo} onClick={save}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} Registrar visita</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
