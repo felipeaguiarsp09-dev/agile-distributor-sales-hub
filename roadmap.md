@@ -51,4 +51,4 @@
 - [x] Botão "Sair" no topo no celular e sempre visível no menu lateral (lista rola, rodapé fixo)
 - [x] Check-in da Agenda exige localização; se negada, mostra como habilitar + botão "Tentar novamente"
 - [x] Localização do check-in visível só para supervisor/administrador (vendedor só registra)
-- [ ] Trava no banco: novos check-ins da Agenda exigem latitude/longitude, preservando registros antigos
+- [x] Trava no banco: novos check-ins da Agenda exigem latitude/longitude, preservando registros antigos
