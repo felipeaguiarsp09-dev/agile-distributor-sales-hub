@@ -71,6 +71,13 @@
       "when": 1793362834455,
       "tag": "0009_customers_name_search_fold",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793849380720,
+      "tag": "0010_agenda_checkin_geo",
+      "breakpoints": true
     }
   ]
 }
