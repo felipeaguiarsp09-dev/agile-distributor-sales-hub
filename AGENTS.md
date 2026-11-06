@@ -24,3 +24,4 @@
 - Signed-in pages live under `src/routes/_authenticated/` (client-only gate, sidebar shell); menu items come from `src/lib/modules.ts` filtered by role.
 - Payment webhooks (`/api/public/payment-webhook`) never trust the request body: they re-fetch the payment from the gateway (or check the Asaas token) using credentials in `integration_configs`. Why: the route is public.
 - Scheduled jobs are server routes under `src/routes/api/public/jobs/*` guarded by `authenticateCronRequest`, with logic in `src/lib/jobs.server.ts`. Why: managed HTTP schedules, no Edge Functions.
+- Orders and quotes are built by one component (`src/components/OrderBuilder.tsx`) driven by a `mode` prop; quote totals/status are set only by DB triggers and a quote becomes an order through `convert_quote_to_order`, which calls `submit_order`. Why: one cart UX, and stock/approval rules stay in a single place.

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, useElementScrollRestoration } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, RefreshCw, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, Plus, RefreshCw, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import {
@@ -166,7 +166,11 @@ function OrdersPage() {
           description="Pedidos de vendedor e do E-commerce nos últimos 12 meses, no mesmo fluxo."
         />
         {canCreateOrder(profile?.role) && (
-          <Button asChild><Link to="/pedidos/novo"><Plus className="h-4 w-4" /> Novo pedido</Link></Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild><Link to="/pedidos/novo"><Plus className="h-4 w-4" /> Novo pedido</Link></Button>
+            <Button asChild variant="outline"><Link to="/orcamentos/novo"><FileText className="h-4 w-4" /> Orçamento</Link></Button>
+            <Button asChild variant="ghost" className="text-muted-foreground"><Link to="/orcamentos">Meus orçamentos</Link></Button>
+          </div>
         )}
       </div>
 
