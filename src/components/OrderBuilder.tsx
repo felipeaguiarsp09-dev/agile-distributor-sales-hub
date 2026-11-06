@@ -66,6 +66,10 @@ type BuilderProps = {
   repeatOrderId?: string;
   /** Tira o parâmetro "repetir" da URL depois de carregar os itens. */
   onRepeatConsumed: () => void;
+  /** Para onde ir depois de confirmar o pedido. */
+  onConfirmed: (id: string) => void;
+  /** Para onde ir depois de salvar o orçamento. */
+  onQuoteSaved: () => void;
 };
 
 type Suggestion = {
@@ -165,7 +169,7 @@ function itemsToCartLines(items: RepeatOrder["order_items"]): CartLine[] {
   }));
 }
 
-export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId, onRepeatConsumed }: BuilderProps) {
+export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId, onRepeatConsumed, onConfirmed, onQuoteSaved }: BuilderProps) {
   const isQuote = mode === "orcamento";
   const { profile } = useAuth();
   const qc = useQueryClient();
@@ -547,7 +551,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       if (accepted.length) await supabase.from("ai_suggestions").update({ was_accepted: true, order_id: id }).in("id", accepted);
       toast.success(res.needs_approval ? "Pedido enviado para aprovação do supervisor" : "Pedido aprovado");
       await qc.invalidateQueries({ queryKey: ["orders"] });
-      navigateToOrder(id);
+      onConfirmed(id);
     } catch (e) {
       submittedRef.current = false;
       toast.error(e instanceof Error ? e.message : "Falha ao confirmar o pedido");
@@ -575,7 +579,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       if (error) throw new Error(error.message);
       toast.success("Orçamento salvo");
       await qc.invalidateQueries({ queryKey: ["quotes"] });
-      navigateToQuotes();
+      onQuoteSaved();
     } catch (e) {
       submittedRef.current = false;
       toast.error(e instanceof Error ? e.message : "Falha ao salvar o orçamento");
@@ -893,13 +897,4 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       </div>}
     </div>
   );
-}
-
-/** Navegação dependente do modo: o chamador decide para onde ir depois de confirmar. */
-let navigateToOrder: (id: string) => void = () => {};
-let navigateToQuotes: () => void = () => {};
-
-export function setBuilderNavigation(handlers: { toOrder: (id: string) => void; toQuotes: () => void }) {
-  navigateToOrder = handlers.toOrder;
-  navigateToQuotes = handlers.toQuotes;
 }
