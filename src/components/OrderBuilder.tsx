@@ -59,11 +59,11 @@ export type BuilderMode = "pedido" | "orcamento";
 
 type BuilderProps = {
   mode: BuilderMode;
-  initialCustomerId?: string;
+  initialCustomerId?: string | undefined;
   /** Rascunho (pedido) ou orçamento aberto a continuar. */
-  resumeId?: string;
+  resumeId?: string | undefined;
   /** Pedido aprovado/faturado cujos itens entram no carrinho. */
-  repeatOrderId?: string;
+  repeatOrderId?: string | undefined;
   /** Tira o parâmetro "repetir" da URL depois de carregar os itens. */
   onRepeatConsumed: () => void;
   /** Para onde ir depois de confirmar o pedido. */

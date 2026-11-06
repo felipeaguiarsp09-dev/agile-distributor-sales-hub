@@ -24,7 +24,7 @@ describe("validade do orçamento", () => {
 describe("status do orçamento", () => {
   it("mostra exatamente os estados que o banco aceita", () => {
     expect(Object.keys(QUOTE_STATUS_LABEL)).toEqual(["aberto", "convertido", "cancelado"]);
-    expect(QUOTE_STATUS_LABEL.convertido).toBe("Convertido em pedido");
+    expect(QUOTE_STATUS_LABEL["convertido"]).toBe("Convertido em pedido");
   });
 });
 
