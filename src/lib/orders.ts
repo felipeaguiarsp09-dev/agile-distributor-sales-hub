@@ -125,6 +125,15 @@ export function escapeSearchTerm(term: string) {
   return term.trim().replace(/[%_,()"*]/g, "");
 }
 
+/** Página vinda da URL: só números inteiros maiores que zero. */
+export function parsePageParam(pg: unknown): number | undefined {
+  return typeof pg === "number" && pg > 0
+    ? Math.floor(pg)
+    : typeof pg === "string" && /^\d+$/.test(pg) && Number(pg) > 0
+      ? Number(pg)
+      : undefined;
+}
+
 /** Filtros da lista de pedidos na URL, para sobreviverem à ida ao detalhe e à volta. */
 export type OrderListSearch = {
   q?: string | undefined;
@@ -136,19 +145,12 @@ export type OrderListSearch = {
 };
 
 export function orderListSearch(s: Record<string, unknown>): OrderListSearch {
-  const pg = s["pagina"];
-  const pagina =
-    typeof pg === "number" && pg > 0
-      ? Math.floor(pg)
-      : typeof pg === "string" && /^\d+$/.test(pg) && Number(pg) > 0
-        ? Number(pg)
-        : undefined;
   return {
     q: typeof s["q"] === "string" ? s["q"] : undefined,
     status: typeof s["status"] === "string" ? s["status"] : undefined,
     origem: typeof s["origem"] === "string" ? s["origem"] : undefined,
     de: typeof s["de"] === "string" ? s["de"] : undefined,
     ate: typeof s["ate"] === "string" ? s["ate"] : undefined,
-    pagina,
+    pagina: parsePageParam(s["pagina"]),
   };
 }
