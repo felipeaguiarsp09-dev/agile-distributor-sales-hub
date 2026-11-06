@@ -27,6 +27,8 @@ import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
 import { Route as AuthenticatedClientesNovoRouteImport } from './routes/_authenticated/clientes.novo'
 import { Route as AuthenticatedEcommercePedidosRouteImport } from './routes/_authenticated/ecommerce_.pedidos'
+import { Route as AuthenticatedOrcamentosIndexRouteImport } from './routes/_authenticated/orcamentos.index'
+import { Route as AuthenticatedOrcamentosNovoRouteImport } from './routes/_authenticated/orcamentos.novo'
 import { Route as AuthenticatedPedidosIndexRouteImport } from './routes/_authenticated/pedidos.index'
 import { Route as AuthenticatedPedidosIdRouteImport } from './routes/_authenticated/pedidos.$id'
 import { Route as AuthenticatedPedidosNovoRouteImport } from './routes/_authenticated/pedidos.novo'
@@ -136,6 +138,18 @@ const AuthenticatedEcommercePedidosRoute =
     path: '/ecommerce/pedidos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedOrcamentosIndexRoute =
+  AuthenticatedOrcamentosIndexRouteImport.update({
+    id: '/orcamentos/',
+    path: '/orcamentos/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedOrcamentosNovoRoute =
+  AuthenticatedOrcamentosNovoRouteImport.update({
+    id: '/orcamentos/novo',
+    path: '/orcamentos/novo',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPedidosIndexRoute =
   AuthenticatedPedidosIndexRouteImport.update({
     id: '/pedidos/',
@@ -211,12 +225,14 @@ export interface FileRoutesByFullPath {
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/novo': typeof AuthenticatedClientesNovoRoute
   '/ecommerce/pedidos': typeof AuthenticatedEcommercePedidosRoute
+  '/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/pedidos/$id': typeof AuthenticatedPedidosIdRoute
   '/pedidos/novo': typeof AuthenticatedPedidosNovoRoute
   '/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/produtos/novo': typeof AuthenticatedProdutosNovoRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
   '/clientes/': typeof AuthenticatedClientesIndexRoute
+  '/orcamentos/': typeof AuthenticatedOrcamentosIndexRoute
   '/pedidos/': typeof AuthenticatedPedidosIndexRoute
   '/produtos/': typeof AuthenticatedProdutosIndexRoute
   '/api/public/jobs/generate-demand-forecast': typeof ApiPublicJobsGenerateDemandForecastRoute
@@ -240,12 +256,14 @@ export interface FileRoutesByTo {
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/novo': typeof AuthenticatedClientesNovoRoute
   '/ecommerce/pedidos': typeof AuthenticatedEcommercePedidosRoute
+  '/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/pedidos/$id': typeof AuthenticatedPedidosIdRoute
   '/pedidos/novo': typeof AuthenticatedPedidosNovoRoute
   '/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/produtos/novo': typeof AuthenticatedProdutosNovoRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
   '/clientes': typeof AuthenticatedClientesIndexRoute
+  '/orcamentos': typeof AuthenticatedOrcamentosIndexRoute
   '/pedidos': typeof AuthenticatedPedidosIndexRoute
   '/produtos': typeof AuthenticatedProdutosIndexRoute
   '/api/public/jobs/generate-demand-forecast': typeof ApiPublicJobsGenerateDemandForecastRoute
@@ -271,12 +289,14 @@ export interface FileRoutesById {
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/novo': typeof AuthenticatedClientesNovoRoute
   '/_authenticated/ecommerce_/pedidos': typeof AuthenticatedEcommercePedidosRoute
+  '/_authenticated/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/_authenticated/pedidos/$id': typeof AuthenticatedPedidosIdRoute
   '/_authenticated/pedidos/novo': typeof AuthenticatedPedidosNovoRoute
   '/_authenticated/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/_authenticated/produtos/novo': typeof AuthenticatedProdutosNovoRoute
   '/api/public/payment-webhook': typeof ApiPublicPaymentWebhookRoute
   '/_authenticated/clientes/': typeof AuthenticatedClientesIndexRoute
+  '/_authenticated/orcamentos/': typeof AuthenticatedOrcamentosIndexRoute
   '/_authenticated/pedidos/': typeof AuthenticatedPedidosIndexRoute
   '/_authenticated/produtos/': typeof AuthenticatedProdutosIndexRoute
   '/api/public/jobs/generate-demand-forecast': typeof ApiPublicJobsGenerateDemandForecastRoute
@@ -302,12 +322,14 @@ export interface FileRouteTypes {
     | '/clientes/$id'
     | '/clientes/novo'
     | '/ecommerce/pedidos'
+    | '/orcamentos/novo'
     | '/pedidos/$id'
     | '/pedidos/novo'
     | '/produtos/$id'
     | '/produtos/novo'
     | '/api/public/payment-webhook'
     | '/clientes/'
+    | '/orcamentos/'
     | '/pedidos/'
     | '/produtos/'
     | '/api/public/jobs/generate-demand-forecast'
@@ -331,12 +353,14 @@ export interface FileRouteTypes {
     | '/clientes/$id'
     | '/clientes/novo'
     | '/ecommerce/pedidos'
+    | '/orcamentos/novo'
     | '/pedidos/$id'
     | '/pedidos/novo'
     | '/produtos/$id'
     | '/produtos/novo'
     | '/api/public/payment-webhook'
     | '/clientes'
+    | '/orcamentos'
     | '/pedidos'
     | '/produtos'
     | '/api/public/jobs/generate-demand-forecast'
@@ -361,12 +385,14 @@ export interface FileRouteTypes {
     | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/novo'
     | '/_authenticated/ecommerce_/pedidos'
+    | '/_authenticated/orcamentos/novo'
     | '/_authenticated/pedidos/$id'
     | '/_authenticated/pedidos/novo'
     | '/_authenticated/produtos/$id'
     | '/_authenticated/produtos/novo'
     | '/api/public/payment-webhook'
     | '/_authenticated/clientes/'
+    | '/_authenticated/orcamentos/'
     | '/_authenticated/pedidos/'
     | '/_authenticated/produtos/'
     | '/api/public/jobs/generate-demand-forecast'
@@ -513,6 +539,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEcommercePedidosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/orcamentos/': {
+      id: '/_authenticated/orcamentos/'
+      path: '/orcamentos'
+      fullPath: '/orcamentos/'
+      preLoaderRoute: typeof AuthenticatedOrcamentosIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/orcamentos/novo': {
+      id: '/_authenticated/orcamentos/novo'
+      path: '/orcamentos/novo'
+      fullPath: '/orcamentos/novo'
+      preLoaderRoute: typeof AuthenticatedOrcamentosNovoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pedidos/': {
       id: '/_authenticated/pedidos/'
       path: '/pedidos'
@@ -600,11 +640,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientesIdRoute: typeof AuthenticatedClientesIdRoute
   AuthenticatedClientesNovoRoute: typeof AuthenticatedClientesNovoRoute
   AuthenticatedEcommercePedidosRoute: typeof AuthenticatedEcommercePedidosRoute
+  AuthenticatedOrcamentosNovoRoute: typeof AuthenticatedOrcamentosNovoRoute
   AuthenticatedPedidosIdRoute: typeof AuthenticatedPedidosIdRoute
   AuthenticatedPedidosNovoRoute: typeof AuthenticatedPedidosNovoRoute
   AuthenticatedProdutosIdRoute: typeof AuthenticatedProdutosIdRoute
   AuthenticatedProdutosNovoRoute: typeof AuthenticatedProdutosNovoRoute
   AuthenticatedClientesIndexRoute: typeof AuthenticatedClientesIndexRoute
+  AuthenticatedOrcamentosIndexRoute: typeof AuthenticatedOrcamentosIndexRoute
   AuthenticatedPedidosIndexRoute: typeof AuthenticatedPedidosIndexRoute
   AuthenticatedProdutosIndexRoute: typeof AuthenticatedProdutosIndexRoute
 }
@@ -623,11 +665,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClientesIdRoute: AuthenticatedClientesIdRoute,
   AuthenticatedClientesNovoRoute: AuthenticatedClientesNovoRoute,
   AuthenticatedEcommercePedidosRoute: AuthenticatedEcommercePedidosRoute,
+  AuthenticatedOrcamentosNovoRoute: AuthenticatedOrcamentosNovoRoute,
   AuthenticatedPedidosIdRoute: AuthenticatedPedidosIdRoute,
   AuthenticatedPedidosNovoRoute: AuthenticatedPedidosNovoRoute,
   AuthenticatedProdutosIdRoute: AuthenticatedProdutosIdRoute,
   AuthenticatedProdutosNovoRoute: AuthenticatedProdutosNovoRoute,
   AuthenticatedClientesIndexRoute: AuthenticatedClientesIndexRoute,
+  AuthenticatedOrcamentosIndexRoute: AuthenticatedOrcamentosIndexRoute,
   AuthenticatedPedidosIndexRoute: AuthenticatedPedidosIndexRoute,
   AuthenticatedProdutosIndexRoute: AuthenticatedProdutosIndexRoute,
 }
