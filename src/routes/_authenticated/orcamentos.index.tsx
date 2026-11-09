@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, FileText, Plus, Search, X } from "lucide-rea
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { canCreateOrder, escapeSearchTerm, orderNumber, orderNumberSearch } from "@/lib/orders";
+import { canCreateOrder, escapeSearchTerm, orderNumber, orderNumberSearch, erpOrderNumber } from "@/lib/orders";
 import { QUOTE_STATUS_LABEL, isQuoteExpired, quoteListSearch } from "@/lib/quotes";
 import { convertQuoteToOrder } from "@/lib/quotes.functions";
 import { PageHeader } from "@/components/ModulePage";
@@ -73,7 +73,7 @@ function QuotesPage() {
     queryFn: async () => {
       let query = supabase
         .from("quotes")
-        .select("id, created_at, status, total_amount, valid_until, seller_id, order_id, customers!inner(name)", { count: "exact" })
+        .select("id, created_at, status, total_amount, valid_until, seller_id, order_id, customers!inner(name), order:orders!quotes_order_id_fkey(erp_order_id)", { count: "exact" })
         .order("created_at", { ascending: false });
       if (status !== "todos") query = query.eq("status", status);
       if (term) {
@@ -188,8 +188,9 @@ function QuotesPage() {
                 <li key={o.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{o.customers?.name}</p>
+                    <p className="break-words text-sm font-medium">{erpOrderNumber(o.order?.erp_order_id)}</p>
                     <p className="text-xs text-muted-foreground">
-                      {orderNumber(o.id)} · {new Date(o.created_at).toLocaleDateString("pt-BR")}
+                      Ref. interna {orderNumber(o.id)} · {new Date(o.created_at).toLocaleDateString("pt-BR")}
                       {o.valid_until
                         ? ` · válido até ${new Date(`${o.valid_until}T00:00:00`).toLocaleDateString("pt-BR")}`
                         : " · sem validade"}

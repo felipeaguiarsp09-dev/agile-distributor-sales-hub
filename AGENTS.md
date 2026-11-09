@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Project rules
+- Order displays share `erpOrderNumber`; quotes read the converted order's ERP number through the RLS-scoped foreign-key relation and keep their own internal reference. Why: the ERP owns numbering without changing stored identifiers or exposing inaccessible orders.
 - Orders list scroll restoration is keyed by validated filters and page; other routes retain history-entry keys. Why: both the detail return link and browser Back restore the same list without mixing filter contexts.
 - Dashboard subscribes once per mounted identity to RLS-scoped order changes and invalidates that user's metric/coverage caches; active month/seller queries refetch and inactive ones become stale. Why: live approvals and invoicing stay consistent without replacing authenticated reads or resetting filters.
 - Customer and visit goals are nullable monthly sales-target fields managed on /metas; coverage and visit metrics extend the existing RLS-invoker dashboard RPC. Why: preserves the first-read flow, existing monetary goals and seller isolation.

@@ -5,7 +5,7 @@ import { Check, Radio, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { ORDER_STATUS_LABEL, orderNumber } from "@/lib/orders";
+import { ORDER_STATUS_LABEL, orderNumber, erpOrderNumber } from "@/lib/orders";
 import { PageHeader } from "@/components/ModulePage";
 import { brl, CreditBadge, EmptyState, ErrorState, NoAccess, RowsSkeleton } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -66,7 +66,7 @@ function SalesFlowPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, total_amount, discount_amount, created_at, customers(name, credit_status), seller:profiles!orders_seller_id_fkey(full_name)")
+        .select("id, erp_order_id, total_amount, discount_amount, created_at, customers(name, credit_status), seller:profiles!orders_seller_id_fkey(full_name)")
         .eq("status", "aguardando_aprovacao")
         .eq("needs_approval", true)
         .order("created_at");
@@ -158,7 +158,8 @@ function SalesFlowPage() {
               {pending.data.map((o) => (
                 <li key={o.id} className="flex flex-wrap items-center gap-3 py-3">
                   <div className="min-w-0 flex-1">
-                    <Link to="/pedidos/$id" params={{ id: o.id }} className="font-medium hover:underline">{orderNumber(o.id)} · {o.customers?.name}</Link>
+                    <Link to="/pedidos/$id" params={{ id: o.id }} className="block break-words font-medium hover:underline">{erpOrderNumber(o.erp_order_id)} · {o.customers?.name}</Link>
+                    <p className="text-xs text-muted-foreground">Ref. interna {orderNumber(o.id)}</p>
                     <p className="text-sm text-muted-foreground">
                       {o.seller?.full_name ?? "E-commerce"} · {brl(Number(o.total_amount))}
                       {Number(o.discount_amount) > 0 && ` · desconto ${brl(Number(o.discount_amount))}`}

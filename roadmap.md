@@ -5,3 +5,4 @@
 - [x] Meta de faturamento em Metas mensais
 - [x] Análise do Dashboard se atualiza quando o faturamento muda
 - [x] Numeração do pedido definida pelo ERP (mostrar número do ERP)
+- [ ] Número do ERP no Fluxo de Vendas, Propostas e histórico do cliente; verificar sem alterar registros
