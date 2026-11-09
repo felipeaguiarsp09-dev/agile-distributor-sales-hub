@@ -183,7 +183,7 @@ function IndicatorsPage() {
             />
             <Kpi
               label="Positivação / venda"
-              value={d ? `${d.clientes_positivados ?? 0} clientes · ${brl(d.vendas_mes)}` : null}
+              value={d ? `${d.clientes_positivados ?? 0} cliente${(d.clientes_positivados ?? 0) === 1 ? "" : "s"} · ${brl(d.vendas_mes)}` : null}
               hint={d?.meta_clientes != null ? (unmet.customers != null ? `Faltam ${unmet.customers} clientes · ${progressPct(d.meta_clientes, d.clientes_positivados ?? 0)}% da meta` : "Meta de clientes batida") : "Clientes que compraram no mês"}
               attention={unmet.customers != null}
               met={d?.meta_clientes != null && unmet.customers == null}
