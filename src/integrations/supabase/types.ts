@@ -160,15 +160,19 @@ export type Database = {
           credit_limit: number
           credit_status: string
           email: string | null
+          erp_sent_at: string | null
+          erp_sync_status: string | null
           external_id: string | null
           id: string
           is_active: boolean
           name: string
           name_search: string | null
+          notes: string | null
           organization_id: string
           owner_id: string
           phone: string | null
           portal_user_id: string | null
+          registration_status: string
           updated_at: string
         }
         Insert: {
@@ -178,15 +182,19 @@ export type Database = {
           credit_limit?: number
           credit_status?: string
           email?: string | null
+          erp_sent_at?: string | null
+          erp_sync_status?: string | null
           external_id?: string | null
           id?: string
           is_active?: boolean
           name: string
           name_search?: string | null
+          notes?: string | null
           organization_id: string
           owner_id: string
           phone?: string | null
           portal_user_id?: string | null
+          registration_status?: string
           updated_at?: string
         }
         Update: {
@@ -196,15 +204,19 @@ export type Database = {
           credit_limit?: number
           credit_status?: string
           email?: string | null
+          erp_sent_at?: string | null
+          erp_sync_status?: string | null
           external_id?: string | null
           id?: string
           is_active?: boolean
           name?: string
           name_search?: string | null
+          notes?: string | null
           organization_id?: string
           owner_id?: string
           phone?: string | null
           portal_user_id?: string | null
+          registration_status?: string
           updated_at?: string
         }
         Relationships: [

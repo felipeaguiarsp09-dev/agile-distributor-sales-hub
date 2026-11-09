@@ -120,6 +120,13 @@
       "when": 1794244107734,
       "tag": "0016_stock_sync_status",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794246462648,
+      "tag": "0017_customer_pre_registration",
+      "breakpoints": true
     }
   ]
 }

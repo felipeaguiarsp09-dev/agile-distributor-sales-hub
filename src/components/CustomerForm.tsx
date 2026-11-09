@@ -6,11 +6,12 @@ import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ROLE_LABEL, type Role } from "@/lib/auth";
 
 type Customer = Tables<"customers">;
-export type CustomerValues = Pick<Customer, "name" | "cnpj_cpf" | "email" | "phone" | "credit_limit" | "credit_status" | "owner_id"> & {
+export type CustomerValues = Pick<Customer, "name" | "cnpj_cpf" | "email" | "phone" | "notes" | "owner_id"> & {
   address: Record<string, string>;
 };
 
@@ -69,19 +70,10 @@ export function CustomerForm({
         <Field label="UF"><Input maxLength={2} value={v.address["state"] ?? ""} onChange={(e) => setAddr("state", e.target.value.toUpperCase())} /></Field>
         <Field label="CEP"><Input value={v.address["zip"] ?? ""} onChange={(e) => setAddr("zip", e.target.value)} /></Field>
       </div>
-      <Field label="Limite de crédito (R$)">
-        <Input type="number" min={0} step="0.01" value={v.credit_limit} onChange={(e) => set("credit_limit", Number(e.target.value))} />
+      <Field label="Observações" className="sm:col-span-2">
+        <Textarea value={v.notes ?? ""} onChange={(e) => set("notes", e.target.value || null)} placeholder="Informações para o cadastro no ERP" />
       </Field>
-      <Field label="Situação de crédito">
-        <Select value={v.credit_status} onValueChange={(val) => set("credit_status", val)}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ok">Crédito OK</SelectItem>
-            <SelectItem value="restrito">Restrito</SelectItem>
-            <SelectItem value="bloqueado">Bloqueado</SelectItem>
-          </SelectContent>
-        </Select>
-      </Field>
+      <p className="text-xs text-muted-foreground sm:col-span-2">Limite e situação de crédito são definidos pelo ERP.</p>
       <div className="sm:col-span-2">
         <Button type="submit" disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin" />} {submitLabel}</Button>
       </div>

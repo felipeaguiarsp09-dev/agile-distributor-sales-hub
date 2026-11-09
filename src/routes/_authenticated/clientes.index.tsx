@@ -36,7 +36,7 @@ function CustomersPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("customers")
-        .select("id, name, cnpj_cpf, phone, credit_limit, credit_status, is_active, external_id")
+        .select("id, name, cnpj_cpf, phone, credit_limit, credit_status, is_active, external_id, registration_status")
         .order("name");
       if (error) throw error;
       return data;
@@ -60,7 +60,7 @@ function CustomersPage() {
         />
         {isAdmin && (
           <Button asChild>
-            <Link to="/clientes/novo"><Plus className="h-4 w-4" /> Novo cliente</Link>
+            <Link to="/clientes/novo"><Plus className="h-4 w-4" /> Pré-cadastro</Link>
           </Button>
         )}
       </div>
@@ -108,9 +108,15 @@ function CustomersPage() {
                   </p>
                 </div>
                 {c.external_id && <Badge variant="outline">ERP {c.external_id}</Badge>}
-                <span className="text-sm tabular-nums">{brl(c.credit_limit)}</span>
-                <CreditBadge status={c.credit_status} />
-                <ActiveBadge active={c.is_active} />
+                {c.registration_status === "pre_cadastro" ? (
+                  <Badge variant="secondary">Pré-cadastro</Badge>
+                ) : (
+                  <>
+                    <span className="text-sm tabular-nums">{brl(c.credit_limit)}</span>
+                    <CreditBadge status={c.credit_status} />
+                    <ActiveBadge active={c.is_active} />
+                  </>
+                )}
               </Link>
             </li>
           ))}

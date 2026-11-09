@@ -8,6 +8,8 @@ import { useAuth } from "@/lib/auth";
 import { canCreateOrder, ORDER_STATUS_LABEL, orderNumber } from "@/lib/orders";
 import { ActiveBadge, CreditBadge, EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { CustomerForm } from "@/components/CustomerForm";
+import { useServerFn } from "@tanstack/react-start";
+import { sendCustomerToErp } from "@/lib/customers.functions";
 import { orderHistoryWindow } from "@/lib/order-history";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +36,8 @@ function CustomerDetail() {
   const navigate = useNavigate();
   const [historyWindow] = useState(() => orderHistoryWindow());
   const [editing, setEditing] = useState(false);
+  const [sending, setSending] = useState(false);
+  const sendFn = useServerFn(sendCustomerToErp);
 
   const customer = useQuery({
     queryKey: ["customers", id],
@@ -90,8 +94,25 @@ function CustomerDetail() {
           <p className="mt-1 text-sm text-muted-foreground">
             {c.cnpj_cpf ?? "Sem documento"} {c.external_id && <Badge variant="outline" className="ml-2">ERP {c.external_id}</Badge>}
           </p>
+          {c.registration_status === "pre_cadastro" && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+              <Badge variant="secondary">Pré-cadastro</Badge>
+              <span className="text-muted-foreground">
+                {c.erp_sync_status === "enviado" ? `Enviado ao ERP${c.erp_sent_at ? ` em ${new Date(c.erp_sent_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}` : ""} · aguardando cadastro completo` : c.erp_sync_status === "erro" ? "Falha no envio ao ERP" : "Envio ao ERP pendente"}. Pedidos liberados após o cadastro no ERP.
+              </span>
+              {c.erp_sync_status !== "enviado" && (
+                <Button size="sm" variant="outline" disabled={sending} onClick={async () => {
+                  setSending(true);
+                  const res = await sendFn({ data: { customer_id: c.id } }).catch(() => ({ ok: false, message: "O ERP não recebeu o pré-cadastro. Tente reenviar." }));
+                  setSending(false);
+                  res.ok ? toast.success(res.message) : toast.error(res.message);
+                  await qc.invalidateQueries({ queryKey: ["customers"] });
+                }}>Reenviar ao ERP</Button>
+              )}
+            </div>
+          )}
         </div>
-        {canCreateOrder(profile?.role) && (
+        {canCreateOrder(profile?.role) && c.registration_status !== "pre_cadastro" && (
           <Button asChild variant="secondary">
             <Link to="/pedidos/novo" search={{ cliente: c.id }}><ShoppingCart className="h-4 w-4" /> Novo pedido</Link>
           </Button>
@@ -107,7 +128,7 @@ function CustomerDetail() {
       {editing ? (
         <CustomerForm
           submitLabel="Salvar alterações"
-          initial={{ name: c.name, cnpj_cpf: c.cnpj_cpf, email: c.email, phone: c.phone, credit_limit: c.credit_limit, credit_status: c.credit_status, owner_id: c.owner_id, address: addr }}
+          initial={{ name: c.name, cnpj_cpf: c.cnpj_cpf, email: c.email, phone: c.phone, notes: c.notes, owner_id: c.owner_id, address: addr }}
           onSubmit={async (v) => {
             const { error } = await supabase.from("customers").update(v).eq("id", id);
             if (error) return void toast.error("Não foi possível salvar");
@@ -125,13 +146,20 @@ function CustomerDetail() {
               <Info label="Telefone" value={c.phone} />
               <Info label="Endereço" value={addressLine} />
               <Info label="Vendedor responsável" value={owner.data?.full_name} />
+              {c.notes && <Info label="Observações" value={c.notes} />}
             </dl>
           </div>
           <div className="rounded-lg border bg-card p-5">
             <h2 className="mb-3 font-semibold">Crédito</h2>
-            <p className="text-2xl font-bold tabular-nums">{brl(c.credit_limit)}</p>
-            <p className="mb-3 text-xs text-muted-foreground">Limite de crédito</p>
-            <div className="flex gap-2"><CreditBadge status={c.credit_status} /><ActiveBadge active={c.is_active} /></div>
+            {c.registration_status === "pre_cadastro" ? (
+              <p className="text-sm text-muted-foreground">Definido pelo ERP após o cadastro completo.</p>
+            ) : (
+              <>
+                <p className="text-2xl font-bold tabular-nums">{brl(c.credit_limit)}</p>
+                <p className="mb-3 text-xs text-muted-foreground">Limite de crédito</p>
+                <div className="flex gap-2"><CreditBadge status={c.credit_status} /><ActiveBadge active={c.is_active} /></div>
+              </>
+            )}
           </div>
         </div>
       )}
