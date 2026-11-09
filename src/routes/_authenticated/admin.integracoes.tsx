@@ -20,9 +20,9 @@ export const Route = createFileRoute("/_authenticated/admin/integracoes")({
   head: () => ({
     meta: [
       { title: "Integrações — Dcalice" },
-      { name: "description", content: "Configure e acompanhe ERP, estoque, financeiro e pagamento." },
+      { name: "description", content: "Configure e acompanhe ERP, estoque e financeiro." },
       { property: "og:title", content: "Integrações — Dcalice" },
-      { property: "og:description", content: "Configure e acompanhe ERP, estoque, financeiro e pagamento." },
+      { property: "og:description", content: "Configure e acompanhe ERP, estoque e financeiro." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -42,11 +42,6 @@ const TYPES: { type: "erp" | "estoque" | "financeiro" | "pagamento"; title: stri
   { type: "financeiro", title: "Financeiro", hint: "Consulta de títulos e crédito dos clientes.", fields: () => [
     { key: "endpoint_url", label: "Endereço da API financeira" },
     { key: "api_key", label: "Chave de acesso", secret: true }] },
-  { type: "pagamento", title: "Pagamento online", hint: "Cobrança online dos pedidos.",
-    providers: [{ value: "mercadopago", label: "Mercado Pago" }, { value: "asaas", label: "Asaas" }, { value: "stripe", label: "Stripe" }],
-    fields: (p) => p === "mercadopago" ? [{ key: "access_token", label: "Access token", secret: true }]
-      : p === "asaas" ? [{ key: "api_key", label: "Chave de API", secret: true }, { key: "webhook_token", label: "Token do webhook", secret: true }]
-      : [{ key: "secret_key", label: "Chave secreta (sk_...)", secret: true }] },
 ];
 
 type Cfg = { id: string; integration_type: string; provider: string | null; credentials: Record<string, unknown>; is_active: boolean; last_sync_at: string | null; organization_id: string };
@@ -66,7 +61,7 @@ function Page() {
   if (!isAdmin) return <NoAccess />;
   return (
     <div className="mx-auto max-w-4xl">
-      <PageHeader title="Integrações" description="Conecte o ERP, o estoque, o financeiro e o pagamento online, e acompanhe a última sincronização." />
+      <PageHeader title="Integrações" description="Conecte o ERP, o estoque e o financeiro, e acompanhe a última sincronização." />
       {configs.isLoading ? <RowsSkeleton rows={4} /> : configs.isError ? (
         <ErrorState message="Não foi possível carregar as integrações" onRetry={() => configs.refetch()} />
       ) : (

@@ -35,9 +35,9 @@ export const Route = createFileRoute("/_authenticated/pedidos/")({
   head: () => ({
     meta: [
       { title: "Pedidos — Dcalice" },
-      { name: "description", content: "Pedidos da sua carteira nos últimos 12 meses, com status, origem e sincronização com o ERP." },
+      { name: "description", content: "Pedidos da sua carteira nos últimos 12 meses, com status e sincronização com o ERP." },
       { property: "og:title", content: "Pedidos — Dcalice" },
-      { property: "og:description", content: "Pedidos da sua carteira nos últimos 12 meses, com status, origem e sincronização com o ERP." },
+      { property: "og:description", content: "Pedidos da sua carteira nos últimos 12 meses, com status e sincronização com o ERP." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -200,7 +200,7 @@ function OrdersPage() {
         })}
       </div>
 
-      <div className="mb-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_180px_160px_150px_150px] lg:grid-cols-[minmax(0,1fr)_180px_160px_150px_150px_auto]">
+      <div className="mb-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_180px_150px_150px] lg:grid-cols-[minmax(0,1fr)_180px_150px_150px_auto]">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -218,17 +218,6 @@ function OrdersPage() {
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
             {Object.entries(ORDER_STATUS_GROUPS).map(([k, g]) => <SelectItem key={k} value={k}>{g.label}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select
-          value={origin}
-          onValueChange={(v) => setFilters({ origem: v === "todas" ? undefined : v })}
-        >
-          <SelectTrigger className="h-11 text-base md:h-9 md:text-sm"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todas">Todas as origens</SelectItem>
-            <SelectItem value="vendedor">Vendedor</SelectItem>
-            <SelectItem value="ecommerce">E-commerce</SelectItem>
           </SelectContent>
         </Select>
         <Input type="date" aria-label="De" className="h-11 text-base md:h-9 md:text-sm" value={from} onChange={(e) => setFilters({ de: e.target.value || undefined })} />
