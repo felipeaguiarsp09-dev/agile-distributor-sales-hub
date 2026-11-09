@@ -5,7 +5,7 @@ import { ArrowLeft, Pencil, ShoppingCart, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { canCreateOrder, ORDER_STATUS_LABEL, orderNumber } from "@/lib/orders";
+import { canCreateOrder, ORDER_STATUS_LABEL, orderNumber, erpOrderNumber } from "@/lib/orders";
 import { ActiveBadge, CreditBadge, EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { CustomerForm } from "@/components/CustomerForm";
 import { useServerFn } from "@tanstack/react-start";
@@ -55,9 +55,9 @@ function CustomerDetail() {
   const orders = useQuery({
     queryKey: ["orders", "customer", profile?.id, id, historyWindow.from, historyWindow.to],
     queryFn: async () => {
-      const rows: { id: string; created_at: string; status: string; total_amount: number; origin: string }[] = [];
+      const rows: { id: string; erp_order_id: string | null; created_at: string; status: string; total_amount: number; origin: string }[] = [];
       for (let offset = 0; ; offset += 500) {
-        const { data, error } = await supabase.from("orders").select("id, created_at, status, total_amount, origin")
+        const { data, error } = await supabase.from("orders").select("id, erp_order_id, created_at, status, total_amount, origin")
           .eq("customer_id", id).gte("created_at", historyWindow.from).lte("created_at", historyWindow.to)
           .order("created_at", { ascending: false }).order("id").range(offset, offset + 499);
         if (error) throw error;
@@ -175,7 +175,7 @@ function CustomerDetail() {
         <ul className="divide-y rounded-lg border bg-card">
           {orders.data.map((o) => (
             <li key={o.id}><Link to="/pedidos/$id" params={{ id: o.id }} className="flex flex-wrap items-center gap-3 px-4 py-3 text-sm hover:bg-muted">
-              <span className="min-w-0 flex-1 font-medium">{orderNumber(o.id)}<span className="mt-1 block text-xs text-muted-foreground">{new Date(o.created_at).toLocaleDateString("pt-BR")}</span></span>
+              <span className="min-w-0 flex-1 break-words font-medium">{erpOrderNumber(o.erp_order_id)}<span className="mt-1 block text-xs text-muted-foreground">Ref. interna {orderNumber(o.id)} · {new Date(o.created_at).toLocaleDateString("pt-BR")}</span></span>
               <Badge variant="outline">{ORDER_STATUS_LABEL[o.status] ?? o.status}</Badge>
               <span className="tabular-nums">{brl(o.total_amount)}</span>
             </Link></li>
