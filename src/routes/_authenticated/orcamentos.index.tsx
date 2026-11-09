@@ -186,7 +186,7 @@ function QuotesPage() {
               const expired = isQuoteExpired(o.valid_until);
               return (
                 <li key={o.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 basis-full sm:flex-1 sm:basis-auto">
                     <p className="truncate font-medium">{o.customers?.name}</p>
                     <p className="break-words text-sm font-medium">{erpOrderNumber(o.order?.erp_order_id)}</p>
                     <p className="text-xs text-muted-foreground">
