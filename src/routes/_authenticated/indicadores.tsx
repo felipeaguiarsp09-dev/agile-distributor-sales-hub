@@ -195,7 +195,7 @@ function IndicatorsPage() {
                     ariaLabel="Progresso da meta de positivação"
                     pct={cp}
                     met={unmet.customers == null}
-                    status={unmet.customers != null ? `Faltam ${word(unmet.customers)} para a meta` : "Meta batida"}
+                    status={unmet.customers != null ? `${unmet.customers === 1 ? "Falta" : "Faltam"} ${word(unmet.customers)} para a meta` : "Meta batida"}
                     center={[word(pos), `de ${d.meta_clientes}`]}
                     footer={`${word(pos)} positivado${pos === 1 ? "" : "s"} · venda ${brl(d.vendas_mes)} · ${cp}% da meta`}
                   />
