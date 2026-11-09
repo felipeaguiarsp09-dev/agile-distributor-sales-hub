@@ -151,9 +151,15 @@ function CustomerDetail() {
           </div>
           <div className="rounded-lg border bg-card p-5">
             <h2 className="mb-3 font-semibold">Crédito</h2>
-            <p className="text-2xl font-bold tabular-nums">{brl(c.credit_limit)}</p>
-            <p className="mb-3 text-xs text-muted-foreground">Limite de crédito</p>
-            <div className="flex gap-2"><CreditBadge status={c.credit_status} /><ActiveBadge active={c.is_active} /></div>
+            {c.registration_status === "pre_cadastro" ? (
+              <p className="text-sm text-muted-foreground">Definido pelo ERP após o cadastro completo.</p>
+            ) : (
+              <>
+                <p className="text-2xl font-bold tabular-nums">{brl(c.credit_limit)}</p>
+                <p className="mb-3 text-xs text-muted-foreground">Limite de crédito</p>
+                <div className="flex gap-2"><CreditBadge status={c.credit_status} /><ActiveBadge active={c.is_active} /></div>
+              </>
+            )}
           </div>
         </div>
       )}
