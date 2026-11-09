@@ -45,7 +45,7 @@ export function unmetTargets(d: Indicators | null | undefined): UnmetTargets {
   if (!d) return { sales: null, customers: null, visits: null };
   return {
     sales: d.meta > 0 && d.vendas_mes < d.meta ? d.meta - d.vendas_mes : null,
-    customers: d.meta_clientes != null && d.clientes_atendidos < d.meta_clientes ? Math.max(d.meta_clientes - d.clientes_atendidos, 0) : null,
+    customers: d.meta_clientes != null && (d.clientes_positivados ?? d.clientes_atendidos) < d.meta_clientes ? Math.max(d.meta_clientes - (d.clientes_positivados ?? d.clientes_atendidos), 0) : null,
     visits: d.meta_visitas != null && d.visitas_realizadas < d.meta_visitas ? Math.max(d.meta_visitas - d.visitas_realizadas, 0) : null,
   };
 }
