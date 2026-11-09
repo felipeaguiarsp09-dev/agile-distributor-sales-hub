@@ -42,7 +42,7 @@ const TYPES: { type: "erp" | "estoque" | "financeiro" | "pagamento"; title: stri
   { type: "financeiro", title: "Financeiro", hint: "Consulta de títulos e crédito dos clientes.", fields: () => [
     { key: "endpoint_url", label: "Endereço da API financeira" },
     { key: "api_key", label: "Chave de acesso", secret: true }] },
-  { type: "pagamento", title: "Pagamento online", hint: "Cobrança das compras do e-commerce.",
+  { type: "pagamento", title: "Pagamento online", hint: "Cobrança online dos pedidos.",
     providers: [{ value: "mercadopago", label: "Mercado Pago" }, { value: "asaas", label: "Asaas" }, { value: "stripe", label: "Stripe" }],
     fields: (p) => p === "mercadopago" ? [{ key: "access_token", label: "Access token", secret: true }]
       : p === "asaas" ? [{ key: "api_key", label: "Chave de API", secret: true }, { key: "webhook_token", label: "Token do webhook", secret: true }]
