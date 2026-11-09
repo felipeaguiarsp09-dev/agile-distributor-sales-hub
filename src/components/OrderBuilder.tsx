@@ -304,11 +304,11 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
           .from("orders")
           .update({ customer_id: fields.customer_id, discount_amount: fields.discount_amount, notes: fields.notes })
           .eq("id", draftId);
-    if (error) throw new Error(isQuote ? "Falha ao salvar o orçamento" : "Falha ao salvar o rascunho");
+    if (error) throw new Error(isQuote ? "Falha ao salvar a proposta" : "Falha ao salvar o rascunho");
     const removed = isQuote
       ? await supabase.from("quote_items").delete().eq("quote_id", draftId)
       : await supabase.from("order_items").delete().eq("order_id", draftId);
-    if (removed.error) throw new Error(isQuote ? "Falha ao salvar o orçamento" : "Falha ao salvar o rascunho");
+    if (removed.error) throw new Error(isQuote ? "Falha ao salvar a proposta" : "Falha ao salvar o rascunho");
     return draftId;
   }
 
@@ -587,7 +587,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       onQuoteSaved();
     } catch (e) {
       submittedRef.current = false;
-      toast.error(e instanceof Error ? e.message : "Falha ao salvar o orçamento");
+      toast.error(e instanceof Error ? e.message : "Falha ao salvar a proposta");
     } finally {
       setSaving(false);
     }
@@ -603,7 +603,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
   const draftLabel =
     draftState === "saving"
       ? isQuote
-        ? "Salvando orçamento..."
+        ? "Salvando proposta..."
         : "Salvando rascunho..."
       : draftState === "saved" && draftSavedAt
         ? `${isQuote ? "Proposta salva" : "Rascunho salvo"} às ${draftSavedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
@@ -613,7 +613,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
     <div className="mx-auto max-w-6xl pb-24 lg:pb-0">
       {isQuote && (
         <Link to="/orcamentos" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Meus orçamentos
+          <ArrowLeft className="h-4 w-4" /> Propostas comerciais
         </Link>
       )}
       <PageHeader

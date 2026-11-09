@@ -101,7 +101,7 @@ function QuotesPage() {
       await qc.invalidateQueries({ queryKey: ["orders"] });
       navigate({ to: "/pedidos/$id", params: { id: res.order_id } });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Não foi possível converter o orçamento");
+      toast.error(e instanceof Error ? e.message : "Não foi possível transformar a proposta em pedido");
     } finally {
       setPendingId(null);
     }
@@ -110,10 +110,10 @@ function QuotesPage() {
   async function cancelQuote(id: string) {
     const { error } = await supabase.from("quotes").update({ status: "cancelado" }).eq("id", id);
     if (error) {
-      toast.error("Não foi possível cancelar o orçamento");
+      toast.error("Não foi possível cancelar a proposta");
       return;
     }
-    toast.success("Orçamento cancelado");
+    toast.success("Proposta cancelada");
     await qc.invalidateQueries({ queryKey: ["quotes"] });
   }
 
@@ -150,7 +150,7 @@ function QuotesPage() {
         <div className="flex items-center gap-2 md:col-span-full lg:col-span-1 lg:justify-end">
           {list.data && (
             <span className="whitespace-nowrap text-sm text-muted-foreground" aria-live="polite">
-              {list.data.total} orçamento{list.data.total === 1 ? "" : "s"}
+              {list.data.total} proposta{list.data.total === 1 ? "" : "s"}
             </span>
           )}
           {hasActiveFilters && (
@@ -170,11 +170,11 @@ function QuotesPage() {
       {list.isLoading ? (
         <RowsSkeleton />
       ) : list.isError ? (
-        <ErrorState message="Não foi possível carregar os orçamentos" onRetry={() => list.refetch()} />
+        <ErrorState message="Não foi possível carregar as propostas" onRetry={() => list.refetch()} />
       ) : !list.data?.total ? (
-        <EmptyState title="Nenhum orçamento com esses filtros">
+        <EmptyState title="Nenhuma proposta com esses filtros">
           {canCreateOrder(profile?.role) && (
-            <Link to="/orcamentos/novo" className="font-medium text-primary underline">Criar o primeiro orçamento</Link>
+            <Link to="/orcamentos/novo" className="font-medium text-primary underline">Criar a primeira proposta</Link>
           )}
         </EmptyState>
       ) : (
@@ -268,18 +268,18 @@ function QuotesPage() {
       <AlertDialog open={!!cancelId} onOpenChange={(open) => !open && setCancelId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Cancelar este orçamento?</AlertDialogTitle>
-            <AlertDialogDescription>O orçamento deixa de poder ser convertido em pedido. Essa ação não pode ser desfeita.</AlertDialogDescription>
+            <AlertDialogTitle>Cancelar esta proposta?</AlertDialogTitle>
+            <AlertDialogDescription>A proposta deixa de poder ser transformada em pedido. Essa ação não pode ser desfeita.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Manter orçamento</AlertDialogCancel>
+            <AlertDialogCancel>Manter proposta</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (cancelId) void cancelQuote(cancelId);
                 setCancelId(null);
               }}
             >
-              Cancelar orçamento
+              Cancelar proposta
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
