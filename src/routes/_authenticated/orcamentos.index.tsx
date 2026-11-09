@@ -124,7 +124,7 @@ function QuotesPage() {
         {canCreateOrder(profile?.role) && (
           <Button asChild>
             <Link to="/orcamentos/novo">
-              <Plus className="h-4 w-4" /> Novo orçamento
+              <Plus className="h-4 w-4" /> Nova proposta
             </Link>
           </Button>
         )}
