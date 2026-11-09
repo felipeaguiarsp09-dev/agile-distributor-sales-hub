@@ -141,7 +141,9 @@ export const pushOrderToErp = createServerFn({ method: "POST" })
     if (!["aprovado", "faturado"].includes(order.status)) return { ok: false, message: "Só pedidos aprovados ou faturados vão ao ERP" };
     if (order.erp_order_id) return { ok: true, message: "Pedido já enviado ao ERP", erp_order_id: order.erp_order_id };
 
-    const { data: cfg } = await sb.from("integration_configs").select("credentials").eq("integration_type", "erp").eq("is_active", true).maybeSingle();
+    // Vendedor não lê integration_configs (RLS); o pedido já foi autorizado acima, então a config da mesma organização é lida no servidor.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cfg } = await supabaseAdmin.from("integration_configs").select("credentials").eq("organization_id", order.organization_id).eq("integration_type", "erp").eq("is_active", true).maybeSingle();
     const erpCreds = (cfg?.credentials ?? {}) as { endpoint_url?: string; api_key?: string };
     const endpoint = erpCreds.endpoint_url;
     if (!endpoint) return { ok: false, message: "Integração com o ERP ainda não configurada" };
