@@ -243,26 +243,7 @@ function IndicatorsPage() {
             <p className="mt-4 text-sm text-muted-foreground">Todas as metas definidas foram atingidas em {periodLabel(period)}.</p>
           )}
           <section className="mt-6 border-t pt-5">
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="font-semibold">Meta × realizado (faturado)</span>
-              <span className="tabular-nums text-muted-foreground">{d && d.meta > 0 ? `${pct}%` : "Sem meta no período"}</span>
-            </div>
-            {indicatorsLoading ? <Skeleton className="mx-auto h-48 w-48 rounded-full" /> : (
-              <div className="relative mx-auto h-52 w-52">
-                <PieChart width={208} height={208}>
-                  <Pie data={[{ v: Math.min(pct, 100) }, { v: Math.max(100 - pct, 0) }]} dataKey="v" innerRadius={70} outerRadius={95} startAngle={90} endAngle={-270} stroke="none" isAnimationActive={false}>
-                    <Cell fill={d && d.meta > 0 && pct >= 100 ? "var(--success)" : "var(--danger)"} />
-                    <Cell fill="var(--muted)" />
-                  </Pie>
-                </PieChart>
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-2xl font-bold tabular-nums">{d && d.meta > 0 ? `${pct}%` : "—"}</span>
-                  <span className="text-xs text-muted-foreground">{d ? brl(billed) : ""}</span>
-                  {d && d.meta > 0 && <span className="text-xs text-muted-foreground">de {brl(d.meta)}</span>}
-                </div>
-              </div>
-            )}
-            <h2 className="mb-2 mt-6 text-sm font-semibold">Vendas por dia</h2>
+            <h2 className="mb-2 text-sm font-semibold">Vendas por dia</h2>
             {indicatorsLoading ? (
               <Skeleton className="h-56 w-full" />
             ) : d && d.daily.length > 0 ? (
