@@ -27,7 +27,7 @@ describe("pré-cadastro para o ERP", () => {
     expect(ok).toBe(true);
     const [url, init] = fake.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe("https://erp.simulado/clientes");
-    expect((init.headers as Record<string, string>).authorization).toBe("Bearer chave");
+    expect((init.headers as Record<string, string>)["authorization"]).toBe("Bearer chave");
     const body = JSON.parse(init.body as string);
     expect(body).toMatchObject({ name: "Mercado Simulado", city: "São Paulo", state: "SP", zip: "01310100" });
     console.log(JSON.stringify(body, null, 2));
