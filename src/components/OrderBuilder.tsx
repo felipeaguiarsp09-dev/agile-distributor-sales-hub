@@ -926,7 +926,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
           )}
           <Textarea placeholder="Observações do pedido" value={notes} onChange={(e) => setNotes(e.target.value)} />
           {customer && customer.credit_status !== "ok" && (
-            <Alert><AlertTriangle className="h-4 w-4" /><AlertTitle>Crédito {customer.credit_status}</AlertTitle><AlertDescription>O {isQuote ? "orçamento" : "pedido"} irá para aprovação do supervisor.</AlertDescription></Alert>
+            <Alert><AlertTriangle className="h-4 w-4" /><AlertTitle>Crédito bloqueado</AlertTitle><AlertDescription>Este cliente está com o crédito bloqueado no ERP.</AlertDescription></Alert>
           )}
           {overLimit && (
             <Alert><AlertTriangle className="h-4 w-4" /><AlertTitle>Acima do limite de crédito</AlertTitle><AlertDescription>O total passa do limite de {brl(customer.credit_limit)}.</AlertDescription></Alert>

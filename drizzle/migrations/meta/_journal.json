@@ -141,6 +141,13 @@
       "when": 1794248504258,
       "tag": "0019_seller_customer_pre_registration",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794249220344,
+      "tag": "0020_orders_no_approval",
+      "breakpoints": true
     }
   ]
 }
