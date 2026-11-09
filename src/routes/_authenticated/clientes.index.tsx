@@ -74,9 +74,10 @@ function CustomersPage() {
           <SelectTrigger className="sm:w-48"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todas as situações</SelectItem>
-            <SelectItem value="ok">Crédito OK</SelectItem>
-            <SelectItem value="restrito">Restrito</SelectItem>
+            <SelectItem value="ok">Liberado</SelectItem>
             <SelectItem value="bloqueado">Bloqueado</SelectItem>
+            <SelectItem value="ativo">Ativo</SelectItem>
+            <SelectItem value="inativo">Inativo</SelectItem>
           </SelectContent>
         </Select>
       </div>
