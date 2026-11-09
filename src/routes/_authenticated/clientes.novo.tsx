@@ -28,17 +28,19 @@ function NewCustomer() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const sendFn = useServerFn(sendCustomerToErp);
-  if (!profile || profile.role !== "administrador") return <NoAccess />;
+  if (!profile || (profile.role !== "administrador" && profile.role !== "vendedor")) return <NoAccess />;
+  const isSeller = profile.role === "vendedor";
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader title="Novo cliente" description="Pré-cadastro enviado ao ERP, que completa o cadastro. Pedidos ficam liberados depois disso." />
       <CustomerForm
         submitLabel="Enviar pré-cadastro"
+        lockOwner={isSeller}
         initial={{ name: "", cnpj_cpf: null, email: null, phone: null, notes: null, owner_id: profile.id, address: {} }}
         onSubmit={async (v) => {
           const { data, error } = await supabase
             .from("customers")
-            .insert({ ...v, organization_id: profile.organization_id })
+            .insert({ ...v, owner_id: isSeller ? profile.id : v.owner_id, organization_id: profile.organization_id })
             .select("id")
             .single();
           if (error) return void toast.error("Não foi possível salvar o pré-cadastro");

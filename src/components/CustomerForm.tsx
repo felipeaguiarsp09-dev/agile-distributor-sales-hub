@@ -19,14 +19,18 @@ export function CustomerForm({
   initial,
   onSubmit,
   submitLabel,
+  lockOwner = false,
 }: {
   initial: CustomerValues;
   onSubmit: (v: CustomerValues) => Promise<void>;
   submitLabel: string;
+  /** Vendedor: o pré-cadastro fica sempre vinculado a ele, sem escolher outro responsável. */
+  lockOwner?: boolean;
 }) {
   const [v, setV] = useState(initial);
   const [saving, setSaving] = useState(false);
   const sellers = useQuery({
+    enabled: !lockOwner,
     queryKey: ["profiles", "internal"],
     queryFn: async () => {
       const { data } = await supabase.from("profiles").select("id, full_name, role").neq("role", "cliente").order("full_name");
@@ -54,6 +58,9 @@ export function CustomerForm({
       <Field label="CNPJ/CPF"><Input value={v.cnpj_cpf ?? ""} onChange={(e) => set("cnpj_cpf", e.target.value || null)} /></Field>
       <Field label="Telefone"><Input value={v.phone ?? ""} onChange={(e) => set("phone", e.target.value || null)} /></Field>
       <Field label="Email"><Input type="email" value={v.email ?? ""} onChange={(e) => set("email", e.target.value || null)} /></Field>
+      {lockOwner ? (
+        <Field label="Vendedor responsável"><p className="flex h-10 items-center text-sm text-muted-foreground">Você</p></Field>
+      ) : (
       <Field label="Vendedor responsável">
         <Select value={v.owner_id} onValueChange={(val) => set("owner_id", val)}>
           <SelectTrigger><SelectValue placeholder="Escolha" /></SelectTrigger>
@@ -64,6 +71,7 @@ export function CustomerForm({
           </SelectContent>
         </Select>
       </Field>
+      )}
       <Field label="Endereço" className="sm:col-span-2"><Input value={v.address["street"] ?? ""} onChange={(e) => setAddr("street", e.target.value)} /></Field>
       <Field label="Cidade"><Input value={v.address["city"] ?? ""} onChange={(e) => setAddr("city", e.target.value)} /></Field>
       <div className="grid grid-cols-2 gap-4">
