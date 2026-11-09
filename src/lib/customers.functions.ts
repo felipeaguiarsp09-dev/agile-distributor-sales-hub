@@ -25,13 +25,8 @@ export const sendCustomerToErp = createServerFn({ method: "POST" })
     let ok = false;
     try {
       const token = creds.api_key || process.env["ERP_API_KEY"];
-      const { registration_status: _r, ...payload } = c;
-      const res = await fetch(creds.customer_url, {
-        method: "POST",
-        headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({ tipo: "pre_cadastro", ...payload }),
-      });
-      ok = res.ok;
+      const { postPreRegistration } = await import("./erp-customer-payload");
+      ok = await postPreRegistration(creds.customer_url, token, c);
     } catch (e) {
       console.error("send-customer-to-erp", e);
     }
