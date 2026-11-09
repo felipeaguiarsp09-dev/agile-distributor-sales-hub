@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarPlus, ChevronLeft, ChevronRight, Loader2, MapPin, RefreshCw, X } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Loader2, MapPin, RefreshCw, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -74,6 +74,14 @@ function AgendaPage() {
     void qc.invalidateQueries({ queryKey: ["agenda_visits"] });
   }
 
+  async function removeVisit(v: Visit) {
+    if (!window.confirm("Excluir este agendamento? Essa ação não pode ser desfeita.")) return;
+    const { error } = await supabase.from("agenda_visits").delete().eq("id", v.id);
+    if (error) return void toast.error("Não foi possível excluir o agendamento");
+    toast.success("Agendamento excluído");
+    void qc.invalidateQueries({ queryKey: ["agenda_visits"] });
+  }
+
   const label = view === "dia"
     ? anchor.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })
     : `${from.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} – ${addDays(from, 6).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}`;
@@ -134,6 +142,9 @@ function AgendaPage() {
                             <Button size="sm" className="flex-1 sm:flex-none" onClick={() => setRecord(v)}><MapPin className="h-4 w-4" /> Check-in e registro</Button>
                             <Button size="sm" variant="outline" onClick={() => setStatus(v, "cancelada")}><X className="h-4 w-4" /> Cancelar</Button>
                           </div>
+                        )}
+                        {mine && v.status !== "realizada" && (
+                          <Button size="sm" variant="ghost" className="mt-2 text-destructive" onClick={() => removeVisit(v)}><Trash2 className="h-4 w-4" /> Excluir</Button>
                         )}
                       </li>
                     );
