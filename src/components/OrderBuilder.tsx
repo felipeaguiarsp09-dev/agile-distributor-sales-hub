@@ -246,12 +246,15 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
   const submittedRef = useRef(false);
 
   const customers = useQuery({
-    queryKey: ["customers", "picker"],
+    queryKey: ["customers", "picker", isQuote ? "all" : "registered"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("customers")
         .select("id, name, cnpj_cpf, external_id, credit_limit, credit_status")
         .order("name");
+      // Pedidos só para clientes com cadastro completo no ERP.
+      if (!isQuote) query = query.eq("registration_status", "completo");
+      const { data, error } = await query;
       if (error) throw error;
       return data ?? [];
     },
