@@ -169,7 +169,7 @@ function AppShell() {
         </SheetContent>
       </Sheet>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className={`sticky top-0 z-10 flex transition-transform duration-200 ${headerHidden ? "-translate-y-full" : "translate-y-0"}`}
+        <header className={`sticky top-0 z-10 flex transition-transform lg:hidden duration-200 ${headerHidden ? "-translate-y-full" : "translate-y-0"}`}
           data-hidden={headerHidden}
         >
           <div className="flex w-full items-center gap-3 border-b bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
