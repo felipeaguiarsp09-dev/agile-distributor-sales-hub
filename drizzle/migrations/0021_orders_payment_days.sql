@@ -1,0 +1,2 @@
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_days integer;
+ALTER TABLE public.orders ADD CONSTRAINT orders_payment_days_check CHECK (payment_days IS NULL OR (payment_days BETWEEN 1 AND 365));

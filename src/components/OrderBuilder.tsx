@@ -206,6 +206,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
   const submitFn = useServerFn(submitOrder);
   const pushErpFn = useServerFn(pushOrderToErp);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
+  const [paymentDays, setPaymentDays] = useState("");
 
   const cartRef = useRef<HTMLElement>(null);
   const [customerId, setCustomerId] = useState(initialCustomerId ?? "");
@@ -398,7 +399,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       }
       const { data } = await supabase
         .from("orders")
-        .select("customer_id, discount_amount, notes, status, payment_method, order_items(product_id, quantity, unit_price, was_ai_suggested, products(name, unit_price, stock_quantity))")
+        .select("customer_id, discount_amount, notes, status, payment_method, payment_days, order_items(product_id, quantity, unit_price, was_ai_suggested, products(name, unit_price, stock_quantity))")
         .eq("id", resumeId)
         .maybeSingle();
       if (cancelled) return;
@@ -412,6 +413,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       setDiscount(Number(data.discount_amount));
       setNotes(data.notes ?? "");
       setPaymentMethod((data.payment_method as PaymentMethod | null) ?? "");
+      setPaymentDays(data.payment_days ? String(data.payment_days) : "");
       setLines(mapped);
       lastSnapshotRef.current = JSON.stringify([data.customer_id, mapped, Number(data.discount_amount), data.notes ?? "", ""]);
       setReady(true);
@@ -561,6 +563,8 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
   async function confirm() {
     if (!profile || !customerId || lines.length === 0) return;
     if (!paymentMethod) return void toast.error("Escolha a forma de pagamento");
+    const days = paymentMethod === "boleto" ? Number(paymentDays) : null;
+    if (paymentMethod === "boleto" && (!days || days < 1 || days > 365)) return void toast.error("Informe o prazo do boleto em dias (1 a 365)");
     setSaving(true);
     setProblem(null);
     try {
@@ -573,7 +577,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       });
       setDraftId(id);
       await saveItems(id, lines);
-      const { error: payErr } = await supabase.from("orders").update({ payment_method: paymentMethod }).eq("id", id);
+      const { error: payErr } = await supabase.from("orders").update({ payment_method: paymentMethod, payment_days: days }).eq("id", id);
       if (payErr) throw new Error("Falha ao salvar a forma de pagamento");
 
       const stock = await validateFn({ data: { order_id: id } });
@@ -922,6 +926,12 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
                 <option value="">Selecione…</option>
                 {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{PAYMENT_METHOD_LABEL[m]}</option>)}
               </select>
+              {paymentMethod === "boleto" && (
+                <div className="space-y-1 pt-2">
+                  <Label htmlFor="payment-days">Prazo do boleto (dias)</Label>
+                  <Input id="payment-days" type="number" inputMode="numeric" min={1} max={365} placeholder="Ex.: 28" value={paymentDays} onChange={(e) => setPaymentDays(e.target.value.replace(/\D/g, "").slice(0, 3))} />
+                </div>
+              )}
             </div>
           )}
           <Textarea placeholder="Observações do pedido" value={notes} onChange={(e) => setNotes(e.target.value)} />

@@ -188,7 +188,7 @@ function OrderDetail() {
             <div className="flex justify-between"><span>Desconto</span><span className="tabular-nums">− {brl(o.discount_amount)}</span></div>
             <div className="flex justify-between text-base font-bold"><span>Total</span><span className="tabular-nums">{brl(o.total_amount)}</span></div>
           </div>
-          {o.payment_method && <p className="mt-3 text-sm">Forma de pagamento: <strong>{PAYMENT_METHOD_LABEL[o.payment_method as PaymentMethod] ?? o.payment_method}</strong></p>}
+          {o.payment_method && <p className="mt-3 text-sm">Forma de pagamento: <strong>{PAYMENT_METHOD_LABEL[o.payment_method as PaymentMethod] ?? o.payment_method}{o.payment_method === "boleto" && o.payment_days ? ` — ${o.payment_days} dias` : ""}</strong></p>}
           {o.notes && <p className="mt-3 rounded-md bg-muted p-3 text-sm">{o.notes}</p>}
         </section>
 

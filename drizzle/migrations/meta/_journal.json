@@ -148,6 +148,13 @@
       "when": 1794249220344,
       "tag": "0020_orders_no_approval",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794253799693,
+      "tag": "0021_orders_payment_days",
+      "breakpoints": true
     }
   ]
 }
