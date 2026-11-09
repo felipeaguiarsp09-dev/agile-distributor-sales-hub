@@ -107,6 +107,14 @@ function OrderDetail() {
     setBusy(false);
     if (error) return void toast.error(error.message);
     toast.success(msg);
+    if (status === "aprovado") {
+      try {
+        const res = await pushFn({ data: { order_id: id } });
+        toast[res.ok ? "success" : "error"](res.message);
+      } catch {
+        toast.error("Pedido aprovado, mas não chegou ao ERP. Use Reenviar ao ERP.");
+      }
+    }
     await qc.invalidateQueries({ queryKey: ["orders"] });
   }
 

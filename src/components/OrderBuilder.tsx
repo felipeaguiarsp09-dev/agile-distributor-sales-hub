@@ -29,6 +29,7 @@ import {
   type CartLine,
   type HistoryOrder,
 } from "@/lib/orders";
+import { PAYMENT_METHODS, PAYMENT_METHOD_LABEL, type PaymentMethod } from "@/lib/payment-methods";
 import { dateInDays, isQuoteExpired } from "@/lib/quotes";
 import { isStockStale } from "@/lib/stock-sync";
 
@@ -57,7 +58,7 @@ function StockSyncNotice({ isQuote = false }: { isQuote?: boolean }) {
   }
   return <p className="mb-3 text-xs text-muted-foreground">Estoque sincronizado com o ERP em {label}</p>;
 }
-import { submitOrder, suggestProducts, validateOrderStock } from "@/lib/orders.functions";
+import { pushOrderToErp, submitOrder, suggestProducts, validateOrderStock } from "@/lib/orders.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { CreditBadge, ErrorState, NoAccess, RowsSkeleton, brl } from "@/components/shared";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
