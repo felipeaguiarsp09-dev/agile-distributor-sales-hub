@@ -58,7 +58,7 @@ export type HistoryOrderItem = { product_id: string; quantity: number; unit_pric
 export type HistoryOrder = { id: string; created_at: string; status: string; discount_amount: number; order_items: HistoryOrderItem[] };
 export type PurchaseLine = { product_id: string; name: string; unit_price: number; stock_quantity: number; ordersCount: number };
 
-const PURCHASED_STATUSES = ["aprovado", "faturado"];
+const PURCHASED_STATUSES = ["aprovado", "faturado", "entregue"];
 
 export function completedPurchases(orders: HistoryOrder[]) {
   return orders.filter((o) => PURCHASED_STATUSES.includes(o.status));
