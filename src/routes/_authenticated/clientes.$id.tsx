@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { canCreateOrder, ORDER_STATUS_LABEL, orderNumber } from "@/lib/orders";
-import { CreditBadge, EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
+import { ActiveBadge, CreditBadge, EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { CustomerForm } from "@/components/CustomerForm";
 import { orderHistoryWindow } from "@/lib/order-history";
 import { Badge } from "@/components/ui/badge";
@@ -131,7 +131,7 @@ function CustomerDetail() {
             <h2 className="mb-3 font-semibold">Crédito</h2>
             <p className="text-2xl font-bold tabular-nums">{brl(c.credit_limit)}</p>
             <p className="mb-3 text-xs text-muted-foreground">Limite de crédito</p>
-            <CreditBadge status={c.credit_status} />
+            <div className="flex gap-2"><CreditBadge status={c.credit_status} /><ActiveBadge active={c.is_active} /></div>
           </div>
         </div>
       )}

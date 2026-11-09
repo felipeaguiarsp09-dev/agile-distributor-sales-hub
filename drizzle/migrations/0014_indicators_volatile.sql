@@ -1,0 +1,1 @@
+ALTER FUNCTION public.get_seller_indicators(uuid, text) VOLATILE;

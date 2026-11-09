@@ -27,3 +27,15 @@ describe("busca de pedidos por número e nome", () => {
     expect(escapeSearchTerm('  João, (a) "x"  ')).toBe("João a x");
   });
 });
+
+describe("status e períodos de pedidos", () => {
+  it("rascunho, aguardando e aprovado aparecem como Em aberto", async () => {
+    const { ORDER_STATUS_LABEL, ORDER_STATUS_GROUPS } = await import("@/lib/orders");
+    expect([ORDER_STATUS_LABEL["rascunho"], ORDER_STATUS_LABEL["aguardando_aprovacao"], ORDER_STATUS_LABEL["aprovado"]]).toEqual(["Em aberto", "Em aberto", "Em aberto"]);
+    expect(ORDER_STATUS_GROUPS["entregue"]!.statuses).toEqual(["entregue"]);
+  });
+  it("atalho de 30 dias calcula a data inicial", async () => {
+    const { daysAgo } = await import("@/lib/orders");
+    expect(daysAgo(30, new Date(2026, 10, 9))).toBe("2026-10-10");
+  });
+});

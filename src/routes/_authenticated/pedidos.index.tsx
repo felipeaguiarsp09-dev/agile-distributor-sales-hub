@@ -8,6 +8,8 @@ import {
   canCreateOrder,
   ERP_STATUS_LABEL,
   ORDER_STATUS_LABEL,
+  ORDER_STATUS_GROUPS,
+  daysAgo,
   ORIGIN_LABEL,
   orderNumber,
   orderNumberSearch,
@@ -91,7 +93,7 @@ function OrdersPage() {
         .gte("created_at", historyWindow.from)
         .lte("created_at", historyWindow.to)
         .order("created_at", { ascending: false });
-      if (status !== "todos") query = query.eq("status", status);
+      if (status !== "todos") query = query.in("status", ORDER_STATUS_GROUPS[status]?.statuses ?? [status]);
       if (origin !== "todas") query = query.eq("origin", origin);
       if (from) query = query.gte("created_at", `${from}T00:00:00`);
       if (to) query = query.lte("created_at", `${to}T23:59:59`);
@@ -126,7 +128,7 @@ function OrdersPage() {
       }
       const { data, error } = await query.range(0, 9999);
       if (error) throw error;
-      return (data ?? []).reduce<Record<string, number>>((acc, r) => ((acc[r.status] = (acc[r.status] ?? 0) + 1), acc), {});
+      return (data ?? []).reduce<Record<string, number>>((acc, r) => { const g = Object.keys(ORDER_STATUS_GROUPS).find((k) => ORDER_STATUS_GROUPS[k]!.statuses.includes(r.status)); if (g) acc[g] = (acc[g] ?? 0) + 1; return acc; }, {});
     },
   });
 
@@ -168,15 +170,15 @@ function OrdersPage() {
         {canCreateOrder(profile?.role) && (
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild><Link to="/pedidos/novo"><Plus className="h-4 w-4" /> Novo pedido</Link></Button>
-            <Button asChild variant="outline"><Link to="/orcamentos/novo"><FileText className="h-4 w-4" /> Orçamento</Link></Button>
-            <Button asChild variant="ghost" className="text-muted-foreground"><Link to="/orcamentos">Meus orçamentos</Link></Button>
+            <Button asChild variant="outline"><Link to="/orcamentos/novo"><FileText className="h-4 w-4" /> Proposta comercial</Link></Button>
+            <Button asChild variant="ghost" className="text-muted-foreground"><Link to="/orcamentos">Minhas propostas</Link></Button>
           </div>
         )}
       </div>
 
       {!!counts.data && Object.values(counts.data).some((n) => n > 0) && (
         <div className="mb-4 flex flex-wrap gap-2">
-          {Object.entries(ORDER_STATUS_LABEL).map(([k, label]) => (
+          {Object.entries(ORDER_STATUS_GROUPS).map(([k, { label }]) => (
             <button
               key={k}
               onClick={() => setFilters({ status: status === k ? undefined : k })}
@@ -187,6 +189,17 @@ function OrdersPage() {
           ))}
         </div>
       )}
+
+      <div className="mb-2 flex flex-wrap gap-2">
+        {[30, 90].map((n) => {
+          const active = from === daysAgo(n) && !to;
+          return (
+            <Button key={n} variant={active ? "default" : "outline"} size="sm" className="min-h-11 md:min-h-9" onClick={() => setFilters({ de: active ? undefined : daysAgo(n), ate: undefined })}>
+              {n} dias
+            </Button>
+          );
+        })}
+      </div>
 
       <div className="mb-4 grid gap-2 md:grid-cols-[minmax(0,1fr)_180px_160px_150px_150px] lg:grid-cols-[minmax(0,1fr)_180px_160px_150px_150px_auto]">
         <div className="relative">
@@ -205,7 +218,7 @@ function OrdersPage() {
           <SelectTrigger className="h-11 text-base md:h-9 md:text-sm"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
-            {Object.entries(ORDER_STATUS_LABEL).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}
+            {Object.entries(ORDER_STATUS_GROUPS).map(([k, g]) => <SelectItem key={k} value={k}>{g.label}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select
@@ -256,7 +269,7 @@ function OrdersPage() {
               const canRepeat =
                 canCreateOrder(profile?.role) &&
                 (o.seller_id === profile?.id || profile?.role === "administrador") &&
-                ["aprovado", "faturado"].includes(o.status);
+                ["aprovado", "faturado", "entregue"].includes(o.status);
               return (
                 <li key={o.id} className="flex items-center gap-2 pr-2">
                   <Link
@@ -288,7 +301,7 @@ function OrdersPage() {
                   {canRepeat && (
                     <Button asChild variant="outline" size="sm" className="shrink-0">
                       <Link to="/pedidos/novo" search={{ repetir: o.id }}>
-                        <RefreshCw className="h-4 w-4" /> Pedir de novo
+                        <RefreshCw className="h-4 w-4" /> Clonar pedido
                       </Link>
                     </Button>
                   )}

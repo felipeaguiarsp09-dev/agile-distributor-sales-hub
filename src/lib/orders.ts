@@ -1,11 +1,27 @@
 export const ORDER_STATUS_LABEL: Record<string, string> = {
-  rascunho: "Rascunho",
-  aguardando_aprovacao: "Aguardando aprovação",
-  aprovado: "Aprovado",
+  rascunho: "Em aberto",
+  aguardando_aprovacao: "Em aberto",
+  aprovado: "Em aberto",
   recusado: "Recusado",
   faturado: "Faturado",
+  entregue: "Entregue",
   cancelado: "Cancelado",
 };
+
+/** Grupos exibidos nos filtros de Pedidos. */
+export const ORDER_STATUS_GROUPS: Record<string, { label: string; statuses: string[] }> = {
+  em_aberto: { label: "Em aberto", statuses: ["rascunho", "aguardando_aprovacao", "aprovado"] },
+  faturado: { label: "Faturado", statuses: ["faturado"] },
+  entregue: { label: "Entregue", statuses: ["entregue"] },
+  cancelado: { label: "Cancelado", statuses: ["cancelado", "recusado"] },
+};
+
+/** Data (AAAA-MM-DD) de N dias atrás, para os atalhos de período. */
+export function daysAgo(n: number, now = new Date()) {
+  const d = new Date(now);
+  d.setDate(d.getDate() - n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 
 export const ERP_STATUS_LABEL: Record<string, string> = {
   pendente: "ERP pendente",
@@ -42,7 +58,7 @@ export type HistoryOrderItem = { product_id: string; quantity: number; unit_pric
 export type HistoryOrder = { id: string; created_at: string; status: string; discount_amount: number; order_items: HistoryOrderItem[] };
 export type PurchaseLine = { product_id: string; name: string; unit_price: number; stock_quantity: number; ordersCount: number };
 
-const PURCHASED_STATUSES = ["aprovado", "faturado"];
+const PURCHASED_STATUSES = ["aprovado", "faturado", "entregue"];
 
 export function completedPurchases(orders: HistoryOrder[]) {
   return orders.filter((o) => PURCHASED_STATUSES.includes(o.status));

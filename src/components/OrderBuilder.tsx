@@ -393,7 +393,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
         .eq("id", repeatOrderId)
         .maybeSingle();
       if (cancelled) return;
-      if (!data || !["aprovado", "faturado"].includes(data.status)) {
+      if (!data || !["aprovado", "faturado", "entregue"].includes(data.status)) {
         toast.error("Este pedido não pode ser repetido");
       } else {
         const mapped = itemsToCartLines(data.order_items);

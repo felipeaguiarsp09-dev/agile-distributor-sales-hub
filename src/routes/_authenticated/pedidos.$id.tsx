@@ -26,7 +26,8 @@ export const Route = createFileRoute("/_authenticated/pedidos/$id")({
   component: OrderDetail,
 });
 
-const STEPS = ["rascunho", "aguardando_aprovacao", "aprovado", "faturado"];
+const STEPS = ["rascunho", "faturado", "entregue"];
+const STEP_RANK: Record<string, number> = { rascunho: 0, aguardando_aprovacao: 0, aprovado: 0, faturado: 1, entregue: 2 };
 
 function OrderDetail() {
   const { id } = Route.useParams();
@@ -64,10 +65,11 @@ function OrderDetail() {
   const isOwner = o.seller_id === profile?.id;
   const canApprove = (role === "supervisor" || role === "administrador") && o.status === "aguardando_aprovacao";
   const canEdit = o.status === "rascunho" && (isOwner || role === "administrador");
-  const canCancel = role === "administrador" && !["cancelado", "faturado"].includes(o.status);
+  const canCancel = role === "administrador" && !["cancelado", "faturado", "entregue"].includes(o.status);
   const canPush = (role === "supervisor" || role === "administrador") && ["aprovado", "faturado"].includes(o.status) && !o.erp_order_id;
   const canManage = canCreateOrder(role) && (isOwner || role === "administrador");
-  const canRepeat = canManage && ["aprovado", "faturado"].includes(o.status);
+  const canRepeat = canManage && ["aprovado", "faturado", "entregue"].includes(o.status);
+  const canDeliver = role === "administrador" && o.status === "faturado";
   const canRestart = canManage && o.status === "recusado";
 
   async function copyToDraft() {
@@ -121,7 +123,7 @@ function OrderDetail() {
     }
   }
 
-  const reached = (s: string) => STEPS.indexOf(o.status) >= STEPS.indexOf(s) && STEPS.includes(o.status);
+  const reached = (s: string) => o.status in STEP_RANK && STEP_RANK[o.status]! >= STEP_RANK[s]!;
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -147,7 +149,7 @@ function OrderDetail() {
 
       <div className="mb-6 flex flex-wrap gap-2">
         {canEdit && <Button asChild variant="outline"><Link to="/pedidos/novo" search={{ rascunho: o.id }}><Pencil className="h-4 w-4" /> Continuar edição</Link></Button>}
-        {canRepeat && <Button asChild variant="outline"><Link to="/pedidos/novo" search={{ repetir: o.id }}><RefreshCw className="h-4 w-4" /> Pedir de novo</Link></Button>}
+        {canRepeat && <Button asChild variant="outline"><Link to="/pedidos/novo" search={{ repetir: o.id }}><RefreshCw className="h-4 w-4" /> Clonar pedido</Link></Button>}
         {canRestart && <Button disabled={busy} variant="outline" onClick={copyToDraft}><Copy className="h-4 w-4" /> Editar em novo rascunho</Button>}
         {canApprove && (
           <>
@@ -155,6 +157,7 @@ function OrderDetail() {
             <Button disabled={busy} variant="outline" onClick={() => setStatus("recusado", "Pedido recusado")}><X className="h-4 w-4" /> Recusar</Button>
           </>
         )}
+        {canDeliver && <Button disabled={busy} onClick={() => setStatus("entregue", "Pedido marcado como entregue")}><Check className="h-4 w-4" /> Marcar como entregue</Button>}
         {canCancel && <Button disabled={busy} variant="ghost" onClick={() => confirm("Cancelar este pedido?") && setStatus("cancelado", "Pedido cancelado")}>Cancelar pedido</Button>}
       </div>
 
