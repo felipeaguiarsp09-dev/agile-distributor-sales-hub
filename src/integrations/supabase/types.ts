@@ -513,6 +513,7 @@ export type Database = {
           notes: string | null
           organization_id: string
           origin: string
+          payment_days: number | null
           payment_method: string | null
           returned_amount: number
           seller_id: string | null
@@ -533,6 +534,7 @@ export type Database = {
           notes?: string | null
           organization_id: string
           origin?: string
+          payment_days?: number | null
           payment_method?: string | null
           returned_amount?: number
           seller_id?: string | null
@@ -553,6 +555,7 @@ export type Database = {
           notes?: string | null
           organization_id?: string
           origin?: string
+          payment_days?: number | null
           payment_method?: string | null
           returned_amount?: number
           seller_id?: string | null
