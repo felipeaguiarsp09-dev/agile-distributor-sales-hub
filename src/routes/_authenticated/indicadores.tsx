@@ -95,13 +95,27 @@ function IndicatorsPage() {
     queryKey: ["indicator-insight", period, scope?.scope, scope?.scope_ref_id],
     enabled: !!scope,
     queryFn: async () => {
-      let q = supabase.from("indicator_insights").select("insight_text, generated_at").eq("period", period).eq("scope", scope!.scope);
+      let q = supabase.from("indicator_insights").select("insight_text, generated_at, metrics_snapshot").eq("period", period).eq("scope", scope!.scope);
       q = scope!.scope_ref_id ? q.eq("scope_ref_id", scope!.scope_ref_id) : q.is("scope_ref_id", null);
       const { data, error } = await q.order("generated_at", { ascending: false }).limit(1).maybeSingle();
       if (error) throw error;
       return data;
     },
   });
+
+  // Análise existente com faturamento/meta diferentes dos atuais é refeita sozinha, uma vez por combinação.
+  const autoKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    const cur = ind.data;
+    const snap = insight.data?.metrics_snapshot as { faturado_mes?: number; meta?: number } | null | undefined;
+    if (!cur || !insight.data || !snap || generating || ind.isFetching || insight.isFetching) return;
+    if (insightIsCurrent(snap, cur)) return;
+    const key = `${period}|${sellerId}|${Number(cur.faturado_mes ?? 0)}|${Number(cur.meta)}`;
+    if (autoKeyRef.current === key) return;
+    autoKeyRef.current = key;
+    void generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ind.data, insight.data, ind.isFetching, insight.isFetching, generating, period, sellerId]);
 
   if (role === "cliente") return <NoAccess />;
 
