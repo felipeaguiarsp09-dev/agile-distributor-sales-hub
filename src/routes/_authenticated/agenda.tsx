@@ -5,6 +5,7 @@ import { CalendarPlus, ChevronLeft, ChevronRight, Loader2, MapPin, RefreshCw, X 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { canViewCheckInLocation, checkInDayRange } from "@/lib/agenda";
 import { PageHeader } from "@/components/ModulePage";
 import { EmptyState, ErrorState, NoAccess, RowsSkeleton } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ const dayKey = (d: Date) => d.toLocaleDateString("sv-SE");
 function startOfWeek(d: Date) { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
 function addDays(d: Date, n: number) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
 
-type Visit = { id: string; scheduled_at: string; status: string; check_in_at: string | null; check_in_lat: number | null; check_in_lng: number | null; check_in_accuracy_m: number | null; notes: string | null; seller_id: string; customers: { name: string; address: unknown } | null; seller: { full_name: string } | null };
+type Visit = { id: string; customer_id: string; scheduled_at: string; status: string; check_in_at: string | null; check_in_lat: number | null; check_in_lng: number | null; check_in_accuracy_m: number | null; notes: string | null; seller_id: string; customers: { name: string; address: unknown } | null; seller: { full_name: string } | null };
 
 const mapsUrl = (lat: number, lng: number) => `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
@@ -47,7 +48,7 @@ function AgendaPage() {
   const [record, setRecord] = useState<Visit | null>(null);
   const allowed = profile && profile.role !== "cliente";
   // Só supervisor e administrador visualizam a localização dos check-ins.
-  const canViewLocation = profile?.role === "supervisor" || profile?.role === "administrador";
+  const canViewLocation = canViewCheckInLocation(profile?.role);
   const from = view === "dia" ? anchor : startOfWeek(anchor);
   const to = addDays(from, view === "dia" ? 1 : 7);
 
@@ -56,7 +57,7 @@ function AgendaPage() {
     enabled: !!allowed,
     queryFn: async () => {
       const { data, error } = await supabase.from("agenda_visits")
-        .select("id, scheduled_at, status, check_in_at, check_in_lat, check_in_lng, check_in_accuracy_m, notes, seller_id, customers(name, address), seller:profiles!agenda_visits_seller_id_fkey(full_name)")
+        .select("id, customer_id, scheduled_at, status, check_in_at, check_in_lat, check_in_lng, check_in_accuracy_m, notes, seller_id, customers(name, address), seller:profiles!agenda_visits_seller_id_fkey(full_name)")
         .gte("scheduled_at", from.toISOString()).lt("scheduled_at", to.toISOString()).order("scheduled_at");
       if (error) throw error;
       return data as Visit[];
@@ -217,7 +218,7 @@ type GeoFix = { lat: number; lng: number; accuracy: number };
 
 function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => void }) {
   const { profile } = useAuth();
-  const canViewLocation = profile?.role === "supervisor" || profile?.role === "administrador";
+  const canViewLocation = canViewCheckInLocation(profile?.role);
   const qc = useQueryClient();
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
@@ -243,16 +244,26 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
   }, [visit?.id, capture]);
 
   async function save() {
-    if (!visit || !geo) return;
+    if (!visit || !geo || busy) return;
     setBusy(true);
+    const now = new Date();
+    const range = checkInDayRange(now);
+    const { data: existing, error: lookupError } = await supabase.from("agenda_visits")
+      .select("id").eq("customer_id", visit.customer_id)
+      .gte("check_in_at", range.from).lt("check_in_at", range.to).limit(1);
+    if (lookupError || existing?.length) {
+      setBusy(false);
+      toast.error(lookupError ? "Não foi possível verificar os check-ins. Tente novamente." : "Já existe um check-in neste cliente hoje. Só é permitido um check-in por cliente por dia.");
+      return;
+    }
     const text = [visit.notes, notes.trim()].filter(Boolean).join("\n— Registro: ");
     const { error } = await supabase.from("agenda_visits").update({
-      status: "realizada", check_in_at: new Date().toISOString(), notes: text || null,
+      status: "realizada", check_in_at: now.toISOString(), notes: text || null,
       check_in_lat: geo.lat, check_in_lng: geo.lng, check_in_accuracy_m: geo.accuracy,
     }).eq("id", visit.id);
     setBusy(false);
-    if (error) return void toast.error("Não foi possível registrar a visita");
-    toast.success("Check-in registrado com localização");
+    if (error) return void toast.error(error.code === "23505" ? "Já existe um check-in neste cliente hoje. Só é permitido um check-in por cliente por dia." : "Não foi possível registrar a visita");
+    toast.success("Check-in registrado");
     setNotes("");
     setGeo(null);
     onClose();
@@ -262,7 +273,7 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
     <Dialog open={!!visit} onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader><DialogTitle>Check-in — {visit?.customers?.name}</DialogTitle></DialogHeader>
-        <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">
+        {(canViewLocation || !geo) && <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
             {geoState === "buscando" && <span className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Obtendo sua localização...</span>}
@@ -296,6 +307,7 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
             </div>
           )}
         </div>
+        </>}
         <div className="space-y-1">
           <Label htmlFor="r-notes">O que foi feito na visita</Label>
           <Textarea id="r-notes" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: cliente pediu reposição de água na próxima semana" />
