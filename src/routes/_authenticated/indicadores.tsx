@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { Loader2, ShoppingCart, Sparkles, Target, TriangleAlert } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -184,15 +184,17 @@ function IndicatorsPage() {
             <Kpi label="Ticket médio" value={d && d.pedidos_count > 0 ? brl(d.ticket_medio) : null} loading={indicatorsLoading} />
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-5">
+            <Kpi label="Clientes atendidos" value={d ? String(d.clientes_atendidos) : null} hint="Com visita ou pedido no mês" loading={indicatorsLoading} />
+            <Kpi label="Clientes ativados" value={d ? String(d.clientes_ativados ?? 0) : null} hint="Primeira compra no mês" loading={indicatorsLoading} />
             <Kpi
-              label="Clientes atendidos"
-              value={d ? String(d.clientes_atendidos) : null}
-              hint={d?.meta_clientes != null ? (unmet.customers != null ? `Faltam ${unmet.customers} clientes para a meta · ${progressPct(d.meta_clientes, d.clientes_atendidos)}% atingido` : "Meta mensal atingida") : "Meta de clientes não definida"}
+              label="Clientes positivados"
+              value={d ? String(d.clientes_positivados ?? 0) : null}
+              hint={d?.meta_clientes != null ? (unmet.customers != null ? `Faltam ${unmet.customers} para a meta · ${progressPct(d.meta_clientes, d.clientes_positivados ?? 0)}% atingido` : "Meta mensal atingida") : "Compraram no mês"}
               attention={unmet.customers != null}
               loading={indicatorsLoading}
             />
-            <Kpi label="Clientes a atender" value={d?.clientes_a_atender != null ? String(d.clientes_a_atender) : null} hint={d?.meta_clientes != null ? `Meta mensal: ${d.meta_clientes} clientes · toque para ver a lista` : "Toque para ver os clientes da carteira sem pedido no mês"} loading={indicatorsLoading} onClick={() => setUnservedOpen(true)} />
+            <Kpi label="Clientes a positivar" value={d?.clientes_a_atender != null ? String(d.clientes_a_atender) : null} hint="Toque para ver os clientes da carteira sem pedido no mês" loading={indicatorsLoading} onClick={() => setUnservedOpen(true)} />
             <Kpi
               label="Visitas realizadas"
               value={d ? String(d.visitas_realizadas) : null}
@@ -215,10 +217,24 @@ function IndicatorsPage() {
           )}
           <section className="mt-6 border-t pt-5">
             <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="font-semibold">Meta × realizado</span>
+              <span className="font-semibold">Meta × venda do mês</span>
               <span className="tabular-nums text-muted-foreground">{d && d.meta > 0 ? `${pct}%` : "Sem meta no período"}</span>
             </div>
-            {indicatorsLoading ? <Skeleton className="h-3 w-full" /> : <Progress value={Math.min(pct, 100)} />}
+            {indicatorsLoading ? <Skeleton className="mx-auto h-48 w-48 rounded-full" /> : (
+              <div className="relative mx-auto h-52 w-52">
+                <PieChart width={208} height={208}>
+                  <Pie data={[{ v: Math.min(pct, 100) }, { v: Math.max(100 - pct, 0) }]} dataKey="v" innerRadius={70} outerRadius={95} startAngle={90} endAngle={-270} stroke="none" isAnimationActive={false}>
+                    <Cell fill="var(--primary)" />
+                    <Cell fill="var(--muted)" />
+                  </Pie>
+                </PieChart>
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span className="text-2xl font-bold tabular-nums">{d && d.meta > 0 ? `${pct}%` : "—"}</span>
+                  <span className="text-xs text-muted-foreground">{d ? brl(d.vendas_mes) : ""}</span>
+                  {d && d.meta > 0 && <span className="text-xs text-muted-foreground">de {brl(d.meta)}</span>}
+                </div>
+              </div>
+            )}
             <h2 className="mb-2 mt-6 text-sm font-semibold">Vendas por dia</h2>
             {indicatorsLoading ? (
               <Skeleton className="h-56 w-full" />

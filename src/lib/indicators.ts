@@ -5,6 +5,8 @@ export type Indicators = {
   pedidos_count: number;
   daily: { day: string; total: number }[];
   clientes_atendidos: number;
+  clientes_positivados?: number;
+  clientes_ativados?: number;
   meta_clientes: number | null;
   clientes_a_atender: number | null;
   visitas_realizadas: number;
