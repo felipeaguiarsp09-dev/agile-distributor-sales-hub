@@ -172,6 +172,25 @@ function IndicatorsPage() {
         <ErrorState message="Não foi possível carregar os indicadores" onRetry={() => ind.refetch()} />
       ) : (
         <>
+          {d && d.meta > 0 && (
+            <div className="mb-4 rounded-lg border bg-card p-4" aria-label="Progresso da meta de faturamento">
+              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm">
+                <span className="font-medium">Meta × realizado (faturado)</span>
+                <span className={unmet.sales != null ? "font-semibold text-destructive" : "font-semibold text-success"}>
+                  {unmet.sales != null ? `Faltam ${brl(unmet.sales)} para a meta` : "Meta batida"}
+                </span>
+              </div>
+              <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full transition-all duration-700 ${unmet.sales != null ? "bg-destructive" : "bg-success"}`}
+                  style={{ width: `${Math.min(100, pct)}%` }}
+                />
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {brl(billed)} faturado de {brl(d.meta)} · {pct}% atingido · atualiza sozinho quando um pedido é faturado
+              </p>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
             <Kpi
               label="Meta × faturado"
