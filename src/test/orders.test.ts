@@ -39,3 +39,12 @@ describe("status e períodos de pedidos", () => {
     expect(daysAgo(30, new Date(2026, 10, 9))).toBe("2026-10-10");
   });
 });
+
+import { erpOrderNumber } from "@/lib/orders";
+describe("erpOrderNumber", () => {
+  it("usa o número devolvido pelo ERP", () => expect(erpOrderNumber(" 4521 ")).toBe("Nº ERP 4521"));
+  it("mostra aguardando sem número", () => {
+    expect(erpOrderNumber(null)).toBe("Aguardando número do ERP");
+    expect(erpOrderNumber("")).toBe("Aguardando número do ERP");
+  });
+});

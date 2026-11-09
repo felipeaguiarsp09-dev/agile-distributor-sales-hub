@@ -170,3 +170,8 @@ export function orderListSearch(s: Record<string, unknown>): OrderListSearch {
     pagina: parsePageParam(s["pagina"]),
   };
 }
+
+export const ERP_NUMBER_PENDING = "Aguardando número do ERP";
+/** Número oficial do pedido: definido pelo ERP. O id interno continua existindo apenas como referência. */
+export const erpOrderNumber = (erpOrderId: string | null | undefined) =>
+  erpOrderId?.trim() ? `Nº ERP ${erpOrderId.trim()}` : ERP_NUMBER_PENDING;
