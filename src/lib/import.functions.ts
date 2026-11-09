@@ -141,7 +141,7 @@ export const importErpData = createServerFn({ method: "POST" })
           const discount = Math.min(head.discount, subtotal);
           const { data: order, error } = await supabaseAdmin.from("orders").insert({
             organization_id: org, customer_id: cust.id, seller_id: seller, origin: "vendedor", status: head.status,
-            total_amount: Math.round((subtotal - discount) * 100) / 100, discount_amount: discount,
+            total_amount: Math.round((subtotal - discount) * 100) / 100, discount_amount: discount, returned_amount: head.returned,
             erp_order_id: code, erp_sync_status: "sincronizado", ...(head.created_at ? { created_at: head.created_at } : {}),
           }).select("id").single();
           if (error || !order) { fail(error?.message ?? "falha ao gravar pedido"); continue; }

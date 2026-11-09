@@ -501,6 +501,7 @@ export type Database = {
           notes: string | null
           organization_id: string
           origin: string
+          returned_amount: number
           seller_id: string | null
           status: string
           total_amount: number
@@ -519,6 +520,7 @@ export type Database = {
           notes?: string | null
           organization_id: string
           origin?: string
+          returned_amount?: number
           seller_id?: string | null
           status?: string
           total_amount?: number
@@ -537,6 +539,7 @@ export type Database = {
           notes?: string | null
           organization_id?: string
           origin?: string
+          returned_amount?: number
           seller_id?: string | null
           status?: string
           total_amount?: number

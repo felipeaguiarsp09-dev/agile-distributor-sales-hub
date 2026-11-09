@@ -56,3 +56,17 @@ describe("unmetTargets", () => {
     expect(unmetTargets(null)).toEqual({ sales: null, customers: null, visits: null });
   });
 });
+
+describe("meta de visitas por dia e faturamento", () => {
+  it("divide a meta mensal de visitas por 30, arredondando para cima", async () => {
+    const { dailyVisitTarget } = await import("@/lib/indicators");
+    expect(dailyVisitTarget(60)).toBe(2);
+    expect(dailyVisitTarget(45)).toBe(2);
+    expect(dailyVisitTarget(null)).toBeNull();
+  });
+  it("meta de vendas compara com o faturado, não com o aprovado", async () => {
+    const { unmetTargets } = await import("@/lib/indicators");
+    const base = { meta: 1000, vendas_mes: 1200, faturado_mes: 400, ticket_medio: 0, pedidos_count: 1, daily: [], clientes_atendidos: 0, meta_clientes: null, clientes_a_atender: null, visitas_realizadas: 0, meta_visitas: null, visitas_a_realizar: null };
+    expect(unmetTargets(base).sales).toBe(600);
+  });
+});

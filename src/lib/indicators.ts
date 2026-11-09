@@ -7,6 +7,8 @@ export type Indicators = {
   clientes_atendidos: number;
   clientes_positivados?: number;
   clientes_ativados?: number;
+  faturado_mes?: number;
+  devolucao?: number;
   meta_clientes: number | null;
   clientes_a_atender: number | null;
   visitas_realizadas: number;
@@ -44,7 +46,7 @@ export type UnmetTargets = { sales: number | null; customers: number | null; vis
 export function unmetTargets(d: Indicators | null | undefined): UnmetTargets {
   if (!d) return { sales: null, customers: null, visits: null };
   return {
-    sales: d.meta > 0 && d.vendas_mes < d.meta ? d.meta - d.vendas_mes : null,
+    sales: d.meta > 0 && (d.faturado_mes ?? d.vendas_mes) < d.meta ? Math.round((d.meta - (d.faturado_mes ?? d.vendas_mes)) * 100) / 100 : null,
     customers: d.meta_clientes != null && (d.clientes_positivados ?? d.clientes_atendidos) < d.meta_clientes ? Math.max(d.meta_clientes - (d.clientes_positivados ?? d.clientes_atendidos), 0) : null,
     visits: d.meta_visitas != null && d.visitas_realizadas < d.meta_visitas ? Math.max(d.meta_visitas - d.visitas_realizadas, 0) : null,
   };
@@ -54,4 +56,9 @@ export function unmetTargets(d: Indicators | null | undefined): UnmetTargets {
 export function lastUpdatedLabel(dataUpdatedAt: number | undefined): string | null {
   if (!dataUpdatedAt) return null;
   return `Atualizado às ${new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+}
+
+/** Meta mensal de visitas dividida por 30: visitas por dia, arredondado para cima. */
+export function dailyVisitTarget(monthly: number | null | undefined): number | null {
+  return monthly == null || monthly <= 0 ? null : Math.ceil(monthly / 30);
 }
