@@ -53,3 +53,4 @@
 - [x] Localização do check-in visível só para supervisor/administrador (vendedor só registra)
 - [x] Trava no banco: novos check-ins da Agenda exigem latitude/longitude, preservando registros antigos
 - [x] Orçamentos: botão "Orçamento" ao lado de "Novo pedido" em Pedidos; proposta montada no mesmo carrinho, com validade, convertida em pedido com um toque — criação, salvamento, conversão e volta à lista verificados
+- [ ] Criar e faturar 2 pedidos para o vendedor Isaac (usar no teste da rosca de Positivação)
