@@ -123,10 +123,11 @@ export type OrderLineRow = {
   created_at: string | null;
   status: string;
   discount: number;
+  returned: number;
   seller_name: string;
 };
 
-const ORDER_STATUSES = ["rascunho", "aguardando_aprovacao", "aprovado", "recusado", "faturado", "cancelado"];
+const ORDER_STATUSES = ["rascunho", "aguardando_aprovacao", "aprovado", "recusado", "faturado", "entregue", "cancelado"];
 
 /** Converte "dd/mm/aaaa" ou "aaaa-mm-dd" em ISO. */
 export function parseDate(v: string): string | null | undefined {
@@ -156,5 +157,7 @@ export function toOrderLine(r: Record<string, string>, row: number): OrderLineRo
   if (!ORDER_STATUSES.includes(status)) return { row, error: "status inválido" };
   const discount = parseMoney(pick(r, "desconto", "discount"));
   if (discount === null || discount < 0) return { row, error: "desconto inválido" };
-  return { order_code, customer_code, sku, quantity, unit_price, created_at, status, discount, seller_name: pick(r, "vendedor", "seller") };
+  const returned = parseMoney(pick(r, "devolucao", "valor_devolvido", "returned_amount"));
+  if (returned === null || returned < 0) return { row, error: "devolução inválida" };
+  return { order_code, customer_code, sku, quantity, unit_price, created_at, status, discount, returned, seller_name: pick(r, "vendedor", "seller") };
 }

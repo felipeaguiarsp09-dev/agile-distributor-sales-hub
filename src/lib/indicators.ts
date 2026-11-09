@@ -7,6 +7,8 @@ export type Indicators = {
   clientes_atendidos: number;
   clientes_positivados?: number;
   clientes_ativados?: number;
+  faturado_mes?: number;
+  devolucao?: number;
   meta_clientes: number | null;
   clientes_a_atender: number | null;
   visitas_realizadas: number;
@@ -54,4 +56,9 @@ export function unmetTargets(d: Indicators | null | undefined): UnmetTargets {
 export function lastUpdatedLabel(dataUpdatedAt: number | undefined): string | null {
   if (!dataUpdatedAt) return null;
   return `Atualizado às ${new Date(dataUpdatedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
+}
+
+/** Meta mensal de visitas dividida por 30: visitas por dia, arredondado para cima. */
+export function dailyVisitTarget(monthly: number | null | undefined): number | null {
+  return monthly == null || monthly <= 0 ? null : Math.ceil(monthly / 30);
 }
