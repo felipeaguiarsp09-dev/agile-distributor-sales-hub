@@ -109,6 +109,21 @@ function AppShell() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
+
+  // Oculta o cabeçalho ao rolar para baixo e mostra ao rolar para cima.
+  useEffect(() => {
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y < 60) setHeaderHidden(false);
+      else if (y > last + 4) setHeaderHidden(true);
+      else if (y < last - 4) setHeaderHidden(false);
+      last = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // O E-commerce foi removido: clientes finais não têm mais acesso ao app.
   useEffect(() => {
@@ -154,12 +169,16 @@ function AppShell() {
         </SheetContent>
       </Sheet>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex items-center gap-3 border-b bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
+        <header className={`sticky top-0 z-10 flex transition-transform duration-200 ${headerHidden ? "-translate-y-full" : "translate-y-0"}`}
+          data-hidden={headerHidden}
+        >
+          <div className="flex w-full items-center gap-3 border-b bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
           <Button variant="ghost" size="icon" onClick={() => setOpen(true)} aria-label="Abrir menu">
             <Menu className="h-5 w-5" />
           </Button>
           <Brand />
           <SignOutButton className="ml-auto inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent" />
+          </div>
         </header>
         <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
           <Outlet />
