@@ -147,7 +147,7 @@ function OrderDetail() {
 
       <div className="mb-6 flex flex-wrap gap-2">
         {canEdit && <Button asChild variant="outline"><Link to="/pedidos/novo" search={{ rascunho: o.id }}><Pencil className="h-4 w-4" /> Continuar edição</Link></Button>}
-        {canRepeat && <Button asChild variant="outline"><Link to="/pedidos/novo" search={{ repetir: o.id }}><RefreshCw className="h-4 w-4" /> Pedir de novo</Link></Button>}
+        {canRepeat && <Button asChild variant="outline"><Link to="/pedidos/novo" search={{ repetir: o.id }}><RefreshCw className="h-4 w-4" /> Clonar pedido</Link></Button>}
         {canRestart && <Button disabled={busy} variant="outline" onClick={copyToDraft}><Copy className="h-4 w-4" /> Editar em novo rascunho</Button>}
         {canApprove && (
           <>

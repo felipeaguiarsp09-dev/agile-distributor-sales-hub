@@ -58,8 +58,8 @@ function ProductsPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeader title="Produtos" description="Catálogo com preço e estoque espelhado do ERP." />
         {isAdmin && (
-          <Button asChild>
-            <Link to="/produtos/novo"><Plus className="h-4 w-4" /> Novo produto</Link>
+          <Button disabled title="Os produtos são cadastrados no ERP">
+            <Plus className="h-4 w-4" /> Novo produto
           </Button>
         )}
       </div>

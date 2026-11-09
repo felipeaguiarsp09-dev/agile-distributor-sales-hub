@@ -168,8 +168,8 @@ function OrdersPage() {
         {canCreateOrder(profile?.role) && (
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild><Link to="/pedidos/novo"><Plus className="h-4 w-4" /> Novo pedido</Link></Button>
-            <Button asChild variant="outline"><Link to="/orcamentos/novo"><FileText className="h-4 w-4" /> Orçamento</Link></Button>
-            <Button asChild variant="ghost" className="text-muted-foreground"><Link to="/orcamentos">Meus orçamentos</Link></Button>
+            <Button asChild variant="outline"><Link to="/orcamentos/novo"><FileText className="h-4 w-4" /> Proposta comercial</Link></Button>
+            <Button asChild variant="ghost" className="text-muted-foreground"><Link to="/orcamentos">Minhas propostas</Link></Button>
           </div>
         )}
       </div>
@@ -288,7 +288,7 @@ function OrdersPage() {
                   {canRepeat && (
                     <Button asChild variant="outline" size="sm" className="shrink-0">
                       <Link to="/pedidos/novo" search={{ repetir: o.id }}>
-                        <RefreshCw className="h-4 w-4" /> Pedir de novo
+                        <RefreshCw className="h-4 w-4" /> Clonar pedido
                       </Link>
                     </Button>
                   )}

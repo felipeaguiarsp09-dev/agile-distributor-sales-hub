@@ -7,11 +7,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const brl = (n: number | null | undefined) =>
   (n ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-export const CREDIT_LABEL: Record<string, string> = { ok: "Crédito OK", restrito: "Restrito", bloqueado: "Bloqueado" };
+export const CREDIT_LABEL: Record<string, string> = { ok: "Liberado", restrito: "Bloqueado", bloqueado: "Bloqueado" };
+
+/** Selo verde/vermelho, a única cor fora do tema grafite. */
+export function StatusPill({ ok, label }: { ok: boolean; label: string }) {
+  return (
+    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${ok ? "bg-success text-success-foreground" : "bg-danger text-danger-foreground"}`}>
+      {label}
+    </span>
+  );
+}
 
 export function CreditBadge({ status }: { status: string }) {
-  const variant = status === "ok" ? "secondary" : status === "restrito" ? "outline" : "destructive";
-  return <Badge variant={variant}>{CREDIT_LABEL[status] ?? status}</Badge>;
+  return <StatusPill ok={status === "ok"} label={CREDIT_LABEL[status] ?? status} />;
+}
+
+export function ActiveBadge({ active }: { active: boolean }) {
+  return <StatusPill ok={active} label={active ? "Ativo" : "Inativo"} />;
 }
 
 export function RowsSkeleton({ rows = 5 }: { rows?: number }) {

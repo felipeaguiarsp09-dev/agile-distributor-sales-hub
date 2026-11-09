@@ -35,9 +35,9 @@ export const Route = createFileRoute("/_authenticated/orcamentos/")({
   validateSearch: quoteListSearch,
   head: () => ({
     meta: [
-      { title: "Orçamentos — Dcalice" },
+      { title: "Propostas comerciais — Dcalice" },
       { name: "description", content: "Propostas montadas no carrinho, com validade, que viram pedido com um toque." },
-      { property: "og:title", content: "Orçamentos — Dcalice" },
+      { property: "og:title", content: "Propostas comerciais — Dcalice" },
       { property: "og:description", content: "Propostas montadas no carrinho, com validade, que viram pedido com um toque." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -120,7 +120,7 @@ function QuotesPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHeader title="Orçamentos" description="Propostas montadas no carrinho, com validade, que viram pedido com um toque." />
+        <PageHeader title="Propostas comerciais" description="Propostas montadas no carrinho, com validade, que viram pedido com um toque." />
         {canCreateOrder(profile?.role) && (
           <Button asChild>
             <Link to="/orcamentos/novo">
@@ -218,7 +218,7 @@ function QuotesPage() {
                         </Button>
                         <Button size="sm" onClick={() => convert(o.id)} disabled={pendingId === o.id}>
                           {pendingId === o.id ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <Plus className="h-4 w-4" />}
-                          Converter em pedido
+                          Transformar em pedido
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => setCancelId(o.id)}>
                           Cancelar
