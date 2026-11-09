@@ -180,13 +180,20 @@ function IndicatorsPage() {
                   {unmet.sales != null ? `Faltam ${brl(unmet.sales)} para a meta` : "Meta batida"}
                 </span>
               </div>
-              <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className={`h-full transition-all duration-700 ${unmet.sales != null ? "bg-destructive" : "bg-success"}`}
-                  style={{ width: `${Math.min(100, pct)}%` }}
-                />
+              <div className="relative mx-auto h-44 w-44">
+                <PieChart width={176} height={176}>
+                  <Pie data={[{ v: Math.min(pct, 100) }, { v: Math.max(100 - pct, 0) }]} dataKey="v" innerRadius={58} outerRadius={80} startAngle={90} endAngle={-270} stroke="none" isAnimationActive={false}>
+                    <Cell fill={unmet.sales == null ? "var(--success)" : "var(--danger)"} />
+                    <Cell fill="var(--muted)" />
+                  </Pie>
+                </PieChart>
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span className="text-2xl font-bold tabular-nums">{pct}%</span>
+                  <span className="text-xs text-muted-foreground">{brl(billed)}</span>
+                  <span className="text-xs text-muted-foreground">de {brl(d.meta)}</span>
+                </div>
               </div>
-              <p className="mt-2 text-xs text-muted-foreground">
+              <p className="mt-2 text-center text-xs text-muted-foreground">
                 {brl(billed)} faturado de {brl(d.meta)} · {pct}% atingido · atualiza sozinho quando um pedido é faturado
               </p>
             </div>
@@ -236,26 +243,7 @@ function IndicatorsPage() {
             <p className="mt-4 text-sm text-muted-foreground">Todas as metas definidas foram atingidas em {periodLabel(period)}.</p>
           )}
           <section className="mt-6 border-t pt-5">
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="font-semibold">Meta × realizado (faturado)</span>
-              <span className="tabular-nums text-muted-foreground">{d && d.meta > 0 ? `${pct}%` : "Sem meta no período"}</span>
-            </div>
-            {indicatorsLoading ? <Skeleton className="mx-auto h-48 w-48 rounded-full" /> : (
-              <div className="relative mx-auto h-52 w-52">
-                <PieChart width={208} height={208}>
-                  <Pie data={[{ v: Math.min(pct, 100) }, { v: Math.max(100 - pct, 0) }]} dataKey="v" innerRadius={70} outerRadius={95} startAngle={90} endAngle={-270} stroke="none" isAnimationActive={false}>
-                    <Cell fill={d && d.meta > 0 && pct >= 100 ? "var(--success)" : "var(--danger)"} />
-                    <Cell fill="var(--muted)" />
-                  </Pie>
-                </PieChart>
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-2xl font-bold tabular-nums">{d && d.meta > 0 ? `${pct}%` : "—"}</span>
-                  <span className="text-xs text-muted-foreground">{d ? brl(billed) : ""}</span>
-                  {d && d.meta > 0 && <span className="text-xs text-muted-foreground">de {brl(d.meta)}</span>}
-                </div>
-              </div>
-            )}
-            <h2 className="mb-2 mt-6 text-sm font-semibold">Vendas por dia</h2>
+            <h2 className="mb-2 text-sm font-semibold">Vendas por dia</h2>
             {indicatorsLoading ? (
               <Skeleton className="h-56 w-full" />
             ) : d && d.daily.length > 0 ? (
