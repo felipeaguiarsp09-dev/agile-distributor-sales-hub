@@ -14,8 +14,9 @@ describe("menu por papel", () => {
     expect(items[0]?.label).toBe("Dashboard");
     expect(items.find((m) => m.to === "/indicadores")?.label).toBe("Dashboard");
   });
-  it("cliente final vê apenas o E-commerce", () => {
-    expect(modulesForRole("cliente").map((m) => m.to)).toEqual(["/ecommerce"]);
+  it("E-commerce removido: nenhum papel vê o módulo e cliente final fica sem menu", () => {
+    for (const r of ["administrador", "supervisor", "vendedor", "cliente"]) expect(modulesForRole(r).some((m) => m.to === ("/ecommerce" as string))).toBe(false);
+    expect(modulesForRole("cliente")).toEqual([]);
   });
   it("somente administrador e supervisor podem acessar metas mensais", () => {
     expect(modulesForRole("administrador").some(m => m.to === "/metas")).toBe(true);
@@ -23,8 +24,7 @@ describe("menu por papel", () => {
     expect(modulesForRole("vendedor").some(m => m.to === "/metas")).toBe(false);
     expect(modulesForRole("cliente").some(m => m.to === "/metas")).toBe(false);
   });
-  it("cliente vai para /ecommerce e equipe interna para /indicadores", () => {
-    expect(homeForRole("cliente")).toBe("/ecommerce");
+  it("equipe interna vai para /indicadores", () => {
     expect(homeForRole("supervisor")).toBe("/indicadores");
   });
 });

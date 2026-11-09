@@ -9,7 +9,7 @@ const ADMIN_LINKS = [
 ] as const;
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ROLE_LABEL, homeForRole, useAuth, type Role } from "@/lib/auth";
+import { ROLE_LABEL, useAuth, type Role } from "@/lib/auth";
 import { modulesForRole } from "@/lib/modules";
 import { Brand } from "@/components/Brand";
 import { Button } from "@/components/ui/button";

@@ -15,7 +15,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
-import { Route as AuthenticatedEcommerceRouteImport } from './routes/_authenticated/ecommerce'
 import { Route as AuthenticatedFluxoDeVendasRouteImport } from './routes/_authenticated/fluxo-de-vendas'
 import { Route as AuthenticatedHistoricoRouteImport } from './routes/_authenticated/historico'
 import { Route as AuthenticatedIndicadoresRouteImport } from './routes/_authenticated/indicadores'
@@ -26,7 +25,6 @@ import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authen
 import { Route as AuthenticatedClientesIndexRouteImport } from './routes/_authenticated/clientes.index'
 import { Route as AuthenticatedClientesIdRouteImport } from './routes/_authenticated/clientes.$id'
 import { Route as AuthenticatedClientesNovoRouteImport } from './routes/_authenticated/clientes.novo'
-import { Route as AuthenticatedEcommercePedidosRouteImport } from './routes/_authenticated/ecommerce_.pedidos'
 import { Route as AuthenticatedOrcamentosIndexRouteImport } from './routes/_authenticated/orcamentos.index'
 import { Route as AuthenticatedOrcamentosNovoRouteImport } from './routes/_authenticated/orcamentos.novo'
 import { Route as AuthenticatedPedidosIndexRouteImport } from './routes/_authenticated/pedidos.index'
@@ -70,11 +68,6 @@ const AuthenticatedConfiguracoesRoute =
     path: '/configuracoes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedEcommerceRoute = AuthenticatedEcommerceRouteImport.update({
-  id: '/ecommerce',
-  path: '/ecommerce',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedFluxoDeVendasRoute =
   AuthenticatedFluxoDeVendasRouteImport.update({
     id: '/fluxo-de-vendas',
@@ -130,12 +123,6 @@ const AuthenticatedClientesNovoRoute =
   AuthenticatedClientesNovoRouteImport.update({
     id: '/clientes/novo',
     path: '/clientes/novo',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedEcommercePedidosRoute =
-  AuthenticatedEcommercePedidosRouteImport.update({
-    id: '/ecommerce_/pedidos',
-    path: '/ecommerce/pedidos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedOrcamentosIndexRoute =
@@ -214,7 +201,6 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
-  '/ecommerce': typeof AuthenticatedEcommerceRoute
   '/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/historico': typeof AuthenticatedHistoricoRoute
   '/indicadores': typeof AuthenticatedIndicadoresRoute
@@ -224,7 +210,6 @@ export interface FileRoutesByFullPath {
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/novo': typeof AuthenticatedClientesNovoRoute
-  '/ecommerce/pedidos': typeof AuthenticatedEcommercePedidosRoute
   '/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/pedidos/$id': typeof AuthenticatedPedidosIdRoute
   '/pedidos/novo': typeof AuthenticatedPedidosNovoRoute
@@ -245,7 +230,6 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
-  '/ecommerce': typeof AuthenticatedEcommerceRoute
   '/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/historico': typeof AuthenticatedHistoricoRoute
   '/indicadores': typeof AuthenticatedIndicadoresRoute
@@ -255,7 +239,6 @@ export interface FileRoutesByTo {
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/clientes/novo': typeof AuthenticatedClientesNovoRoute
-  '/ecommerce/pedidos': typeof AuthenticatedEcommercePedidosRoute
   '/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/pedidos/$id': typeof AuthenticatedPedidosIdRoute
   '/pedidos/novo': typeof AuthenticatedPedidosNovoRoute
@@ -278,7 +261,6 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
-  '/_authenticated/ecommerce': typeof AuthenticatedEcommerceRoute
   '/_authenticated/fluxo-de-vendas': typeof AuthenticatedFluxoDeVendasRoute
   '/_authenticated/historico': typeof AuthenticatedHistoricoRoute
   '/_authenticated/indicadores': typeof AuthenticatedIndicadoresRoute
@@ -288,7 +270,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/clientes/$id': typeof AuthenticatedClientesIdRoute
   '/_authenticated/clientes/novo': typeof AuthenticatedClientesNovoRoute
-  '/_authenticated/ecommerce_/pedidos': typeof AuthenticatedEcommercePedidosRoute
   '/_authenticated/orcamentos/novo': typeof AuthenticatedOrcamentosNovoRoute
   '/_authenticated/pedidos/$id': typeof AuthenticatedPedidosIdRoute
   '/_authenticated/pedidos/novo': typeof AuthenticatedPedidosNovoRoute
@@ -311,7 +292,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/agenda'
     | '/configuracoes'
-    | '/ecommerce'
     | '/fluxo-de-vendas'
     | '/historico'
     | '/indicadores'
@@ -321,7 +301,6 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/clientes/$id'
     | '/clientes/novo'
-    | '/ecommerce/pedidos'
     | '/orcamentos/novo'
     | '/pedidos/$id'
     | '/pedidos/novo'
@@ -342,7 +321,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/agenda'
     | '/configuracoes'
-    | '/ecommerce'
     | '/fluxo-de-vendas'
     | '/historico'
     | '/indicadores'
@@ -352,7 +330,6 @@ export interface FileRouteTypes {
     | '/admin/usuarios'
     | '/clientes/$id'
     | '/clientes/novo'
-    | '/ecommerce/pedidos'
     | '/orcamentos/novo'
     | '/pedidos/$id'
     | '/pedidos/novo'
@@ -374,7 +351,6 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/agenda'
     | '/_authenticated/configuracoes'
-    | '/_authenticated/ecommerce'
     | '/_authenticated/fluxo-de-vendas'
     | '/_authenticated/historico'
     | '/_authenticated/indicadores'
@@ -384,7 +360,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/clientes/$id'
     | '/_authenticated/clientes/novo'
-    | '/_authenticated/ecommerce_/pedidos'
     | '/_authenticated/orcamentos/novo'
     | '/_authenticated/pedidos/$id'
     | '/_authenticated/pedidos/novo'
@@ -455,13 +430,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/ecommerce': {
-      id: '/_authenticated/ecommerce'
-      path: '/ecommerce'
-      fullPath: '/ecommerce'
-      preLoaderRoute: typeof AuthenticatedEcommerceRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/fluxo-de-vendas': {
       id: '/_authenticated/fluxo-de-vendas'
       path: '/fluxo-de-vendas'
@@ -530,13 +498,6 @@ declare module '@tanstack/react-router' {
       path: '/clientes/novo'
       fullPath: '/clientes/novo'
       preLoaderRoute: typeof AuthenticatedClientesNovoRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/ecommerce_/pedidos': {
-      id: '/_authenticated/ecommerce_/pedidos'
-      path: '/ecommerce/pedidos'
-      fullPath: '/ecommerce/pedidos'
-      preLoaderRoute: typeof AuthenticatedEcommercePedidosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/orcamentos/': {
@@ -629,7 +590,6 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
-  AuthenticatedEcommerceRoute: typeof AuthenticatedEcommerceRoute
   AuthenticatedFluxoDeVendasRoute: typeof AuthenticatedFluxoDeVendasRoute
   AuthenticatedHistoricoRoute: typeof AuthenticatedHistoricoRoute
   AuthenticatedIndicadoresRoute: typeof AuthenticatedIndicadoresRoute
@@ -639,7 +599,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedClientesIdRoute: typeof AuthenticatedClientesIdRoute
   AuthenticatedClientesNovoRoute: typeof AuthenticatedClientesNovoRoute
-  AuthenticatedEcommercePedidosRoute: typeof AuthenticatedEcommercePedidosRoute
   AuthenticatedOrcamentosNovoRoute: typeof AuthenticatedOrcamentosNovoRoute
   AuthenticatedPedidosIdRoute: typeof AuthenticatedPedidosIdRoute
   AuthenticatedPedidosNovoRoute: typeof AuthenticatedPedidosNovoRoute
@@ -654,7 +613,6 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
-  AuthenticatedEcommerceRoute: AuthenticatedEcommerceRoute,
   AuthenticatedFluxoDeVendasRoute: AuthenticatedFluxoDeVendasRoute,
   AuthenticatedHistoricoRoute: AuthenticatedHistoricoRoute,
   AuthenticatedIndicadoresRoute: AuthenticatedIndicadoresRoute,
@@ -664,7 +622,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   AuthenticatedClientesIdRoute: AuthenticatedClientesIdRoute,
   AuthenticatedClientesNovoRoute: AuthenticatedClientesNovoRoute,
-  AuthenticatedEcommercePedidosRoute: AuthenticatedEcommercePedidosRoute,
   AuthenticatedOrcamentosNovoRoute: AuthenticatedOrcamentosNovoRoute,
   AuthenticatedPedidosIdRoute: AuthenticatedPedidosIdRoute,
   AuthenticatedPedidosNovoRoute: AuthenticatedPedidosNovoRoute,

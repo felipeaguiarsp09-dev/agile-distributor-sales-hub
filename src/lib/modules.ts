@@ -3,7 +3,6 @@ import {
   CalendarDays,
   KanbanSquare,
   Package,
-  ShoppingBag,
   ShoppingCart,
   Users,
   Target,
