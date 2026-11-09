@@ -8,6 +8,8 @@ import { useAuth } from "@/lib/auth";
 import { canCreateOrder, ORDER_STATUS_LABEL, orderNumber } from "@/lib/orders";
 import { ActiveBadge, CreditBadge, EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { CustomerForm } from "@/components/CustomerForm";
+import { useServerFn } from "@tanstack/react-start";
+import { sendCustomerToErp } from "@/lib/customers.functions";
 import { orderHistoryWindow } from "@/lib/order-history";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,6 +36,8 @@ function CustomerDetail() {
   const navigate = useNavigate();
   const [historyWindow] = useState(() => orderHistoryWindow());
   const [editing, setEditing] = useState(false);
+  const [sending, setSending] = useState(false);
+  const sendFn = useServerFn(sendCustomerToErp);
 
   const customer = useQuery({
     queryKey: ["customers", id],

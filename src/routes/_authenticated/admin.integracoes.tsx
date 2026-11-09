@@ -32,9 +32,10 @@ export const Route = createFileRoute("/_authenticated/admin/integracoes")({
 
 type Field = { key: string; label: string; secret?: boolean; placeholder?: string };
 const TYPES: { type: "erp" | "estoque" | "financeiro" | "pagamento"; title: string; hint: string; providers?: { value: string; label: string }[]; fields: (provider: string) => Field[] }[] = [
-  { type: "erp", title: "ERP", hint: "Recebe os pedidos aprovados (botão Enviar ao ERP).", fields: () => [
+  { type: "erp", title: "ERP", hint: "Recebe os pedidos aprovados (botão Enviar ao ERP) e os pré-cadastros de clientes.", fields: () => [
     { key: "partner_api_url", label: "API do ERP parceiro", placeholder: "https://api.erpparceiro.com.br/v1" },
     { key: "endpoint_url", label: "Endereço para envio de pedidos", placeholder: "https://erp.suaempresa.com/api/pedidos" },
+    { key: "customer_url", label: "Endereço para envio de pré-cadastros de clientes", placeholder: "https://erp.suaempresa.com/api/clientes" },
     { key: "api_key", label: "Chave de acesso", secret: true }] },
   { type: "estoque", title: "Estoque", hint: "Atualiza o estoque dos produtos a cada hora. Responde uma lista com sku e estoque.", fields: () => [
     { key: "stock_url", label: "Endereço da consulta de estoque", placeholder: "https://erp.suaempresa.com/api/estoque" },
