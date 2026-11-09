@@ -14,9 +14,9 @@ export const Route = createFileRoute("/_authenticated/produtos/$id")({
   head: () => ({
     meta: [
       { title: "Produto — Dcalice" },
-      { name: "description", content: "Preço, estoque, visibilidade no E-commerce e previsão de demanda." },
+      { name: "description", content: "Preço, estoque e previsão de demanda." },
       { property: "og:title", content: "Produto — Dcalice" },
-      { property: "og:description", content: "Preço, estoque, visibilidade no E-commerce e previsão de demanda." },
+      { property: "og:description", content: "Preço, estoque e previsão de demanda." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -82,7 +82,6 @@ function ProductDetail() {
             </div>
             <p className="mt-1 text-sm text-muted-foreground">SKU {p.sku}{p.category ? ` · ${p.category}` : ""}</p>
             <div className="mt-2 flex flex-wrap gap-2">
-              {p.is_ecommerce_visible ? <Badge variant="secondary">Visível no E-commerce</Badge> : <Badge variant="outline">Fora do E-commerce</Badge>}
               {!p.is_active && <Badge variant="destructive">Inativo</Badge>}
             </div>
             <div className="mt-4 flex gap-8">

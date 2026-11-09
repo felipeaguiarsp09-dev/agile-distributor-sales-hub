@@ -76,14 +76,6 @@ function ProductsPage() {
             {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={vis} onValueChange={setVis}>
-          <SelectTrigger className="sm:w-48"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">E-commerce: todos</SelectItem>
-            <SelectItem value="sim">Visíveis no E-commerce</SelectItem>
-            <SelectItem value="nao">Fora do E-commerce</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {list.isLoading ? (
@@ -111,7 +103,6 @@ function ProductsPage() {
                   <span className={p.stock_quantity > 0 ? "text-muted-foreground" : "text-destructive"}>{p.stock_quantity} em estoque</span>
                 </div>
                 <div className="mt-1 flex gap-1">
-                  {p.is_ecommerce_visible && <Badge variant="secondary">Visível no E-commerce</Badge>}
                   {!p.is_active && <Badge variant="outline">Inativo</Badge>}
                 </div>
               </div>
