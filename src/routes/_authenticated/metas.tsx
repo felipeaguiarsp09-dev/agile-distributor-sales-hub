@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { currentPeriod } from "@/lib/indicators";
-import { parseCountTarget } from "@/lib/monthly-targets";
+import { parseCountTarget, parseMoneyTarget } from "@/lib/monthly-targets";
 import { PageHeader } from "@/components/ModulePage";
 import { ErrorState, NoAccess } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const DESC = "Metas mensais de clientes atendidos e visitas por vendedor.";
+const DESC = "Metas mensais de faturamento, clientes atendidos e visitas por vendedor.";
 export const Route = createFileRoute("/_authenticated/metas")({
   head: () => ({ meta: [
     { title: "Metas mensais — Dcalice" }, { name: "description", content: DESC },
@@ -38,7 +38,7 @@ function MonthlyTargetsPage() {
       if (profile.role === "supervisor") sellersQuery = sellersQuery.eq("supervisor_id", profile.id);
       const [sellers, goals] = await Promise.all([
         sellersQuery,
-        supabase.from("sales_targets").select("id,seller_id,customer_target,visit_target").eq("organization_id", profile.organization_id).eq("period", period),
+        supabase.from("sales_targets").select("id,seller_id,customer_target,visit_target,target_amount").eq("organization_id", profile.organization_id).eq("period", period),
       ]);
       if (sellers.error) throw sellers.error;
       if (goals.error) throw goals.error;
@@ -50,31 +50,33 @@ function MonthlyTargetsPage() {
     <PageHeader title="Metas mensais" description={DESC} />
     <div className="mb-6 max-w-56 space-y-2"><Label htmlFor="target-month">Mês de referência</Label><Input id="target-month" type="month" value={period} onChange={e => setPeriod(e.target.value)} /></div>
     {rows.isError ? <ErrorState message="Não foi possível carregar as metas" onRetry={() => rows.refetch()} /> : rows.isPending ? <Skeleton className="h-40 w-full" /> : rows.data?.length === 0 ? <p className="py-10 text-center text-muted-foreground">Nenhum vendedor ativo neste período.</p> :
-      <div className="divide-y border-y">{rows.data?.map(row => <TargetRow key={`${period}-${row.id}-${row.goal?.customer_target}-${row.goal?.visit_target}`} seller={row} period={period} orgId={profile?.organization_id ?? ""} />)}</div>}
+      <div className="divide-y border-y">{rows.data?.map(row => <TargetRow key={`${period}-${row.id}-${row.goal?.customer_target}-${row.goal?.visit_target}-${row.goal?.target_amount}`} seller={row} period={period} orgId={profile?.organization_id ?? ""} />)}</div>}
   </div>;
 }
 
-type SellerRow = { id: string; full_name: string; goal?: { id: string; customer_target: number | null; visit_target: number | null } | undefined };
+type SellerRow = { id: string; full_name: string; goal?: { id: string; customer_target: number | null; visit_target: number | null; target_amount: number } | undefined };
 function TargetRow({ seller, period, orgId }: { seller: SellerRow; period: string; orgId: string }) {
   const qc = useQueryClient();
   const [customers, setCustomers] = useState(seller.goal?.customer_target == null ? "" : String(seller.goal.customer_target));
   const [visits, setVisits] = useState(seller.goal?.visit_target == null ? "" : String(seller.goal.visit_target));
+  const [amount, setAmount] = useState(seller.goal && Number(seller.goal.target_amount) > 0 ? String(seller.goal.target_amount).replace(".", ",") : "");
   const [saving, setSaving] = useState(false);
   async function save() {
     try {
-      const values = { customer_target: parseCountTarget(customers), visit_target: parseCountTarget(visits) };
+      const values = { customer_target: parseCountTarget(customers), visit_target: parseCountTarget(visits), target_amount: parseMoneyTarget(amount) };
       setSaving(true);
       const { error } = seller.goal
         ? await supabase.from("sales_targets").update(values).eq("id", seller.goal.id)
-        : await supabase.from("sales_targets").insert({ ...values, organization_id: orgId, seller_id: seller.id, period, target_amount: 0 });
+        : await supabase.from("sales_targets").insert({ ...values, organization_id: orgId, seller_id: seller.id, period });
       if (error) throw error;
       await Promise.all([qc.invalidateQueries({ queryKey: ["monthly-targets"] }), qc.invalidateQueries({ queryKey: ["indicators"] })]);
       toast.success("Metas salvas");
     } catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível salvar as metas"); }
     finally { setSaving(false); }
   }
-  return <form onSubmit={e => { e.preventDefault(); void save(); }} className="grid items-end gap-4 py-5 sm:grid-cols-[minmax(0,1fr)_150px_150px_auto]">
+  return <form onSubmit={e => { e.preventDefault(); void save(); }} className="grid items-end gap-4 py-5 sm:grid-cols-[minmax(0,1fr)_160px_150px_150px_auto]">
     <h2 className="self-center break-words font-semibold">{seller.full_name}</h2>
+    <div className="space-y-2"><Label htmlFor={`amount-${seller.id}`}>Faturamento (R$)</Label><Input id={`amount-${seller.id}`} inputMode="decimal" placeholder="Não definida" value={amount} disabled={saving} onChange={e => setAmount(e.target.value.replace(/[^\d.,]/g, ""))} /></div>
     <div className="space-y-2"><Label htmlFor={`customers-${seller.id}`}>Clientes atendidos</Label><Input id={`customers-${seller.id}`} type="number" min={0} step={1} inputMode="numeric" placeholder="Não definida" value={customers} disabled={saving} onChange={e => setCustomers(e.target.value)} /></div>
     <div className="space-y-2"><Label htmlFor={`visits-${seller.id}`}>Visitas</Label><Input id={`visits-${seller.id}`} type="number" min={0} step={1} inputMode="numeric" placeholder="Não definida" value={visits} disabled={saving} onChange={e => setVisits(e.target.value)} /></div>
     <Button type="submit" disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Salvar</Button>

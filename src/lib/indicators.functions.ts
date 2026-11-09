@@ -53,14 +53,14 @@ export const generateIndicatorInsight = createServerFn({ method: "POST" })
     const { data: ind, error } = await sb.rpc("get_seller_indicators", { p_seller_id: data.seller_id as string, p_period: data.period });
     if (error) throw new Error(error.message);
     const m = ind as unknown as Indicators;
-    const snapshot = { meta: m.meta, vendas_mes: m.vendas_mes, ticket_medio: m.ticket_medio, pedidos_count: m.pedidos_count };
+    const snapshot = { meta: m.meta, vendas_mes: m.vendas_mes, ticket_medio: m.ticket_medio, pedidos_count: m.pedidos_count, faturado_mes: Number(m.faturado_mes ?? 0) };
 
     const { generateStructured } = await import("./ai.server");
     let text: string;
     try {
       const out = await generateStructured(
         z.object({ insight_text: z.string() }),
-        "Você é um analista comercial de uma distribuidora. Escreva em português, em 2 a 4 frases curtas, uma leitura dos indicadores do mês (meta, vendas, ticket médio, ritmo diário) e uma recomendação prática. Não invente números além dos informados. Se não houver meta ou vendas, diga isso e sugira cadastrar metas ou importar a base.",
+        "Você é um analista comercial de uma distribuidora. Escreva em português, em 2 a 4 frases curtas, uma leitura dos indicadores do mês (meta de faturamento, faturado_mes = pedidos faturados/entregues comparados com a meta, vendas, ticket médio, ritmo diário) e uma recomendação prática. Não invente números além dos informados. Se não houver meta ou vendas, diga isso e sugira cadastrar metas ou importar a base.",
         JSON.stringify({ periodo: data.period, escopo: scope.scope, ...snapshot, vendas_por_dia: m.daily }),
       );
       text = out.insight_text;
