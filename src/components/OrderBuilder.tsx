@@ -203,6 +203,8 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
   const suggestFn = useServerFn(suggestProducts);
   const validateFn = useServerFn(validateOrderStock);
   const submitFn = useServerFn(submitOrder);
+  const pushErpFn = useServerFn(pushOrderToErp);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
 
   const cartRef = useRef<HTMLElement>(null);
   const [customerId, setCustomerId] = useState(initialCustomerId ?? "");
@@ -395,7 +397,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       }
       const { data } = await supabase
         .from("orders")
-        .select("customer_id, discount_amount, notes, status, order_items(product_id, quantity, unit_price, was_ai_suggested, products(name, unit_price, stock_quantity))")
+        .select("customer_id, discount_amount, notes, status, payment_method, order_items(product_id, quantity, unit_price, was_ai_suggested, products(name, unit_price, stock_quantity))")
         .eq("id", resumeId)
         .maybeSingle();
       if (cancelled) return;
@@ -408,6 +410,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       setCustomerId(data.customer_id);
       setDiscount(Number(data.discount_amount));
       setNotes(data.notes ?? "");
+      setPaymentMethod((data.payment_method as PaymentMethod | null) ?? "");
       setLines(mapped);
       lastSnapshotRef.current = JSON.stringify([data.customer_id, mapped, Number(data.discount_amount), data.notes ?? "", ""]);
       setReady(true);
@@ -556,6 +559,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
 
   async function confirm() {
     if (!profile || !customerId || lines.length === 0) return;
+    if (!paymentMethod) return void toast.error("Escolha a forma de pagamento");
     setSaving(true);
     setProblem(null);
     try {
@@ -568,6 +572,8 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       });
       setDraftId(id);
       await saveItems(id, lines);
+      const { error: payErr } = await supabase.from("orders").update({ payment_method: paymentMethod }).eq("id", id);
+      if (payErr) throw new Error("Falha ao salvar a forma de pagamento");
 
       const stock = await validateFn({ data: { order_id: id } });
       if (!stock.ok) {
@@ -585,6 +591,16 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       const accepted = lines.map((l) => l.ai_suggestion_id).filter((x): x is string => !!x && x !== "ai");
       if (accepted.length) await supabase.from("ai_suggestions").update({ was_accepted: true, order_id: id }).in("id", accepted);
       toast.success(res.needs_approval ? "Pedido enviado para aprovação do supervisor" : "Pedido aprovado");
+      if (!res.needs_approval) {
+        // Envio automático ao ERP após salvar; falha não desfaz o pedido (pode reenviar na ficha).
+        try {
+          const erp = await pushErpFn({ data: { order_id: id } });
+          if (!erp.ok) toast.error(erp.message);
+          else toast.success(erp.message);
+        } catch {
+          toast.error("O pedido foi salvo, mas não chegou ao ERP. Reenvie pela ficha do pedido.");
+        }
+      }
       await qc.invalidateQueries({ queryKey: ["orders"] });
       onConfirmed(id);
     } catch (e) {
@@ -898,6 +914,15 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
             )}
             <div className="flex justify-between text-base font-bold"><span>Total</span><span className="tabular-nums">{brl(totals.total)}</span></div>
           </div>
+          {!isQuote && (
+            <div className="space-y-1">
+              <Label htmlFor="payment">Forma de pagamento</Label>
+              <select id="payment" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod | "")}>
+                <option value="">Selecione…</option>
+                {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{PAYMENT_METHOD_LABEL[m]}</option>)}
+              </select>
+            </div>
+          )}
           <Textarea placeholder="Observações do pedido" value={notes} onChange={(e) => setNotes(e.target.value)} />
           {customer && customer.credit_status !== "ok" && (
             <Alert><AlertTriangle className="h-4 w-4" /><AlertTitle>Crédito {customer.credit_status}</AlertTitle><AlertDescription>O {isQuote ? "orçamento" : "pedido"} irá para aprovação do supervisor.</AlertDescription></Alert>
