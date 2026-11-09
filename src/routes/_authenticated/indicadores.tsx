@@ -172,30 +172,35 @@ function IndicatorsPage() {
         <ErrorState message="Não foi possível carregar os indicadores" onRetry={() => ind.refetch()} />
       ) : (
         <>
-          {d && d.meta > 0 && (
-            <div className="mb-4 rounded-lg border bg-card p-4" aria-label="Progresso da meta de faturamento">
-              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                <span className="font-medium">Meta × realizado (faturado)</span>
-                <span className={unmet.sales != null ? "font-semibold text-destructive" : "font-semibold text-success"}>
-                  {unmet.sales != null ? `Faltam ${brl(unmet.sales)} para a meta` : "Meta batida"}
-                </span>
-              </div>
-              <div className="relative mx-auto h-44 w-44">
-                <PieChart width={176} height={176}>
-                  <Pie data={[{ v: Math.min(pct, 100) }, { v: Math.max(100 - pct, 0) }]} dataKey="v" innerRadius={58} outerRadius={80} startAngle={90} endAngle={-270} stroke="none" isAnimationActive={false}>
-                    <Cell fill={unmet.sales == null ? "var(--success)" : "var(--danger)"} />
-                    <Cell fill="var(--muted)" />
-                  </Pie>
-                </PieChart>
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-2xl font-bold tabular-nums">{pct}%</span>
-                  <span className="text-xs text-muted-foreground">{brl(billed)}</span>
-                  <span className="text-xs text-muted-foreground">de {brl(d.meta)}</span>
-                </div>
-              </div>
-              <p className="mt-2 text-center text-xs text-muted-foreground">
-                {brl(billed)} faturado de {brl(d.meta)} · {pct}% atingido · atualiza sozinho quando um pedido é faturado
-              </p>
+          {d && (d.meta > 0 || d.meta_clientes != null) && (
+            <div className="mb-4 grid gap-4 md:grid-cols-2">
+              {d.meta > 0 && (
+                <GoalDonut
+                  title="Meta × realizado (faturado)"
+                  ariaLabel="Progresso da meta de faturamento"
+                  pct={pct}
+                  met={unmet.sales == null}
+                  status={unmet.sales != null ? `Faltam ${brl(unmet.sales)} para a meta` : "Meta batida"}
+                  center={[brl(billed), `de ${brl(d.meta)}`]}
+                  footer={`${brl(billed)} faturado de ${brl(d.meta)} · ${pct}% atingido · atualiza sozinho quando um pedido é faturado`}
+                />
+              )}
+              {d.meta_clientes != null && (() => {
+                const pos = d.clientes_positivados ?? 0;
+                const cp = progressPct(d.meta_clientes, pos);
+                const word = (n: number) => `${n} cliente${n === 1 ? "" : "s"}`;
+                return (
+                  <GoalDonut
+                    title="Positivação / venda"
+                    ariaLabel="Progresso da meta de positivação"
+                    pct={cp}
+                    met={unmet.customers == null}
+                    status={unmet.customers != null ? `Faltam ${word(unmet.customers)} para a meta` : "Meta batida"}
+                    center={[word(pos), `de ${d.meta_clientes}`]}
+                    footer={`${word(pos)} positivado${pos === 1 ? "" : "s"} · venda ${brl(d.vendas_mes)} · ${cp}% da meta`}
+                  />
+                );
+              })()}
             </div>
           )}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
@@ -401,5 +406,30 @@ function MetaDialog({ open, onOpenChange, sellerId, period, orgId, current, curr
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function GoalDonut({ title, ariaLabel, pct, met, status, center, footer }: { title: string; ariaLabel: string; pct: number; met: boolean; status: string; center: [string, string]; footer: string }) {
+  return (
+    <div className="rounded-lg border bg-card p-4" aria-label={ariaLabel}>
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm">
+        <span className="font-medium">{title}</span>
+        <span className={met ? "font-semibold text-success" : "font-semibold text-destructive"}>{status}</span>
+      </div>
+      <div className="relative mx-auto h-44 w-44">
+        <PieChart width={176} height={176}>
+          <Pie data={[{ v: Math.min(pct, 100) }, { v: Math.max(100 - pct, 0) }]} dataKey="v" innerRadius={58} outerRadius={80} startAngle={90} endAngle={-270} stroke="none" isAnimationActive={false}>
+            <Cell fill={met ? "var(--success)" : "var(--danger)"} />
+            <Cell fill="var(--muted)" />
+          </Pie>
+        </PieChart>
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+          <span className="text-2xl font-bold tabular-nums">{pct}%</span>
+          <span className="text-xs text-muted-foreground">{center[0]}</span>
+          <span className="text-xs text-muted-foreground">{center[1]}</span>
+        </div>
+      </div>
+      <p className="mt-2 text-center text-xs text-muted-foreground">{footer}</p>
+    </div>
   );
 }
