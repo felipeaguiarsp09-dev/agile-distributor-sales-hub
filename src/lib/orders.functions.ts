@@ -128,14 +128,14 @@ export const suggestProducts = createServerFn({ method: "POST" })
     };
   });
 
-/** push-order-to-erp: envia pedido aprovado/faturado ao ERP configurado em Integrações. */
+/** push-order-to-erp: envia pedido aprovado/faturado ao ERP (automático após salvar; vendedor só os próprios, via RLS) configurado em Integrações. */
 export const pushOrderToErp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(orderInput)
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
     const { data: me } = await sb.from("profiles").select("role").eq("id", context.userId).single();
-    if (!me || !["supervisor", "administrador"].includes(me.role)) throw new Error("Sem permissão");
+    if (!me || !["vendedor", "supervisor", "administrador"].includes(me.role)) throw new Error("Sem permissão");
     const { data: order } = await sb.from("orders").select("*, order_items(*), customers(external_id, name, cnpj_cpf)").eq("id", data.order_id).maybeSingle();
     if (!order) throw new Error("Pedido não encontrado");
     if (!["aprovado", "faturado"].includes(order.status)) return { ok: false, message: "Só pedidos aprovados ou faturados vão ao ERP" };
