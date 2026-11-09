@@ -99,6 +99,13 @@
       "when": 1794235555538,
       "tag": "0013_dashboard_clients_status_delivered",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794235574075,
+      "tag": "0014_indicators_volatile",
+      "breakpoints": true
     }
   ]
 }
