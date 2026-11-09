@@ -188,6 +188,9 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
   const [notes, setNotes] = useState("");
   const [validUntil, setValidUntil] = useState(isQuote ? dateInDays(7) : "");
   const [draftId, setDraftId] = useState<string | null>(resumeId ?? null);
+  // Ref evita criar um segundo registro quando o salvamento manual roda logo após o autosave.
+  const draftIdRef = useRef<string | null>(resumeId ?? null);
+  useEffect(() => { draftIdRef.current = draftId; }, [draftId]);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("todas");
   const [problem, setProblem] = useState<string[] | null>(null);
@@ -256,6 +259,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
   /** Cria ou atualiza o rascunho (pedido) / orçamento e devolve o id. */
   async function upsertDraft(fields: { customer_id: string; discount_amount: number; notes: string | null; valid_until: string | null }) {
     if (!profile) throw new Error("Sessão não encontrada");
+    const draftId = draftIdRef.current;
     if (!draftId) {
       const { data, error } = isQuote
         ? await supabase
@@ -282,7 +286,8 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
             })
             .select("id")
             .single();
-      if (error || !data) throw new Error(isQuote ? "Falha ao salvar o orçamento" : "Falha ao salvar o rascunho");
+      if (error || !data) throw new Error(isQuote ? "Falha ao salvar a proposta" : "Falha ao salvar o rascunho");
+      draftIdRef.current = data.id as string;
       return data.id as string;
     }
     const { error } = isQuote
@@ -577,7 +582,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       submittedRef.current = true;
       const { error } = await supabase.rpc("calc_quote_totals", { p_quote_id: id });
       if (error) throw new Error(error.message);
-      toast.success("Orçamento salvo");
+      toast.success("Proposta salva");
       await qc.invalidateQueries({ queryKey: ["quotes"] });
       onQuoteSaved();
     } catch (e) {
@@ -601,7 +606,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
         ? "Salvando orçamento..."
         : "Salvando rascunho..."
       : draftState === "saved" && draftSavedAt
-        ? `${isQuote ? "Orçamento" : "Rascunho"} salvo às ${draftSavedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+        ? `${isQuote ? "Proposta salva" : "Rascunho salvo"} às ${draftSavedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
         : null;
 
   return (
@@ -612,7 +617,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
         </Link>
       )}
       <PageHeader
-        title={isQuote ? (draftId ? "Editar orçamento" : "Novo orçamento") : draftId ? "Rascunho de pedido" : "Novo pedido"}
+        title={isQuote ? (draftId ? "Editar proposta" : "Nova proposta") : draftId ? "Rascunho de pedido" : "Novo pedido"}
         description={
           isQuote
             ? "Escolha o cliente, monte a proposta e defina a validade; depois converta em pedido."
@@ -884,7 +889,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
             </p>
           )}
           <Button className="w-full" onClick={isQuote ? saveQuote : confirm} disabled={saving || !customerId || lines.length === 0}>
-            {saving && <Loader2 className="h-4 w-4 animate-spin" />} {isQuote ? "Salvar orçamento" : "Confirmar pedido"}
+            {saving && <Loader2 className="h-4 w-4 animate-spin" />} {isQuote ? "Salvar proposta" : "Confirmar pedido"}
           </Button>
           {isQuote && <p className="text-xs text-muted-foreground">Depois de salvar, converta em pedido na lista de orçamentos.</p>}
         </aside>
