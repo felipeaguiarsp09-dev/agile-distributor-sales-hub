@@ -134,6 +134,13 @@
       "when": 1794247100292,
       "tag": "0018_order_payment_method_auto_erp",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794248504258,
+      "tag": "0019_seller_customer_pre_registration",
+      "breakpoints": true
     }
   ]
 }
