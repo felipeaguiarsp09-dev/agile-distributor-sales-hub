@@ -11,12 +11,13 @@ export const sendCustomerToErp = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
     const { data: c } = await sb.from("customers")
-      .select("id, name, cnpj_cpf, email, phone, address, notes, owner_id, registration_status")
+      .select("id, name, cnpj_cpf, email, phone, address, notes, owner_id, registration_status, organization_id")
       .eq("id", data.customer_id).maybeSingle();
     if (!c) throw new Error("Cliente não encontrado");
     if (c.registration_status !== "pre_cadastro") return { ok: true, message: "Cliente já tem cadastro completo no ERP" };
 
-    const { data: cfg } = await sb.from("integration_configs").select("credentials").eq("integration_type", "erp").eq("is_active", true).maybeSingle();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cfg } = await supabaseAdmin.from("integration_configs").select("credentials").eq("organization_id", c.organization_id).eq("integration_type", "erp").eq("is_active", true).maybeSingle();
     const creds = (cfg?.credentials ?? {}) as { customer_url?: string; api_key?: string };
     if (!creds.customer_url) {
       await sb.from("customers").update({ erp_sync_status: "erro" }).eq("id", c.id);
@@ -26,7 +27,8 @@ export const sendCustomerToErp = createServerFn({ method: "POST" })
     try {
       const token = creds.api_key || process.env["ERP_API_KEY"];
       const { postPreRegistration } = await import("./erp-customer-payload");
-      ok = await postPreRegistration(creds.customer_url, token, c);
+      const { organization_id: _o, registration_status: _r, ...cust } = c;
+      ok = await postPreRegistration(creds.customer_url, token, cust);
     } catch (e) {
       console.error("send-customer-to-erp", e);
     }
