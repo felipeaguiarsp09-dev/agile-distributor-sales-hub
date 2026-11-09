@@ -129,7 +129,7 @@ function IndicatorsPage() {
     <div className="mx-auto max-w-5xl">
       <PageHeader title="Dashboard" description={DESC} />
 
-      <div className="mb-6 flex flex-wrap items-center gap-2">
+      <div className="mb-6 flex flex-wrap items-end gap-2">
         <div className="space-y-1">
         <Label htmlFor="dashboard-month">Mês de referência</Label>
         <Select value={period} onValueChange={setPeriod}>
