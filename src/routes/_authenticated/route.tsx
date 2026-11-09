@@ -9,7 +9,7 @@ const ADMIN_LINKS = [
 ] as const;
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ROLE_LABEL, homeForRole, useAuth, type Role } from "@/lib/auth";
+import { ROLE_LABEL, useAuth, type Role } from "@/lib/auth";
 import { modulesForRole } from "@/lib/modules";
 import { Brand } from "@/components/Brand";
 import { Button } from "@/components/ui/button";
@@ -110,15 +110,12 @@ function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
 
-  // Cliente final só acessa E-commerce e Configurações.
+  // O E-commerce foi removido: clientes finais não têm mais acesso ao app.
   useEffect(() => {
     if (!ready) return;
     if (!session) {
       navigate({ to: "/login", replace: true });
       return;
-    }
-    if (profile?.role === "cliente" && !pathname.startsWith("/ecommerce") && pathname !== "/configuracoes") {
-      navigate({ to: homeForRole("cliente"), replace: true });
     }
   }, [ready, session, profile, pathname, navigate]);
 
@@ -132,6 +129,15 @@ function AppShell() {
         ) : (
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         )}
+      </div>
+    );
+  }
+
+  if (profile.role === "cliente") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+        <p className="max-w-sm text-sm text-muted-foreground">O acesso de clientes não está disponível. Fale com o seu vendedor da Dcalice.</p>
+        <SignOutButton className="rounded-md border px-4 py-2 text-sm font-medium" />
       </div>
     );
   }

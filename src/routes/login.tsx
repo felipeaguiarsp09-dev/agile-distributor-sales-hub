@@ -85,7 +85,7 @@ function LoginPage() {
             Toda a operação comercial da distribuidora, no bolso do vendedor.
           </h1>
           <p className="mt-4 text-sidebar-foreground/70">
-            Indicadores, pedidos, clientes, produtos, e-commerce e agenda em uma única interface.
+            Indicadores, pedidos, clientes, produtos e agenda em uma única interface.
           </p>
         </div>
         <p className="text-sm text-sidebar-foreground/70">Força de vendas para distribuidoras</p>
@@ -103,7 +103,7 @@ function LoginPage() {
             {mode === "senha"
               ? "Use o email e a senha da sua conta."
               : mode === "link"
-                ? "Para clientes do E-commerce: enviamos um link para seu email."
+                ? "Enviamos um link de acesso para seu email."
                 : "Enviaremos um link para criar uma nova senha."}
           </p>
 

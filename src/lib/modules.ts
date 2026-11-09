@@ -3,7 +3,6 @@ import {
   CalendarDays,
   KanbanSquare,
   Package,
-  ShoppingBag,
   ShoppingCart,
   Users,
   Target,
@@ -18,7 +17,6 @@ export type ModuleItem = {
     | "/pedidos"
     | "/clientes"
     | "/produtos"
-    | "/ecommerce"
     | "/agenda"
     | "/metas";
   label: string;
@@ -35,7 +33,6 @@ export const MODULES: ModuleItem[] = [
   { to: "/pedidos", label: "Pedidos", icon: ShoppingCart, roles: INTERNAL },
   { to: "/clientes", label: "Clientes", icon: Users, roles: INTERNAL },
   { to: "/produtos", label: "Produtos", icon: Package, roles: INTERNAL },
-  { to: "/ecommerce", label: "E-commerce", icon: ShoppingBag, roles: [...INTERNAL, "cliente"] },
   { to: "/agenda", label: "Agenda", icon: CalendarDays, roles: INTERNAL },
   { to: "/metas", label: "Metas mensais", icon: Target, roles: ["administrador", "supervisor"] },
 ];

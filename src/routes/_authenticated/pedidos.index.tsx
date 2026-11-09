@@ -165,7 +165,7 @@ function OrdersPage() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeader
           title="Pedidos"
-          description="Pedidos de vendedor e do E-commerce nos últimos 12 meses, no mesmo fluxo."
+          description="Pedidos dos últimos 12 meses, no mesmo fluxo."
         />
         {canCreateOrder(profile?.role) && (
           <div className="flex flex-wrap items-center gap-2">
