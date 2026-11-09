@@ -306,8 +306,7 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
               </Button>
             </div>
           )}
-        </div>
-        </>}
+        </div>}
         <div className="space-y-1">
           <Label htmlFor="r-notes">O que foi feito na visita</Label>
           <Textarea id="r-notes" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: cliente pediu reposição de água na próxima semana" />
