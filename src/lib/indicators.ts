@@ -36,6 +36,15 @@ export function lastPeriods(n: number, d = new Date()) {
   return Array.from({ length: n }, (_, i) => currentPeriod(new Date(d.getFullYear(), d.getMonth() - i, 1)));
 }
 
+/** A análise salva vale enquanto o faturamento e a meta forem os mesmos de quando foi gerada. */
+export function insightIsCurrent(
+  snap: { faturado_mes?: number; meta?: number } | null | undefined,
+  cur: { faturado_mes?: number; meta: number },
+): boolean {
+  if (!snap || snap.faturado_mes == null) return false;
+  return Number(snap.faturado_mes) === Number(cur.faturado_mes ?? 0) && Number(snap.meta ?? 0) === Number(cur.meta);
+}
+
 export function progressPct(meta: number, vendas: number) {
   return meta > 0 ? Math.round((vendas / meta) * 100) : 0;
 }

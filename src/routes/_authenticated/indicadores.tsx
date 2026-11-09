@@ -1,14 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, ShoppingCart, Sparkles, Target, TriangleAlert } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { subscribeDashboardOrders } from "@/lib/dashboard-realtime";
-import { currentPeriod, dailyVisitTarget, insightScope, lastPeriods, lastUpdatedLabel, progressPct, unmetTargets } from "@/lib/indicators";
+import { currentPeriod, dailyVisitTarget, insightIsCurrent, insightScope, lastPeriods, lastUpdatedLabel, progressPct, unmetTargets } from "@/lib/indicators";
 import { generateIndicatorInsight, getDashboardIndicators, getUnservedCustomers } from "@/lib/indicators.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { ErrorState, NoAccess, brl } from "@/components/shared";
