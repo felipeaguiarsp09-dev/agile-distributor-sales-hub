@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { canCreateOrder, ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber, orderListSearch } from "@/lib/orders";
 import { pushOrderToErp } from "@/lib/orders.functions";
+import { PAYMENT_METHOD_LABEL, type PaymentMethod } from "@/lib/payment-methods";
 import { ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,7 @@ function OrderDetail() {
   const canApprove = (role === "supervisor" || role === "administrador") && o.status === "aguardando_aprovacao";
   const canEdit = o.status === "rascunho" && (isOwner || role === "administrador");
   const canCancel = role === "administrador" && !["cancelado", "faturado", "entregue"].includes(o.status);
-  const canPush = (role === "supervisor" || role === "administrador") && ["aprovado", "faturado"].includes(o.status) && !o.erp_order_id;
+  const canPush = (role === "vendedor" || role === "supervisor" || role === "administrador") && ["aprovado", "faturado"].includes(o.status) && !o.erp_order_id;
   const canManage = canCreateOrder(role) && (isOwner || role === "administrador");
   const canRepeat = canManage && ["aprovado", "faturado", "entregue"].includes(o.status);
   const canDeliver = role === "administrador" && o.status === "faturado";
@@ -187,6 +188,7 @@ function OrderDetail() {
             <div className="flex justify-between"><span>Desconto</span><span className="tabular-nums">− {brl(o.discount_amount)}</span></div>
             <div className="flex justify-between text-base font-bold"><span>Total</span><span className="tabular-nums">{brl(o.total_amount)}</span></div>
           </div>
+          {o.payment_method && <p className="mt-3 text-sm">Forma de pagamento: <strong>{PAYMENT_METHOD_LABEL[o.payment_method as PaymentMethod] ?? o.payment_method}</strong></p>}
           {o.notes && <p className="mt-3 rounded-md bg-muted p-3 text-sm">{o.notes}</p>}
         </section>
 
