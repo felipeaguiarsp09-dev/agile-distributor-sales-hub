@@ -37,4 +37,13 @@ describe("pré-cadastro para o ERP", () => {
     const fake = vi.fn(async () => new Response("", { status: 500 }));
     expect(await postPreRegistration("https://x", undefined, customer, fake as unknown as typeof fetch)).toBe(false);
   });
+
+  it("reenvio do pré-cadastro repete a mesma Idempotency-Key", async () => {
+    const fake = vi.fn(async () => new Response("{}", { status: 200 }));
+    await postPreRegistration("https://x", "t", customer, fake as unknown as typeof fetch);
+    await postPreRegistration("https://x", "t", customer, fake as unknown as typeof fetch);
+    const keys = fake.mock.calls.map((c) => ((c as unknown as [string, RequestInit])[1].headers as Record<string, string>)["idempotency-key"]);
+    expect(keys).toEqual(["pre-cadastro-c1", "pre-cadastro-c1"]);
+    expect(JSON.parse((fake.mock.calls[0] as unknown as [string, RequestInit])[1].body as string).idempotency_key).toBe("pre-cadastro-c1");
+  });
 });

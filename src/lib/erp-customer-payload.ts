@@ -20,6 +20,7 @@ export function buildPreRegistrationPayload(c: PreRegistrationCustomer) {
   };
   return {
     tipo: "pre_cadastro",
+    idempotency_key: preRegistrationKey(c.id),
     id: c.id,
     name: c.name,
     cnpj_cpf: c.cnpj_cpf,
@@ -34,15 +35,25 @@ export function buildPreRegistrationPayload(c: PreRegistrationCustomer) {
   };
 }
 
+/** Chave estável por cliente: reenvios do mesmo pré-cadastro repetem a mesma chave. */
+export const preRegistrationKey = (customerId: string) => `pre-cadastro-${customerId}`;
+export const ERP_PRE_REGISTRATION_TIMEOUT_MS = 15000;
+
 export async function postPreRegistration(
   url: string,
   token: string | undefined,
   c: PreRegistrationCustomer,
   fetchImpl: typeof fetch = fetch,
+  timeoutMs = ERP_PRE_REGISTRATION_TIMEOUT_MS,
 ) {
   const res = await fetchImpl(url, {
     method: "POST",
-    headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
+    signal: AbortSignal.timeout(timeoutMs),
+    headers: {
+      "content-type": "application/json",
+      "idempotency-key": preRegistrationKey(c.id),
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(buildPreRegistrationPayload(c)),
   });
   return res.ok;
