@@ -35,9 +35,9 @@ export const Route = createFileRoute("/_authenticated/pedidos/")({
   head: () => ({
     meta: [
       { title: "Pedidos — Dcalice" },
-      { name: "description", content: "Pedidos da sua carteira nos últimos 12 meses, com status, origem e sincronização com o ERP." },
+      { name: "description", content: "Pedidos da sua carteira nos últimos 12 meses, com status e sincronização com o ERP." },
       { property: "og:title", content: "Pedidos — Dcalice" },
-      { property: "og:description", content: "Pedidos da sua carteira nos últimos 12 meses, com status, origem e sincronização com o ERP." },
+      { property: "og:description", content: "Pedidos da sua carteira nos últimos 12 meses, com status e sincronização com o ERP." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -218,17 +218,6 @@ function OrdersPage() {
           <SelectContent>
             <SelectItem value="todos">Todos os status</SelectItem>
             {Object.entries(ORDER_STATUS_GROUPS).map(([k, g]) => <SelectItem key={k} value={k}>{g.label}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select
-          value={origin}
-          onValueChange={(v) => setFilters({ origem: v === "todas" ? undefined : v })}
-        >
-          <SelectTrigger className="h-11 text-base md:h-9 md:text-sm"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todas">Todas as origens</SelectItem>
-            <SelectItem value="vendedor">Vendedor</SelectItem>
-            <SelectItem value="ecommerce">E-commerce</SelectItem>
           </SelectContent>
         </Select>
         <Input type="date" aria-label="De" className="h-11 text-base md:h-9 md:text-sm" value={from} onChange={(e) => setFilters({ de: e.target.value || undefined })} />
