@@ -4,4 +4,4 @@
 - [x] Formas de pagamento
 - [x] Meta de faturamento em Metas mensais
 - [x] Análise do Dashboard se atualiza quando o faturamento muda
-- [ ] Numeração do pedido definida pelo ERP (mostrar número do ERP)
+- [x] Numeração do pedido definida pelo ERP (mostrar número do ERP)

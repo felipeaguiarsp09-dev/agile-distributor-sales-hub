@@ -12,6 +12,7 @@ import {
   daysAgo,
   ORIGIN_LABEL,
   orderNumber,
+  erpOrderNumber,
   orderNumberSearch,
   orderListSearch,
   escapeSearchTerm,
@@ -89,7 +90,7 @@ function OrdersPage() {
     queryFn: async () => {
       let query = supabase
         .from("orders")
-        .select("id, created_at, status, origin, total_amount, erp_sync_status, seller_id, customers!inner(name)", { count: "exact" })
+        .select("id, created_at, status, origin, total_amount, erp_sync_status, erp_order_id, seller_id, customers!inner(name)", { count: "exact" })
         .gte("created_at", historyWindow.from)
         .lte("created_at", historyWindow.to)
         .order("created_at", { ascending: false });
@@ -269,7 +270,7 @@ function OrdersPage() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">{o.customers?.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {orderNumber(o.id)} · {new Date(o.created_at).toLocaleDateString("pt-BR")} · {ORIGIN_LABEL[o.origin]}
+                        <span className="font-medium text-foreground">{erpOrderNumber(o.erp_order_id)}</span> · Ref. interna {orderNumber(o.id)} · {new Date(o.created_at).toLocaleDateString("pt-BR")} · {ORIGIN_LABEL[o.origin]}
                       </p>
                     </div>
                     <Badge variant="outline" className="hidden sm:inline-flex">{ERP_STATUS_LABEL[o.erp_sync_status]}</Badge>

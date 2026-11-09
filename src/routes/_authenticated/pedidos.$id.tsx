@@ -6,7 +6,7 @@ import { ArrowLeft, Check, Copy, Pencil, RefreshCw, Sparkles, X } from "lucide-r
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { canCreateOrder, ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber, orderListSearch } from "@/lib/orders";
+import { canCreateOrder, ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber, erpOrderNumber, orderListSearch } from "@/lib/orders";
 import { pushOrderToErp } from "@/lib/orders.functions";
 import { PAYMENT_METHOD_LABEL, type PaymentMethod } from "@/lib/payment-methods";
 import { ErrorState, RowsSkeleton, brl } from "@/components/shared";
@@ -145,7 +145,8 @@ function OrderDetail() {
       </Link>
       <div className="mb-6 flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-sm text-muted-foreground">Pedido {orderNumber(o.id)} · {ORIGIN_LABEL[o.origin]}</p>
+          <p className="text-sm font-medium">{erpOrderNumber(o.erp_order_id)}</p>
+          <p className="text-xs text-muted-foreground">Ref. interna {orderNumber(o.id)} · {ORIGIN_LABEL[o.origin]}</p>
           <h1 className="text-2xl font-bold sm:text-3xl">
             {o.customers ? <Link to="/clientes/$id" params={{ id: o.customers.id }} className="hover:underline">{o.customers.name}</Link> : "Cliente"}
           </h1>
@@ -215,7 +216,6 @@ function OrderDetail() {
           <section className={`rounded-lg border bg-card p-5 ${o.erp_sync_status === "erro" ? "border-destructive" : ""}`}>
             <h2 className="mb-2 font-semibold">ERP</h2>
             <Badge variant={o.erp_sync_status === "erro" ? "destructive" : "outline"}>{ERP_STATUS_LABEL[o.erp_sync_status]}</Badge>
-            {o.erp_order_id && <p className="mt-2 text-sm">Nº no ERP: {o.erp_order_id}</p>}
             {canPush && (
               <Button className="mt-3 w-full" size="sm" variant="outline" disabled={busy} onClick={push}>
                 <RefreshCw className="h-4 w-4" /> {o.erp_sync_status === "erro" ? "Reenviar ao ERP" : "Enviar ao ERP"}
