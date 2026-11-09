@@ -26,7 +26,9 @@ export const Route = createFileRoute("/_authenticated/fluxo-de-vendas")({
   component: SalesFlowPage,
 });
 
-const FLOW = ["rascunho", "aguardando_aprovacao", "aprovado", "faturado", "recusado", "cancelado"];
+const FLOW = ["em_aberto", "faturado", "entregue", "recusado", "cancelado"];
+const OPEN_STATUSES = new Set(["rascunho", "aguardando_aprovacao", "aprovado"]);
+const FLOW_LABEL: Record<string, string> = { em_aberto: "Em aberto" };
 type Row = { status: string; seller_id: string | null; seller_name: string; region: string; orders_count: number; total_amount: number };
 
 function range(p: string): { p_from?: string } {
@@ -88,7 +90,8 @@ function SalesFlowPage() {
   const byStatus = useMemo(() => {
     const m = new Map<string, { count: number; total: number; groups: Map<string, { count: number; total: number }> }>();
     for (const r of flow.data ?? []) {
-      const s = m.get(r.status) ?? { count: 0, total: 0, groups: new Map() };
+      const status = OPEN_STATUSES.has(r.status) ? "em_aberto" : r.status;
+      const s = m.get(status) ?? { count: 0, total: 0, groups: new Map() };
       s.count += r.orders_count;
       s.total += r.total_amount;
       const key = group === "seller" ? r.seller_name : r.region;
@@ -96,7 +99,7 @@ function SalesFlowPage() {
       g.count += r.orders_count;
       g.total += r.total_amount;
       s.groups.set(key, g);
-      m.set(r.status, s);
+      m.set(status, s);
     }
     return m;
   }, [flow.data, group]);
@@ -184,7 +187,7 @@ function SalesFlowPage() {
             return (
               <section key={s} className="rounded-lg border bg-card p-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <h3 className="flex-1 font-semibold">{ORDER_STATUS_LABEL[s]}</h3>
+                  <h3 className="flex-1 font-semibold">{FLOW_LABEL[s] ?? ORDER_STATUS_LABEL[s] ?? s}</h3>
                   <Badge variant={s === "recusado" || s === "cancelado" ? "destructive" : "secondary"}>{col?.count ?? 0}</Badge>
                 </div>
                 <p className="mb-3 text-lg font-semibold tabular-nums">{brl(col?.total ?? 0)}</p>
