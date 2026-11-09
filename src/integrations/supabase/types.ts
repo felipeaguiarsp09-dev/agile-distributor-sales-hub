@@ -981,6 +981,7 @@ export type Database = {
         Args: { p_period: string; p_seller_id: string }
         Returns: Json
       }
+      get_stock_sync_status: { Args: never; Returns: string }
       get_unserved_customers: {
         Args: { p_period: string; p_seller_id: string }
         Returns: Json
