@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { subscribeDashboardOrders } from "@/lib/dashboard-realtime";
-import { currentPeriod, insightScope, lastPeriods, lastUpdatedLabel, progressPct, unmetTargets } from "@/lib/indicators";
+import { currentPeriod, dailyVisitTarget, insightScope, lastPeriods, lastUpdatedLabel, progressPct, unmetTargets } from "@/lib/indicators";
 import { generateIndicatorInsight, getDashboardIndicators, getUnservedCustomers } from "@/lib/indicators.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { ErrorState, NoAccess, brl } from "@/components/shared";
@@ -119,7 +119,8 @@ function IndicatorsPage() {
 
   const d = ind.data;
   const empty = d && d.meta === 0 && d.pedidos_count === 0;
-  const pct = d ? progressPct(d.meta, d.vendas_mes) : 0;
+  const billed = d ? Number(d.faturado_mes ?? 0) : 0;
+  const pct = d ? progressPct(d.meta, billed) : 0;
   const unmet = unmetTargets(d);
   const anyTarget = !!d && (d.meta > 0 || d.meta_clientes != null || d.meta_visitas != null);
   const unmetCount = [unmet.sales, unmet.customers, unmet.visits].filter((x) => x != null).length;
@@ -171,44 +172,45 @@ function IndicatorsPage() {
         <ErrorState message="Não foi possível carregar os indicadores" onRetry={() => ind.refetch()} />
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Kpi label="Meta" value={d && d.meta > 0 ? brl(d.meta) : null} loading={indicatorsLoading} />
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
             <Kpi
-              label="Vendas do mês"
-              value={d && !empty ? brl(d.vendas_mes) : null}
-              hint={d && d.meta > 0 ? (unmet.sales != null ? `Faltam ${brl(unmet.sales)} para a meta · ${pct}% atingido` : "Meta atingida") : d && d.pedidos_count ? `${d.pedidos_count} pedido(s) aprovado(s)/faturado(s)` : undefined}
+              label="Meta × faturado"
+              value={d && d.meta > 0 ? `${brl(billed)} de ${brl(d.meta)}` : null}
+              hint={d && d.meta > 0 ? (unmet.sales != null ? `Faltam ${brl(unmet.sales)} · ${pct}% atingido` : `Meta batida · ${pct}%`) : "Meta não definida"}
               attention={unmet.sales != null}
+              met={!!d && d.meta > 0 && unmet.sales == null}
               loading={indicatorsLoading}
             />
-            <Kpi label="Ticket médio" value={d && d.pedidos_count > 0 ? brl(d.ticket_medio) : null} loading={indicatorsLoading} />
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-5">
-            <Kpi label="Clientes atendidos" value={d ? String(d.clientes_atendidos) : null} hint="Com visita ou pedido no mês" loading={indicatorsLoading} />
-            <Kpi label="Clientes ativados" value={d ? String(d.clientes_ativados ?? 0) : null} hint="Primeira compra no mês" loading={indicatorsLoading} />
             <Kpi
-              label="Clientes positivados"
-              value={d ? String(d.clientes_positivados ?? 0) : null}
-              hint={d?.meta_clientes != null ? (unmet.customers != null ? `Faltam ${unmet.customers} para a meta · ${progressPct(d.meta_clientes, d.clientes_positivados ?? 0)}% atingido` : "Meta mensal atingida") : "Compraram no mês"}
+              label="Positivação / venda"
+              value={d ? `${d.clientes_positivados ?? 0} clientes · ${brl(d.vendas_mes)}` : null}
+              hint={d?.meta_clientes != null ? (unmet.customers != null ? `Faltam ${unmet.customers} clientes · ${progressPct(d.meta_clientes, d.clientes_positivados ?? 0)}% da meta` : "Meta de clientes batida") : "Clientes que compraram no mês"}
               attention={unmet.customers != null}
+              met={d?.meta_clientes != null && unmet.customers == null}
               loading={indicatorsLoading}
             />
-            <Kpi label="Clientes a positivar" value={d?.clientes_a_atender != null ? String(d.clientes_a_atender) : null} hint="Toque para ver os clientes da carteira sem pedido no mês" loading={indicatorsLoading} onClick={() => setUnservedOpen(true)} />
+            <Kpi label="Valor" value={d ? brl(d.vendas_mes) : null} hint={d ? `${d.pedidos_count} pedido(s) · faturado ${brl(billed)}` : undefined} loading={indicatorsLoading} />
             <Kpi
-              label="Visitas realizadas"
+              label="Visitas"
               value={d ? String(d.visitas_realizadas) : null}
-              hint={d?.meta_visitas != null ? (unmet.visits != null ? `Faltam ${unmet.visits} visitas para a meta · ${progressPct(d.meta_visitas, d.visitas_realizadas)}% atingido` : "Meta mensal atingida") : "Meta de visitas não definida"}
+              hint={d?.meta_visitas != null ? `Meta ${d.meta_visitas} ÷ 30 = ${dailyVisitTarget(d.meta_visitas) ?? 0} por dia${unmet.visits != null ? ` · faltam ${unmet.visits}` : " · meta batida"}` : "Meta de visitas não definida"}
               attention={unmet.visits != null}
+              met={d?.meta_visitas != null && unmet.visits == null}
               loading={indicatorsLoading}
             />
+            <Kpi label="Clientes novos" value={d ? String(d.clientes_ativados ?? 0) : null} hint="Primeira compra no mês" loading={indicatorsLoading} />
+            <Kpi label="Devolução" value={d ? brl(d.devolucao ?? 0) : null} hint="Informada pelo ERP" loading={indicatorsLoading} />
+          </div>
+          <div className="mt-4">
+            <Kpi label="Clientes a positivar" value={d?.clientes_a_atender != null ? String(d.clientes_a_atender) : null} hint="Toque para ver os clientes da carteira sem pedido no mês" loading={indicatorsLoading} onClick={() => setUnservedOpen(true)} />
           </div>
 
           {!indicatorsLoading && d && unmetCount > 0 && (
             <div className="mt-4 flex flex-wrap items-center gap-2 rounded-lg border bg-card p-4">
               <span className="text-sm font-semibold">Metas não atingidas em {periodLabel(period)}:</span>
-              {unmet.sales != null && <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Faltam {brl(unmet.sales)} em vendas</span>}
-              {unmet.customers != null && <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Faltam {unmet.customers} clientes</span>}
-              {unmet.visits != null && <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">Faltam {unmet.visits} visitas</span>}
+              {unmet.sales != null && <span className="rounded-full bg-danger px-3 py-1 text-xs font-semibold text-danger-foreground">Faltam {brl(unmet.sales)} em faturamento</span>}
+              {unmet.customers != null && <span className="rounded-full bg-danger px-3 py-1 text-xs font-semibold text-danger-foreground">Faltam {unmet.customers} clientes</span>}
+              {unmet.visits != null && <span className="rounded-full bg-danger px-3 py-1 text-xs font-semibold text-danger-foreground">Faltam {unmet.visits} visitas</span>}
             </div>
           )}
           {!indicatorsLoading && d && unmetCount === 0 && anyTarget && (
@@ -216,20 +218,20 @@ function IndicatorsPage() {
           )}
           <section className="mt-6 border-t pt-5">
             <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="font-semibold">Meta × venda do mês</span>
+              <span className="font-semibold">Meta × realizado (faturado)</span>
               <span className="tabular-nums text-muted-foreground">{d && d.meta > 0 ? `${pct}%` : "Sem meta no período"}</span>
             </div>
             {indicatorsLoading ? <Skeleton className="mx-auto h-48 w-48 rounded-full" /> : (
               <div className="relative mx-auto h-52 w-52">
                 <PieChart width={208} height={208}>
                   <Pie data={[{ v: Math.min(pct, 100) }, { v: Math.max(100 - pct, 0) }]} dataKey="v" innerRadius={70} outerRadius={95} startAngle={90} endAngle={-270} stroke="none" isAnimationActive={false}>
-                    <Cell fill="var(--primary)" />
+                    <Cell fill={d && d.meta > 0 && pct >= 100 ? "var(--success)" : "var(--danger)"} />
                     <Cell fill="var(--muted)" />
                   </Pie>
                 </PieChart>
                 <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
                   <span className="text-2xl font-bold tabular-nums">{d && d.meta > 0 ? `${pct}%` : "—"}</span>
-                  <span className="text-xs text-muted-foreground">{d ? brl(d.vendas_mes) : ""}</span>
+                  <span className="text-xs text-muted-foreground">{d ? brl(billed) : ""}</span>
                   {d && d.meta > 0 && <span className="text-xs text-muted-foreground">de {brl(d.meta)}</span>}
                 </div>
               </div>
@@ -250,6 +252,9 @@ function IndicatorsPage() {
             ) : (
               <p className="py-10 text-center text-sm text-muted-foreground">Sem dados para o período</p>
             )}
+            <div className="mt-6">
+              <Kpi label="Ticket médio" value={d && d.pedidos_count > 0 ? brl(d.ticket_medio) : null} loading={indicatorsLoading} />
+            </div>
           </section>
         </>
       )}
@@ -291,13 +296,14 @@ function IndicatorsPage() {
   );
 }
 
-function Kpi({ label, value, hint, loading, attention, onClick }: { label: string; value: string | null; hint?: string | undefined; loading: boolean; attention?: boolean; onClick?: () => void }) {
-  const className = (attention && !loading ? "rounded-lg border bg-card p-5 ring-1 ring-primary/50" : "rounded-lg border bg-card p-5") + (onClick ? " w-full cursor-pointer text-left transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" : "");
+function Kpi({ label, value, hint, loading, attention, met, onClick }: { label: string; value: string | null; hint?: string | undefined; loading: boolean; attention?: boolean; met?: boolean; onClick?: () => void }) {
+  const className = (attention && !loading ? "rounded-lg border border-danger bg-card p-5 ring-1 ring-danger/40" : met && !loading ? "rounded-lg border border-success bg-card p-5 ring-1 ring-success/40" : "rounded-lg border bg-card p-5") + (onClick ? " w-full cursor-pointer text-left transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" : "");
   const body = (
     <>
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm text-muted-foreground">{label}</p>
-        {attention && !loading && <span className="whitespace-nowrap rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">Meta não atingida</span>}
+        {attention && !loading && <span className="whitespace-nowrap rounded-full bg-danger px-2 py-0.5 text-[11px] font-semibold text-danger-foreground">Meta não batida</span>}
+        {met && !attention && !loading && <span className="whitespace-nowrap rounded-full bg-success px-2 py-0.5 text-[11px] font-semibold text-success-foreground">Meta batida</span>}
       </div>
       {loading ? <Skeleton className="mt-2 h-8 w-32" /> : value ? <p className="mt-1 text-2xl font-bold tabular-nums">{value}</p> : <p className="mt-2 text-sm text-muted-foreground">Sem dados para o período</p>}
       {hint && !loading && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
