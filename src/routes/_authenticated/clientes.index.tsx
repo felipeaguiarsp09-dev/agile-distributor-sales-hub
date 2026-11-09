@@ -5,7 +5,7 @@ import { Plus, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/ModulePage";
-import { CreditBadge, EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
+import { ActiveBadge, CreditBadge, EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ function CustomersPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("customers")
-        .select("id, name, cnpj_cpf, phone, credit_limit, credit_status, external_id")
+        .select("id, name, cnpj_cpf, phone, credit_limit, credit_status, is_active, external_id")
         .order("name");
       if (error) throw error;
       return data;
@@ -47,7 +47,7 @@ function CustomersPage() {
   const digits = term.replace(/\D/g, "");
   const rows = (list.data ?? []).filter(
     (c) =>
-      (status === "todos" || c.credit_status === status) &&
+      (status === "todos" || (status === "ativo" ? c.is_active : status === "inativo" ? !c.is_active : status === "ok" ? c.credit_status === "ok" : c.credit_status !== "ok")) &&
       (!term || c.name.toLowerCase().includes(term) || (digits && (c.cnpj_cpf ?? "").replace(/\D/g, "").includes(digits))),
   );
 
@@ -109,6 +109,7 @@ function CustomersPage() {
                 {c.external_id && <Badge variant="outline">ERP {c.external_id}</Badge>}
                 <span className="text-sm tabular-nums">{brl(c.credit_limit)}</span>
                 <CreditBadge status={c.credit_status} />
+                <ActiveBadge active={c.is_active} />
               </Link>
             </li>
           ))}

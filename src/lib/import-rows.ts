@@ -34,6 +34,7 @@ export type CustomerRow = {
   address: Record<string, string>;
   credit_limit: number;
   credit_status: "ok" | "restrito" | "bloqueado";
+  is_active: boolean;
   seller_name: string;
 };
 
@@ -44,8 +45,12 @@ export function toCustomer(r: Record<string, string>, row: number): CustomerRow 
   if (doc && !validDocument(doc)) return { row, error: "cnpj_cpf inválido" };
   const limit = parseMoney(pick(r, "credit_limit", "limite", "limite_de_credito", "limite_credito"));
   if (limit === null || limit < 0) return { row, error: "limite de crédito inválido" };
-  const status = (pick(r, "credit_status", "situacao", "situacao_credito") || "ok").toLowerCase();
+  const rawStatus = (pick(r, "credit_status", "situacao", "situacao_credito") || "ok").toLowerCase();
+  const status = rawStatus === "liberado" ? "ok" : rawStatus;
   if (!["ok", "restrito", "bloqueado"].includes(status)) return { row, error: "situação de crédito inválida" };
+  const rawActive = (pick(r, "is_active", "ativo", "status_cliente", "status") || "ativo").toLowerCase();
+  if (!["ativo", "inativo", "sim", "nao", "não", "true", "false", "1", "0"].includes(rawActive)) return { row, error: "status ativo/inativo inválido" };
+  const is_active = ["ativo", "sim", "true", "1"].includes(rawActive);
   const address: Record<string, string> = {};
   for (const [key, ...alts] of [
     ["street", "endereco", "logradouro"],
@@ -65,6 +70,7 @@ export function toCustomer(r: Record<string, string>, row: number): CustomerRow 
     address,
     credit_limit: limit,
     credit_status: status as CustomerRow["credit_status"],
+    is_active,
     seller_name: pick(r, "vendedor", "seller", "owner"),
   };
 }
