@@ -152,14 +152,10 @@ export const pushOrderToErp = createServerFn({ method: "POST" })
     let erpId: string | null = null;
     try {
       const token = erpCreds.api_key || process.env["ERP_API_KEY"];
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify(order),
-      });
-      if (res.ok) {
-        const body = (await res.json().catch(() => ({}))) as { erp_order_id?: string; id?: string };
-        erpId = body.erp_order_id ?? body.id ?? null;
+      const { postOrderToErp } = await import("./erp-order");
+      const r = await postOrderToErp(endpoint, token, order);
+      if (r.ok) {
+        erpId = r.erpId;
         status = "sincronizado";
       }
     } catch (e) {
