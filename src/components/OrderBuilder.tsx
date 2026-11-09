@@ -30,6 +30,33 @@ import {
   type HistoryOrder,
 } from "@/lib/orders";
 import { dateInDays, isQuoteExpired } from "@/lib/quotes";
+import { isStockStale } from "@/lib/stock-sync";
+
+function StockSyncNotice() {
+  const sync = useQuery({
+    queryKey: ["stock-sync-status"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_stock_sync_status");
+      if (error) throw error;
+      return (data as string | null) ?? null;
+    },
+    refetchInterval: 5 * 60 * 1000,
+  });
+  if (sync.isLoading || sync.isError) return null;
+  const last = sync.data ?? null;
+  const label = last ? new Date(last).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : null;
+  if (isStockStale(last)) {
+    return (
+      <Alert className="mb-3">
+        <AlertTitle>Saldo de estoque desatualizado</AlertTitle>
+        <AlertDescription>
+          {label ? `Última sincronização com o ERP em ${label}.` : "O estoque ainda não foi sincronizado com o ERP."} As quantidades podem não refletir o saldo real; a disponibilidade é conferida ao confirmar o pedido.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+  return <p className="mb-3 text-xs text-muted-foreground">Estoque sincronizado com o ERP em {label}</p>;
+}
 import { submitOrder, suggestProducts, validateOrderStock } from "@/lib/orders.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { CreditBadge, ErrorState, NoAccess, RowsSkeleton, brl } from "@/components/shared";
@@ -792,6 +819,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
 
           <section className="border-b pb-5">
             <h2 className="mb-3 font-semibold">Catálogo</h2>
+            <StockSyncNotice />
             <div className="mb-3 flex flex-col gap-2 sm:flex-row max-lg:sticky max-lg:top-[60px] max-lg:z-[5] max-lg:-mx-4 max-lg:px-4 max-lg:py-2 max-lg:bg-background">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
