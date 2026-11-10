@@ -169,6 +169,13 @@
       "when": 1794256430025,
       "tag": "0023_agenda_block_delete_after_check_in",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794312061872,
+      "tag": "0024_erp_payment_methods",
+      "breakpoints": true
     }
   ]
 }

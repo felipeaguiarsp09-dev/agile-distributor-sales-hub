@@ -621,6 +621,47 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_methods: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          organization_id: string
+          requires_days: boolean
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          organization_id: string
+          requires_days?: boolean
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          organization_id?: string
+          requires_days?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_methods_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
