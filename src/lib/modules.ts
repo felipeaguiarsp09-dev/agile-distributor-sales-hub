@@ -1,4 +1,5 @@
 import {
+  CalendarDays,
   KanbanSquare,
   Package,
   ShoppingCart,
