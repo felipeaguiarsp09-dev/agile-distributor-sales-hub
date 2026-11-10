@@ -79,7 +79,7 @@ function ProductDetail() {
           <div>
             <div className="flex flex-wrap items-start gap-3">
               <h1 className="flex-1 text-2xl font-bold sm:text-3xl">{p.name}</h1>
-              {isAdmin && <Button variant="outline" onClick={() => setEditing(true)}><Pencil className="h-4 w-4" /> Editar</Button>}
+              
             </div>
             <p className="mt-1 text-sm text-muted-foreground">SKU {p.sku}{p.category ? ` · ${p.category}` : ""}</p>
             <div className="mt-2 flex flex-wrap gap-2">

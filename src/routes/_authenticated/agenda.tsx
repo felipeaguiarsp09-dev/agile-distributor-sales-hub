@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { redirect, createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarPlus, ChevronLeft, ChevronRight, Loader2, MapPin, RefreshCw, Trash2, X } from "lucide-react";
@@ -17,6 +17,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
+  // Oculto: o app só cria pedidos; cadastros e demais módulos ficam com o ERP.
+  beforeLoad: () => { throw redirect({ to: "/pedidos" }); },
   head: () => ({
     meta: [
       { title: "Agenda — Dcalice" },

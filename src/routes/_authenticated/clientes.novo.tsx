@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { redirect, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { sendCustomerToErp } from "@/lib/customers.functions";
 
 export const Route = createFileRoute("/_authenticated/clientes/novo")({
+  // Oculto: o app só cria pedidos; cadastros e demais módulos ficam com o ERP.
+  beforeLoad: () => { throw redirect({ to: "/pedidos" }); },
   head: () => ({
     meta: [
       { title: "Novo cliente — Dcalice" },

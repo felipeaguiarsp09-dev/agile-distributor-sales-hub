@@ -119,7 +119,7 @@ function CustomerDetail() {
         )}
         {isAdmin && !editing && (
           <>
-            <Button variant="outline" onClick={() => setEditing(true)}><Pencil className="h-4 w-4" /> Editar</Button>
+            
             <Button variant="ghost" onClick={remove} aria-label="Excluir"><Trash2 className="h-4 w-4" /></Button>
           </>
         )}

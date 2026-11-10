@@ -25,6 +25,6 @@ describe("menu por papel", () => {
     expect(modulesForRole("cliente").some(m => m.to === "/metas")).toBe(false);
   });
   it("equipe interna vai para /indicadores", () => {
-    expect(homeForRole("supervisor")).toBe("/indicadores");
+    expect(homeForRole("supervisor")).toBe("/pedidos");
   });
 });

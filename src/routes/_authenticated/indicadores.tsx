@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { redirect, createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
@@ -23,6 +23,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 const DESC = "Vendas, atendimento de clientes, metas e visitas realizadas.";
 
 export const Route = createFileRoute("/_authenticated/indicadores")({
+  // Oculto: o app só cria pedidos; cadastros e demais módulos ficam com o ERP.
+  beforeLoad: () => { throw redirect({ to: "/pedidos" }); },
   head: () => ({
     meta: [
       { title: "Dashboard — Dcalice" },

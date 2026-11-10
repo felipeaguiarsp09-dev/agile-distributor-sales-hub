@@ -14,8 +14,8 @@ export const ROLE_LABEL: Record<Role, string> = {
 };
 
 /** Página inicial de cada papel após o login (docs/PAGINAS.md → /login). */
-export function homeForRole(_role?: string | null): "/indicadores" {
-  return "/indicadores";
+export function homeForRole(_role?: string | null): "/pedidos" {
+  return "/pedidos";
 }
 
 type AuthState = {
