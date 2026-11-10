@@ -34,8 +34,8 @@ function NavList({ onNavigate }: { onNavigate?: (() => void) | undefined }) {
           key={m.to}
           to={m.to}
           onClick={onNavigate}
-          className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          activeProps={{ className: "bg-sidebar-accent text-sidebar-primary" }}
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          activeProps={{ className: "!bg-sidebar-primary !text-sidebar-primary-foreground shadow-sm" }}
         >
           <m.icon className="h-4 w-4" />
           {m.label}
@@ -78,8 +78,8 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
               key={a.to}
               to={a.to}
               onClick={onNavigate}
-              className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              activeProps={{ className: "bg-sidebar-accent text-sidebar-primary" }}
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              activeProps={{ className: "!bg-sidebar-primary !text-sidebar-primary-foreground shadow-sm" }}
             >
               <a.icon className="h-4 w-4" /> {a.label}
             </Link>
@@ -87,8 +87,8 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
         <Link
           to="/configuracoes"
           onClick={onNavigate}
-          className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          activeProps={{ className: "bg-sidebar-accent text-sidebar-primary" }}
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          activeProps={{ className: "!bg-sidebar-primary !text-sidebar-primary-foreground shadow-sm" }}
         >
           <Settings className="h-4 w-4" /> Configurações
         </Link>
@@ -98,7 +98,7 @@ function SidebarBody({ onNavigate }: { onNavigate?: (() => void) | undefined }) 
             {profile ? ROLE_LABEL[profile.role as Role] : ""} · {organizationName}
           </p>
         </div>
-        <SignOutButton className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
+        <SignOutButton className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
       </div>
     </div>
   );
@@ -172,7 +172,7 @@ function AppShell() {
         <header className={`sticky top-0 z-10 flex transition-transform lg:hidden duration-200 ${headerHidden ? "-translate-y-full" : "translate-y-0"}`}
           data-hidden={headerHidden}
         >
-          <div className="flex w-full items-center gap-3 border-b bg-background/90 px-4 py-3 backdrop-blur lg:hidden">
+          <div className="flex w-full items-center gap-3 border-b bg-card/85 px-3 py-2.5 shadow-sm backdrop-blur-md lg:hidden">
           <Button variant="ghost" size="icon" onClick={() => setOpen(true)} aria-label="Abrir menu">
             <Menu className="h-5 w-5" />
           </Button>
@@ -180,10 +180,32 @@ function AppShell() {
           <SignOutButton className="ml-auto inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent" />
           </div>
         </header>
-        <main className="flex-1 px-4 py-6 sm:px-8 sm:py-8">
+        <main className="flex-1 px-4 pb-24 pt-5 sm:px-8 sm:py-8 lg:pb-8">
           <Outlet />
         </main>
+        <BottomNav />
       </div>
     </div>
+  );
+}
+
+/** Barra inferior para uso em campo no celular (atalhos aos módulos principais). */
+function BottomNav() {
+  const { profile } = useAuth();
+  const items = modulesForRole(profile?.role).slice(0, 4);
+  if (!items.length) return null;
+  return (
+    <nav aria-label="Atalhos" className="fixed inset-x-0 bottom-0 z-20 border-t bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-card backdrop-blur-md lg:hidden">
+      <div className="mx-auto grid max-w-md" style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}>
+        {items.map((m) => (
+          <Link key={m.to} to={m.to}
+            className="flex min-w-0 flex-col items-center gap-1 px-1 py-2 text-[11px] font-medium text-muted-foreground transition-colors"
+            activeProps={{ className: "!text-primary" }}>
+            <m.icon className="h-5 w-5 shrink-0" />
+            <span className="w-full truncate text-center">{m.label}</span>
+          </Link>
+        ))}
+      </div>
+    </nav>
   );
 }
