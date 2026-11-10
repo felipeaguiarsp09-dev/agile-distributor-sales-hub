@@ -63,7 +63,7 @@ const script = (...rs: Array<() => Response | Promise<Response>>) => {
 const urls = (f: ReturnType<typeof vi.fn>) => f.mock.calls.map((c) => (c as unknown as [string])[0]);
 
 it("pedido já existente no Tiny não é enviado de novo", async () => {
-  const f = script(found(77));
+  const f = script(() => found(77));
   expect(await sendOrderToTiny("t", order, f)).toEqual({ status: "ja_existia", erpId: "77" });
   expect(urls(f)).toEqual([TINY_SEARCH_URL]);
 });
@@ -81,7 +81,7 @@ it("pedido novo é enviado uma vez e recebe o número do Tiny", async () => {
 });
 
 it("tempo esgotado no envio: confere e aceita se o Tiny gravou", async () => {
-  const f = script(notFound, () => { throw new Error("timeout"); }, found(88));
+  const f = script(notFound, () => { throw new Error("timeout"); }, () => found(88));
   expect(await sendOrderToTiny("t", order, f)).toEqual({ status: "ja_existia", erpId: "88" });
 });
 
@@ -91,17 +91,17 @@ it("tempo esgotado e pedido não encontrado vira erro para tentar depois", async
 });
 
 it("resposta ilegível no envio é conferida antes de decidir", async () => {
-  const f = script(notFound, () => new Response("<html>502</html>"), found(90));
+  const f = script(notFound, () => new Response("<html>502</html>"), () => found(90));
   expect(await sendOrderToTiny("t", order, f)).toEqual({ status: "ja_existia", erpId: "90" });
 });
 
 it("duplicidade só conta como enviado se o pedido for encontrado", async () => {
-  expect(await sendOrderToTiny("t", order, script(notFound, dup, found(5)))).toEqual({ status: "ja_existia", erpId: "5" });
+  expect(await sendOrderToTiny("t", order, script(notFound, dup, () => found(5)))).toEqual({ status: "ja_existia", erpId: "5" });
   expect((await sendOrderToTiny("t", order, script(notFound, dup, notFound))).status).toBe("erro");
 });
 
 it("Tiny aceitando reenvio sem recusar: a consulta prévia impede o segundo pedido", async () => {
-  const f = script(notFound, created, found(1234));
+  const f = script(notFound, created, () => found(1234));
   await sendOrderToTiny("t", order, f);
   await sendOrderToTiny("t", order, f);
   expect(urls(f).filter((u) => u === TINY_ORDER_URL)).toHaveLength(1);
