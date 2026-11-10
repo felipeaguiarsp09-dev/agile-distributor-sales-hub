@@ -21,6 +21,8 @@ export const importErpData = createServerFn({ method: "POST" })
     if (!job || job.organization_id !== me.organization_id) throw new Error("Importação não encontrada");
     if (!["customers", "products", "orders", "payment_methods"].includes(job.entity_type)) throw new Error("Tipo de importação inválido");
     const org = me.organization_id;
+    // Gravações de cadastros do ERP usam a conta de serviço: o banco bloqueia alterações locais.
+    const { supabaseAdmin: erp } = await import("@/integrations/supabase/client.server");
 
     const errors: RowError[] = [];
     let imported = 0;
@@ -62,13 +64,13 @@ export const importErpData = createServerFn({ method: "POST" })
           const record = { ...fields, organization_id: org, owner_id: owner };
           const existingId = r.external_id ? idByExt.get(r.external_id) : undefined;
           if (existingId) {
-            const { error } = await sb.from("customers").update(record).eq("id", existingId);
+            const { error } = await erp.from("customers").update(record).eq("id", existingId);
             if (error) errors.push({ row: i + 2, error: error.message }); else { imported++; await progress(); }
           } else inserts.push({ row: i + 2, record });
         }
         for (let i = 0; i < inserts.length; i += 500) {
           const chunk = inserts.slice(i, i + 500);
-          const { error } = await sb.from("customers").insert(chunk.map((c) => c.record));
+          const { error } = await erp.from("customers").insert(chunk.map((c) => c.record));
           if (error) chunk.forEach((c) => errors.push({ row: c.row, error: error.message }));
           else imported += chunk.length;
           await progress(true);
@@ -78,7 +80,7 @@ export const importErpData = createServerFn({ method: "POST" })
         for (let i = 0; i < rows.length; i++) {
           const r = toPaymentMethod(rows[i]!, i + 2);
           if (isRowError(r)) { errors.push(r); continue; }
-          const { error } = await sb.from("payment_methods").upsert({ ...r, organization_id: org, updated_at: new Date().toISOString() }, { onConflict: "organization_id,code" });
+          const { error } = await erp.from("payment_methods").upsert({ ...r, organization_id: org, updated_at: new Date().toISOString() }, { onConflict: "organization_id,code" });
           if (error) errors.push({ row: i + 2, error: error.message }); else { imported++; await progress(); }
         }
       } else if (job.entity_type === "products") {
@@ -92,13 +94,13 @@ export const importErpData = createServerFn({ method: "POST" })
           const record = { ...r, organization_id: org };
           const existingId = (r.external_id && idByExt.get(r.external_id)) || idBySku.get(r.sku);
           if (existingId) {
-            const { error } = await sb.from("products").update(record).eq("id", existingId);
+            const { error } = await erp.from("products").update(record).eq("id", existingId);
             if (error) errors.push({ row: i + 2, error: error.message }); else { imported++; await progress(); }
           } else inserts.push({ row: i + 2, record });
         }
         for (let i = 0; i < inserts.length; i += 500) {
           const chunk = inserts.slice(i, i + 500);
-          const { error } = await sb.from("products").insert(chunk.map((c) => c.record));
+          const { error } = await erp.from("products").insert(chunk.map((c) => c.record));
           if (error) chunk.forEach((c) => errors.push({ row: c.row, error: error.message }));
           else imported += chunk.length;
           await progress(true);
