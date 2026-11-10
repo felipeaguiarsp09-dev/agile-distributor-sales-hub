@@ -155,9 +155,10 @@ export const pushOrderToErp = createServerFn({ method: "POST" })
       let st: "sincronizado" | "erro" = "erro";
       let tinyId: string | null = null;
       try {
-        const { postOrderToTiny } = await import("./erp-tiny");
-        const r = await postOrderToTiny(tinyToken, full as never);
-        if (r.ok || r.duplicate) { st = "sincronizado"; tinyId = r.erpId; }
+        const { sendOrderToTiny } = await import("./erp-tiny");
+        const { data: pm } = await sb.from("payment_methods").select("name").eq("organization_id", order.organization_id).eq("code", order.payment_method ?? "").maybeSingle();
+        const r = await sendOrderToTiny(tinyToken, { ...(full as never as object), payment_method_name: pm?.name ?? null } as never);
+        if (r.status !== "erro") { st = "sincronizado"; tinyId = r.erpId; }
         else console.error("push-order-to-tiny", r.error);
       } catch (e) {
         console.error("push-order-to-tiny", e);
