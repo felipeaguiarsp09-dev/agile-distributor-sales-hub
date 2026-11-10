@@ -6,7 +6,7 @@ import { Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { syncErpStockNow } from "@/lib/admin.functions";
+import { syncErpStockNow, testTinyAccess } from "@/lib/admin.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { ErrorState, NoAccess, RowsSkeleton } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -67,6 +67,7 @@ function Page() {
         <ErrorState message="Não foi possível carregar as integrações" onRetry={() => configs.refetch()} />
       ) : (
         <div className="space-y-4">
+          <TinyAccessTest />
           {TYPES.map((t) => <IntegrationCard key={t.type} def={t} cfg={configs.data?.find((c) => c.integration_type === t.type)} orgId={profile!.organization_id} />)}
         </div>
       )}
@@ -165,5 +166,29 @@ function IntegrationCard({ def, cfg, orgId }: { def: (typeof TYPES)[number]; cfg
         )}
       </div>
     </section>
+  );
+}
+
+function TinyAccessTest() {
+  const fn = useServerFn(testTinyAccess);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  return (
+    <div className="rounded-lg border bg-card p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-medium">Teste de acesso ao Tiny</p>
+          <p className="text-sm text-muted-foreground">Só consulta os dados da conta. Não cria pedidos nem altera cadastros.</p>
+        </div>
+        <button type="button" disabled={busy} onClick={async () => {
+          setBusy(true);
+          try { setResult(await fn()); } catch (e: any) { setResult({ ok: false, message: e?.message ?? "Falha no teste" }); }
+          finally { setBusy(false); }
+        }} className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-60">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Testar acesso
+        </button>
+      </div>
+      {result && <p className={`mt-3 text-sm ${result.ok ? "text-foreground" : "text-destructive"}`}>{result.message}</p>}
+    </div>
   );
 }
