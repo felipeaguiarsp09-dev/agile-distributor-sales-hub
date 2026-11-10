@@ -12,7 +12,7 @@ export type TinyOrderSource = {
   notes?: string | null;
   payment_method_name?: string | null;
   customers?: { external_id?: string | null; name?: string | null; cnpj_cpf?: string | null } | null;
-  order_items?: Array<{ quantity: number; unit_price: number; products?: { sku?: string | null; name?: string | null } | null }>;
+  order_items?: Array<{ quantity: number; unit_price: number; products?: { sku?: string | null; name?: string | null; external_id?: string | null } | null }>;
 };
 
 // Códigos de forma_pagamento do Tiny. "dinheiro" e "credito" aparecem nos exemplos oficiais
@@ -56,6 +56,7 @@ export function buildTinyOrder(o: TinyOrderSource) {
       },
       itens: (o.order_items ?? []).map((i) => ({
         item: {
+          ...(i.products?.external_id ? { id_produto: String(i.products.external_id) } : {}),
           codigo: i.products?.sku ?? "",
           descricao: i.products?.name ?? "",
           unidade: "UN",
