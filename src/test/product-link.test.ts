@@ -13,3 +13,15 @@ describe("vínculo de produto pelo ID do ERP", () => {
     expect(o.pedido.itens[0]!.item).toMatchObject({ id_produto: "100", codigo: "S1" });
   });
 });
+
+describe("casos de ID ausente, desconhecido e conflitante", () => {
+  const find = productMatcher(prods);
+  const item = (external_id: string | null) => buildTinyOrder({ id: "x", created_at: "2026-01-01T12:00:00Z", order_items: [{ quantity: 1, unit_price: 2, products: { sku: "S2", name: "P", external_id } }] }).pedido.itens[0]!.item;
+  it("ID vazio usa o código", () => expect(find({ id_produto: "", codigo: "S2" })?.id).toBe("b"));
+  it("ID conflitante com o SKU: vale o ID", () => expect(find({ external_id: "100", sku: "S2" })?.id).toBe("a"));
+  it("ID desconhecido sem SKU: sem cadastro", () => expect(find({ id_produto: 555 })).toBeUndefined());
+  it("linha sem ID nem SKU: sem cadastro", () => expect(find({ estoque: 5 })).toBeUndefined());
+  it("produto sem ID não envia id_produto", () => expect(item(null)).not.toHaveProperty("id_produto"));
+  it("ID não numérico não envia id_produto", () => expect(item("ABC-1")).not.toHaveProperty("id_produto"));
+  it("ID com espaços é limpo", () => expect(item(" 42 ")).toMatchObject({ id_produto: "42", codigo: "S2" }));
+});
