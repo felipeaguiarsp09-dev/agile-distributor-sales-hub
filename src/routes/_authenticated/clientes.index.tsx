@@ -58,11 +58,6 @@ function CustomersPage() {
           title="Clientes"
           description={isAdmin ? "Todos os clientes da distribuidora." : profile?.role === "supervisor" ? "Clientes da sua equipe." : "Sua carteira de clientes."}
         />
-        {(isAdmin || profile?.role === "vendedor") && (
-          <Button asChild>
-            <Link to="/clientes/novo"><Plus className="h-4 w-4" /> Pré-cadastro</Link>
-          </Button>
-        )}
       </div>
 
       <div className="mb-4 flex flex-col gap-2 sm:flex-row">
