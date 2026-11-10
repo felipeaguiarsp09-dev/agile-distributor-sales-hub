@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCsv } from "./csv";
-import { isRowError, toCustomer, toOrderLine, toProduct, type OrderLineRow, type RowError } from "./import-rows";
+import { isRowError, toCustomer, toOrderLine, toPaymentMethod, toProduct, type OrderLineRow, type RowError } from "./import-rows";
 
 type Input = { import_job_id: string };
 
@@ -19,7 +19,7 @@ export const importErpData = createServerFn({ method: "POST" })
 
     const { data: job } = await sb.from("import_jobs").select("*").eq("id", data.import_job_id).single();
     if (!job || job.organization_id !== me.organization_id) throw new Error("Importação não encontrada");
-    if (!["customers", "products", "orders"].includes(job.entity_type)) throw new Error("Tipo de importação inválido");
+    if (!["customers", "products", "orders", "payment_methods"].includes(job.entity_type)) throw new Error("Tipo de importação inválido");
     const org = me.organization_id;
 
     const errors: RowError[] = [];
@@ -72,6 +72,14 @@ export const importErpData = createServerFn({ method: "POST" })
           if (error) chunk.forEach((c) => errors.push({ row: c.row, error: error.message }));
           else imported += chunk.length;
           await progress(true);
+        }
+      } else if (job.entity_type === "payment_methods") {
+        // Formas de pagamento vêm do ERP: upsert pelo código, sem apagar as usadas em pedidos antigos.
+        for (let i = 0; i < rows.length; i++) {
+          const r = toPaymentMethod(rows[i]!, i + 2);
+          if (isRowError(r)) { errors.push(r); continue; }
+          const { error } = await sb.from("payment_methods").upsert({ ...r, organization_id: org, updated_at: new Date().toISOString() }, { onConflict: "organization_id,code" });
+          if (error) errors.push({ row: i + 2, error: error.message }); else { imported++; await progress(); }
         }
       } else if (job.entity_type === "products") {
         const { data: existing } = await sb.from("products").select("id, external_id, sku").eq("organization_id", org);

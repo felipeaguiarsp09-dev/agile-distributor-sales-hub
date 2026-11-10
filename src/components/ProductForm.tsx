@@ -28,7 +28,7 @@ export function ProductForm({ initial, onSubmit, submitLabel }: { initial: Produ
       <F label="Categoria"><Input value={v.category ?? ""} onChange={(e) => set("category", e.target.value || null)} /></F>
       <F label="Descrição" className="sm:col-span-2"><Textarea value={v.description ?? ""} onChange={(e) => set("description", e.target.value || null)} /></F>
       <F label="Preço (R$)"><Input type="number" min={0} step="0.01" value={v.unit_price} onChange={(e) => set("unit_price", Number(e.target.value))} /></F>
-      <F label="Estoque (espelho do ERP)"><Input type="number" step="1" value={v.stock_quantity} onChange={(e) => set("stock_quantity", Math.trunc(Number(e.target.value)))} /></F>
+      <F label="Estoque (espelho do ERP)"><Input type="number" value={v.stock_quantity} readOnly disabled title="O estoque é atualizado somente pelo ERP" /></F>
       <F label="Endereço da imagem" className="sm:col-span-2"><Input type="url" placeholder="https://" value={v.image_url ?? ""} onChange={(e) => set("image_url", e.target.value || null)} /></F>
       <label className="flex items-center gap-3 text-sm"><Switch checked={v.is_ecommerce_visible} onCheckedChange={(c) => set("is_ecommerce_visible", c)} /> Visível no E-commerce</label>
       <label className="flex items-center gap-3 text-sm"><Switch checked={v.is_active} onCheckedChange={(c) => set("is_active", c)} /> Produto ativo</label>
