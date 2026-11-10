@@ -151,7 +151,7 @@ export const pushOrderToErp = createServerFn({ method: "POST" })
       if (erpCreds.send_enabled !== true) return { ok: false, message: "Envio ao Tiny desligado" };
       const tinyToken = process.env["TINY_API_TOKEN"];
       if (!tinyToken) return { ok: false, message: "Chave do Tiny não configurada" };
-      const { data: full } = await sb.from("orders").select("*, order_items(quantity, unit_price, products(sku, name)), customers(external_id, name, cnpj_cpf)").eq("id", order.id).single();
+      const { data: full } = await sb.from("orders").select("*, order_items(quantity, unit_price, products(sku, name, external_id)), customers(external_id, name, cnpj_cpf)").eq("id", order.id).single();
       let st: "sincronizado" | "erro" = "erro";
       let tinyId: string | null = null;
       try {

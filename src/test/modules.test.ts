@@ -30,13 +30,13 @@ describe("menu por papel", () => {
 });
 
 describe("app só de pedidos", () => {
-  it("vendedor vê Fluxo de Vendas, Pedidos, Clientes e Produtos", () => {
-    expect(modulesForRole("vendedor").map((m) => m.to)).toEqual(["/fluxo-de-vendas", "/pedidos", "/clientes", "/produtos"]);
+  it("vendedor vê Fluxo de Vendas, Pedidos, Clientes, Produtos e Agenda", () => {
+    expect(modulesForRole("vendedor").map((m) => m.to)).toEqual(["/fluxo-de-vendas", "/pedidos", "/clientes", "/produtos", "/agenda"]);
   });
-  it("menu não mostra Dashboard, Agenda nem Metas", () => {
+  it("menu não mostra Dashboard nem Metas", () => {
     const paths = modulesForRole("administrador").map((m) => m.to as string);
     expect(paths).not.toContain("/indicadores");
-    expect(paths).not.toContain("/agenda");
+    expect(paths).toContain("/agenda");
     expect(paths).not.toContain("/metas");
     expect(paths).toContain("/pedidos");
   });

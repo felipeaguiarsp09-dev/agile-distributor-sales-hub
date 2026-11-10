@@ -86,13 +86,14 @@ export const importErpData = createServerFn({ method: "POST" })
       } else if (job.entity_type === "products") {
         const { data: existing } = await sb.from("products").select("id, external_id, sku").eq("organization_id", org);
         const idByExt = new Map((existing ?? []).filter((p) => p.external_id).map((p) => [p.external_id as string, p.id]));
-        const idBySku = new Map((existing ?? []).map((p) => [p.sku, p.id]));
+        // Sem ID do ERP no produto local, o código/SKU ainda vincula (e grava o ID na primeira importação).
+        const idBySku = new Map((existing ?? []).filter((p) => !p.external_id).map((p) => [p.sku, p.id]));
         const inserts = [];
         for (let i = 0; i < rows.length; i++) {
           const r = toProduct(rows[i]!, i + 2);
           if (isRowError(r)) { errors.push(r); continue; }
           const record = { ...r, organization_id: org };
-          const existingId = (r.external_id && idByExt.get(r.external_id)) || idBySku.get(r.sku);
+          const existingId = r.external_id ? (idByExt.get(r.external_id) ?? idBySku.get(r.sku)) : idBySku.get(r.sku);
           if (existingId) {
             const { error } = await erp.from("products").update(record).eq("id", existingId);
             if (error) errors.push({ row: i + 2, error: error.message }); else { imported++; await progress(); }
