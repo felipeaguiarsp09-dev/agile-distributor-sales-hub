@@ -183,6 +183,13 @@
       "when": 1794312583388,
       "tag": "0025_imports_admin_delete",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794314159959,
+      "tag": "0026_erp_master_data_write_lock",
+      "breakpoints": true
     }
   ]
 }
