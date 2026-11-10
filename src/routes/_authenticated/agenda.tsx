@@ -1,4 +1,4 @@
-import { redirect, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarPlus, ChevronLeft, ChevronRight, Loader2, MapPin, RefreshCw, Trash2, X } from "lucide-react";
@@ -17,8 +17,6 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
-  // Oculto: o app só cria pedidos; cadastros e demais módulos ficam com o ERP.
-  beforeLoad: () => { throw redirect({ to: "/pedidos" }); },
   head: () => ({
     meta: [
       { title: "Agenda — Dcalice" },
@@ -128,7 +126,7 @@ function AgendaPage() {
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="font-semibold tabular-nums">{new Date(v.scheduled_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
                           <span className="font-medium">{v.customers?.name}</span>
-                          <Badge variant={v.status === "cancelada" ? "destructive" : v.status === "realizada" ? "secondary" : "outline"} className="ml-auto">{STATUS[v.status]}</Badge>
+                          <Badge variant={v.status === "cancelada" ? "destructive" : v.status === "realizada" ? "secondary" : "outline"} className={`ml-auto${v.status === "realizada" ? " border-transparent bg-success text-success-foreground" : ""}`}>{STATUS[v.status]}</Badge>
                         </div>
                         {(addr["street"] || addr["city"]) && <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="h-3 w-3" /> {[addr["street"], addr["city"], addr["state"]].filter(Boolean).join(", ")}</p>}
                         {profile.role !== "vendedor" && <p className="text-xs text-muted-foreground">Vendedor: {v.seller?.full_name}</p>}
