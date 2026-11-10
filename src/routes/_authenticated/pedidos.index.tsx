@@ -283,6 +283,7 @@ function OrdersPage() {
                             ? "outline"
                             : "secondary"
                       }
+                      className={o.status === "faturado" || o.status === "entregue" ? "border-transparent bg-success text-success-foreground" : undefined}
                     >
                       {ORDER_STATUS_LABEL[o.status]}
                     </Badge>

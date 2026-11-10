@@ -189,9 +189,9 @@ function SalesFlowPage() {
               <section key={s} className="rounded-lg border bg-card p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <h3 className="flex-1 font-semibold">{FLOW_LABEL[s] ?? ORDER_STATUS_LABEL[s] ?? s}</h3>
-                  <Badge variant={s === "recusado" || s === "cancelado" ? "destructive" : "secondary"}>{col?.count ?? 0}</Badge>
+                  <Badge variant={s === "recusado" || s === "cancelado" ? "destructive" : "secondary"} className={s === "faturado" || s === "entregue" ? "border-transparent bg-success text-success-foreground" : undefined}>{col?.count ?? 0}</Badge>
                 </div>
-                <p className="mb-3 text-lg font-semibold tabular-nums">{brl(col?.total ?? 0)}</p>
+                <p className={`mb-3 text-lg font-semibold tabular-nums ${(s === "faturado" || s === "entregue") && (col?.total ?? 0) > 0 ? "text-success" : ""}`}>{brl(col?.total ?? 0)}</p>
                 {col ? (
                   <ul className="space-y-1 text-sm">
                     {[...col.groups.entries()].sort((a, b) => b[1].total - a[1].total).map(([k, g]) => (
