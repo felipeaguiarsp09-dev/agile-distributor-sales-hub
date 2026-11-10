@@ -14,4 +14,4 @@
 - [x] Remover aprovação de pedidos do app (aprovação no ERP)
 - [x] Testar verde e ausência de aprovação (celular/computador)
 - [ ] Modernizar arranjo do Novo pedido no celular
-- [ ] "Em aberto" em amarelo
+- [x] "Em aberto" em amarelo
