@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { canCreateOrder, ERP_STATUS_LABEL, ORDER_STATUS_LABEL, ORIGIN_LABEL, orderNumber, erpOrderNumber, orderListSearch } from "@/lib/orders";
 import { pushOrderToErp } from "@/lib/orders.functions";
-import { PAYMENT_METHOD_LABEL, type PaymentMethod } from "@/lib/payment-methods";
+import { paymentMethodLabel, usePaymentMethods } from "@/lib/payment-methods";
 import { ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -189,7 +189,7 @@ function OrderDetail() {
             <div className="flex justify-between"><span>Desconto</span><span className="tabular-nums">− {brl(o.discount_amount)}</span></div>
             <div className="flex justify-between text-base font-bold"><span>Total</span><span className="tabular-nums">{brl(o.total_amount)}</span></div>
           </div>
-          {o.payment_method && <p className="mt-3 text-sm">Forma de pagamento: <strong>{PAYMENT_METHOD_LABEL[o.payment_method as PaymentMethod] ?? o.payment_method}{o.payment_method === "boleto" && o.payment_days ? ` — ${o.payment_days} dias` : ""}</strong></p>}
+          {o.payment_method && <p className="mt-3 text-sm">Forma de pagamento: <strong>{paymentMethodLabel(o.payment_method, paymentMethods.data)}{o.payment_days ? ` — ${o.payment_days} dias` : ""}</strong></p>}
           {o.notes && <p className="mt-3 rounded-md bg-muted p-3 text-sm">{o.notes}</p>}
         </section>
 

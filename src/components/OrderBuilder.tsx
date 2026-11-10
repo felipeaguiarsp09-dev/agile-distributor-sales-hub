@@ -29,7 +29,7 @@ import {
   type CartLine,
   type HistoryOrder,
 } from "@/lib/orders";
-import { PAYMENT_METHODS, PAYMENT_METHOD_LABEL, type PaymentMethod } from "@/lib/payment-methods";
+import { usePaymentMethods } from "@/lib/payment-methods";
 import { dateInDays, isQuoteExpired } from "@/lib/quotes";
 import { isStockStale } from "@/lib/stock-sync";
 
@@ -205,7 +205,9 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
   const validateFn = useServerFn(validateOrderStock);
   const submitFn = useServerFn(submitOrder);
   const pushErpFn = useServerFn(pushOrderToErp);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const paymentMethods = usePaymentMethods();
+  const needsDays = !!paymentMethods.data?.find((m) => m.code === paymentMethod)?.requires_days;
   const [paymentDays, setPaymentDays] = useState("");
 
   const cartRef = useRef<HTMLElement>(null);
@@ -412,7 +414,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
       setCustomerId(data.customer_id);
       setDiscount(Number(data.discount_amount));
       setNotes(data.notes ?? "");
-      setPaymentMethod((data.payment_method as PaymentMethod | null) ?? "");
+      setPaymentMethod(data.payment_method ?? "");
       setPaymentDays(data.payment_days ? String(data.payment_days) : "");
       setLines(mapped);
       lastSnapshotRef.current = JSON.stringify([data.customer_id, mapped, Number(data.discount_amount), data.notes ?? "", ""]);
@@ -563,8 +565,8 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
   async function confirm() {
     if (!profile || !customerId || lines.length === 0) return;
     if (!paymentMethod) return void toast.error("Escolha a forma de pagamento");
-    const days = paymentMethod === "boleto" ? Number(paymentDays) : null;
-    if (paymentMethod === "boleto" && (!days || days < 1 || days > 365)) return void toast.error("Informe o prazo do boleto em dias (1 a 365)");
+    const days = needsDays ? Number(paymentDays) : null;
+    if (needsDays && (!days || days < 1 || days > 365)) return void toast.error("Informe o prazo em dias (1 a 365)");
     setSaving(true);
     setProblem(null);
     try {
@@ -922,13 +924,13 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
           {!isQuote && (
             <div className="space-y-1">
               <Label htmlFor="payment">Forma de pagamento</Label>
-              <select id="payment" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod | "")}>
+              <select id="payment" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
                 <option value="">Selecione…</option>
-                {PAYMENT_METHODS.map((m) => <option key={m} value={m}>{PAYMENT_METHOD_LABEL[m]}</option>)}
+                {(paymentMethods.data ?? []).filter((m) => m.is_active || m.code === paymentMethod).map((m) => <option key={m.code} value={m.code}>{m.name}</option>)}
               </select>
-              {paymentMethod === "boleto" && (
+              {needsDays && (
                 <div className="space-y-1 pt-2">
-                  <Label htmlFor="payment-days">Prazo do boleto (dias)</Label>
+                  <Label htmlFor="payment-days">Prazo (dias)</Label>
                   <Input id="payment-days" type="number" inputMode="numeric" min={1} max={365} placeholder="Ex.: 28" value={paymentDays} onChange={(e) => setPaymentDays(e.target.value.replace(/\D/g, "").slice(0, 3))} />
                 </div>
               )}
