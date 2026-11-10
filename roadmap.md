@@ -16,4 +16,4 @@
 - [x] Modernizar arranjo do Novo pedido no celular
 - [x] "Em aberto" em amarelo
 - [x] Voltar o menu Agenda como estava anteriormente
-- [ ] Agenda: status "Realizada" em verde
+- [x] Agenda: status "Realizada" em verde
