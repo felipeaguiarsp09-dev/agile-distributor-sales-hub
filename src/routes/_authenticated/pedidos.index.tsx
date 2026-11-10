@@ -260,14 +260,14 @@ function OrdersPage() {
                 (o.seller_id === profile?.id || profile?.role === "administrador") &&
                 ["aprovado", "faturado", "entregue"].includes(o.status);
               return (
-                <li key={o.id} className="flex items-center gap-2 pr-2">
+                <li key={o.id} className="flex flex-col pb-3 sm:flex-row sm:items-center sm:gap-2 sm:pb-0 sm:pr-2">
                   <Link
                     to="/pedidos/$id"
                     params={{ id: o.id }}
                     search={(prev) => prev}
-                    className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 hover:bg-muted/50"
+                    className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 transition-colors hover:bg-muted/50"
                   >
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 basis-full sm:basis-auto sm:flex-1">
                       <p className="truncate font-medium">{o.customers?.name}</p>
                       <p className="text-xs text-muted-foreground">
                         <span className="font-medium text-foreground">{erpOrderNumber(o.erp_order_id)}</span> · Ref. interna {orderNumber(o.id)} · {new Date(o.created_at).toLocaleDateString("pt-BR")} · {ORIGIN_LABEL[o.origin]}
@@ -288,7 +288,7 @@ function OrdersPage() {
                     </Badge>
                   </Link>
                   {canRepeat && (
-                    <Button asChild variant="outline" size="sm" className="shrink-0">
+                    <Button asChild variant="outline" size="sm" className="mx-4 shrink-0 self-start sm:mx-0 sm:self-auto">
                       <Link to="/pedidos/novo" search={{ repetir: o.id }}>
                         <RefreshCw className="h-4 w-4" /> Clonar pedido
                       </Link>
