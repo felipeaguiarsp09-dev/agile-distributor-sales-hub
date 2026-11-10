@@ -144,7 +144,28 @@ export const pushOrderToErp = createServerFn({ method: "POST" })
     // Vendedor não lê integration_configs (RLS); o pedido já foi autorizado acima, então a config da mesma organização é lida no servidor.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: cfg } = await supabaseAdmin.from("integration_configs").select("credentials").eq("organization_id", order.organization_id).eq("integration_type", "erp").eq("is_active", true).maybeSingle();
-    const erpCreds = (cfg?.credentials ?? {}) as { endpoint_url?: string; api_key?: string };
+    const erpCreds = (cfg?.credentials ?? {}) as { endpoint_url?: string; api_key?: string; provider?: string; send_enabled?: boolean };
+
+    // Tiny: só envia se o administrador ligar o envio (send_enabled) na configuração do ERP.
+    if (erpCreds.provider === "tiny") {
+      if (erpCreds.send_enabled !== true) return { ok: false, message: "Envio ao Tiny desligado" };
+      const tinyToken = process.env["TINY_API_TOKEN"];
+      if (!tinyToken) return { ok: false, message: "Chave do Tiny não configurada" };
+      const { data: full } = await sb.from("orders").select("*, order_items(quantity, unit_price, products(sku, name)), customers(external_id, name, cnpj_cpf)").eq("id", order.id).single();
+      let st: "sincronizado" | "erro" = "erro";
+      let tinyId: string | null = null;
+      try {
+        const { postOrderToTiny } = await import("./erp-tiny");
+        const r = await postOrderToTiny(tinyToken, full as never);
+        if (r.ok || r.duplicate) { st = "sincronizado"; tinyId = r.erpId; }
+        else console.error("push-order-to-tiny", r.error);
+      } catch (e) {
+        console.error("push-order-to-tiny", e);
+      }
+      await sb.rpc("set_order_erp_result", { p_order_id: order.id, p_status: st, p_erp_order_id: tinyId as string });
+      return { ok: st === "sincronizado", message: st === "sincronizado" ? "Pedido enviado ao Tiny" : "O Tiny não aceitou o pedido. Ele continua salvo; confira a integração e tente de novo.", erp_order_id: tinyId };
+    }
+
     const endpoint = erpCreds.endpoint_url;
     if (!endpoint) return { ok: false, message: "Integração com o ERP ainda não configurada" };
 
