@@ -111,6 +111,16 @@ export function toProduct(r: Record<string, string>, row: number): ProductRow | 
   };
 }
 
+export type PaymentMethodRow = { code: string; name: string; requires_days: boolean; is_active: boolean };
+export function toPaymentMethod(r: Record<string, string>, row: number): PaymentMethodRow | RowError {
+  const code = pick(r, "code", "codigo", "external_id", "id_erp", "cod");
+  const name = pick(r, "name", "nome", "descricao", "forma_pagamento");
+  if (!code) return { row, error: "código obrigatório" };
+  if (!name) return { row, error: "nome obrigatório" };
+  const active = pick(r, "is_active", "ativo");
+  return { code, name, requires_days: parseBool(pick(r, "requires_days", "exige_prazo", "prazo")), is_active: active ? parseBool(active) : true };
+}
+
 export const isRowError = (x: unknown): x is RowError =>
   typeof x === "object" && x !== null && "error" in x && "row" in x;
 

@@ -63,7 +63,8 @@ function ProductDetail() {
           submitLabel="Salvar alterações"
           initial={{ sku: p.sku, name: p.name, description: p.description, category: p.category, unit_price: p.unit_price, stock_quantity: p.stock_quantity, is_ecommerce_visible: p.is_ecommerce_visible, is_active: p.is_active, image_url: p.image_url }}
           onSubmit={async (v) => {
-            const { error } = await supabase.from("products").update(v).eq("id", id);
+            const { stock_quantity: _stock, ...fields } = v; // estoque só pelo ERP
+            const { error } = await supabase.from("products").update(fields).eq("id", id);
             if (error) return void toast.error("Não foi possível salvar as alterações");
             toast.success("Produto atualizado");
             setEditing(false);

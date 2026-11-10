@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/admin/importacao")({
   component: ImportPage,
 });
 
-const ENTITY_LABEL: Record<string, string> = { customers: "Clientes", products: "Produtos", orders: "Pedidos" };
+const ENTITY_LABEL: Record<string, string> = { customers: "Clientes", products: "Produtos", orders: "Pedidos", payment_methods: "Formas de pagamento" };
 const STATUS_LABEL: Record<string, string> = { pendente: "Pendente", processando: "Processando", concluido: "Concluído", erro: "Erro" };
 
 function ImportPage() {
@@ -96,6 +96,7 @@ function ImportPage() {
               <SelectItem value="customers">Clientes</SelectItem>
               <SelectItem value="products">Produtos</SelectItem>
               <SelectItem value="orders">Pedidos</SelectItem>
+              <SelectItem value="payment_methods">Formas de pagamento</SelectItem>
             </SelectContent>
           </Select>
         </div>

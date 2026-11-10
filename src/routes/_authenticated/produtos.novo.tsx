@@ -33,7 +33,7 @@ function NewProduct() {
         submitLabel="Cadastrar produto"
         initial={{ sku: "", name: "", description: null, category: null, unit_price: 0, stock_quantity: 0, is_ecommerce_visible: false, is_active: true, image_url: null }}
         onSubmit={async (v) => {
-          const { data, error } = await supabase.from("products").insert({ ...v, organization_id: profile.organization_id }).select("id").single();
+          const { data, error } = await supabase.from("products").insert({ ...v, stock_quantity: 0, organization_id: profile.organization_id }).select("id").single();
           if (error) return void toast.error("Não foi possível cadastrar o produto");
           toast.success("Produto cadastrado");
           await qc.invalidateQueries({ queryKey: ["products"] });
