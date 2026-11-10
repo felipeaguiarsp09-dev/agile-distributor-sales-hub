@@ -1,4 +1,4 @@
-import { redirect, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarPlus, ChevronLeft, ChevronRight, Loader2, MapPin, RefreshCw, Trash2, X } from "lucide-react";
