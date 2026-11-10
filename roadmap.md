@@ -11,4 +11,4 @@
 - [ ] Testar acesso à API do Tiny sem enviar pedidos nem alterar cadastros — aguardando definição da versão e conexão autorizada; preview sem chave/endereço configurados
 
 - [x] Indicadores positivos em verde (Fluxo de Vendas/Dashboard)
-- [ ] Remover aprovação de pedidos do app (aprovação no ERP)
+- [x] Remover aprovação de pedidos do app (aprovação no ERP)

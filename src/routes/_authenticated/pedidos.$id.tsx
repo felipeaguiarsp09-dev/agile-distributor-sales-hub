@@ -65,7 +65,8 @@ function OrderDetail() {
 
   const role = profile?.role;
   const isOwner = o.seller_id === profile?.id;
-  const canApprove = (role === "supervisor" || role === "administrador") && o.status === "aguardando_aprovacao";
+  // Aprovação de pedidos é feita no ERP; o app não aprova nem recusa.
+  const canApprove = false as boolean;
   const canEdit = o.status === "rascunho" && (isOwner || role === "administrador");
   const canCancel = role === "administrador" && !["cancelado", "faturado", "entregue"].includes(o.status);
   const canPush = (role === "vendedor" || role === "supervisor" || role === "administrador") && ["aprovado", "faturado"].includes(o.status) && !o.erp_order_id;

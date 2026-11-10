@@ -48,7 +48,8 @@ function SalesFlowPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const role = profile?.role;
   const allowed = role === "vendedor" || role === "supervisor" || role === "administrador";
-  const canApprove = role === "supervisor" || role === "administrador";
+  // Aprovação de pedidos é feita no ERP; o app não aprova nem recusa.
+  const canApprove = false as boolean;
 
   const flow = useQuery({
     queryKey: ["orders", "flow", period],
