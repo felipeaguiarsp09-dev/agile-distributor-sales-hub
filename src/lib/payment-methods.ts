@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 export const PAYMENT_METHODS = ["dinheiro", "cartao_credito", "cartao_debito", "boleto", "cheque", "deposito", "bonificacao", "multiplas"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
@@ -12,8 +14,6 @@ export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
 };
 
 /** Formas de pagamento cadastradas pelo ERP (importação). O mapa acima serve só de rótulo para pedidos antigos. */
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 export type ErpPaymentMethod = { code: string; name: string; requires_days: boolean; is_active: boolean };
 export function usePaymentMethods() {
   return useQuery({

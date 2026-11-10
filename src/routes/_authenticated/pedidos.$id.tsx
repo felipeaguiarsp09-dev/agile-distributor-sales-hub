@@ -33,6 +33,7 @@ const STEP_RANK: Record<string, number> = { rascunho: 0, aguardando_aprovacao: 0
 function OrderDetail() {
   const { id } = Route.useParams();
   const { profile } = useAuth();
+  const paymentMethods = usePaymentMethods();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const pushFn = useServerFn(pushOrderToErp);
