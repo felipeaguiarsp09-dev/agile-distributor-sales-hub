@@ -176,6 +176,13 @@
       "when": 1794312061872,
       "tag": "0024_erp_payment_methods",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794312583388,
+      "tag": "0025_imports_admin_delete",
+      "breakpoints": true
     }
   ]
 }
