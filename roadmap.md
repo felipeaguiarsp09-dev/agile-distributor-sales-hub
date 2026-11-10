@@ -12,3 +12,5 @@
 
 - [x] Indicadores positivos em verde (Fluxo de Vendas/Dashboard)
 - [x] Remover aprovação de pedidos do app (aprovação no ERP)
+- [ ] Testar verde e ausência de aprovação (celular/computador)
+- [ ] Modernizar arranjo do Novo pedido no celular
