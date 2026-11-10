@@ -17,4 +17,4 @@
 - [x] "Em aberto" em amarelo
 - [x] Voltar o menu Agenda como estava anteriormente
 - [x] Agenda: status "Realizada" em verde
-- [ ] Agenda: visitas pendentes em amarelo (Realizada continua verde)
+- [x] Agenda: visitas pendentes em amarelo (Realizada continua verde)
