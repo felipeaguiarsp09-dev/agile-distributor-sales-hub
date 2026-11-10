@@ -8,7 +8,7 @@
 - [x] Número do ERP no Fluxo de Vendas, Propostas e histórico do cliente; verificar sem alterar registros
 - [x] Agenda: impedir mais de um check-in por dia no mesmo cliente
 - [x] Agenda: ocultar localização do check-in para vendedores e verificar o fluxo
-- [ ] Testar acesso à API do Tiny sem enviar pedidos nem alterar cadastros — aguardando definição da versão e conexão autorizada; preview sem chave/endereço configurados
+- [x] Testar acesso à API do Tiny (somente leitura) — acesso confirmado
 
 - [x] Indicadores positivos em verde (Fluxo de Vendas/Dashboard)
 - [x] Remover aprovação de pedidos do app (aprovação no ERP)
