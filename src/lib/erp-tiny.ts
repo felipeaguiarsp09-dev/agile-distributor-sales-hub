@@ -56,7 +56,8 @@ export function buildTinyOrder(o: TinyOrderSource) {
       },
       itens: (o.order_items ?? []).map((i) => ({
         item: {
-          ...(i.products?.external_id ? { id_produto: String(i.products.external_id) } : {}),
+          // Documentação oficial: item.id_produto é int opcional; IDs não numéricos ficam de fora e o código vincula.
+          ...(/^\d+$/.test(String(i.products?.external_id ?? "").trim()) ? { id_produto: String(i.products!.external_id).trim() } : {}),
           codigo: i.products?.sku ?? "",
           descricao: i.products?.name ?? "",
           unidade: "UN",
