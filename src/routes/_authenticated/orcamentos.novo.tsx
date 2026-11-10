@@ -1,9 +1,11 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { redirect, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { OrderBuilder } from "@/components/OrderBuilder";
 
 type Search = { cliente?: string | undefined; rascunho?: string | undefined; repetir?: string | undefined };
 
 export const Route = createFileRoute("/_authenticated/orcamentos/novo")({
+  // Oculto: o app só cria pedidos; cadastros e demais módulos ficam com o ERP.
+  beforeLoad: () => { throw redirect({ to: "/pedidos" }); },
   validateSearch: (s: Record<string, unknown>): Search => ({
     cliente: typeof s["cliente"] === "string" ? s["cliente"] : undefined,
     rascunho: typeof s["rascunho"] === "string" ? s["rascunho"] : undefined,

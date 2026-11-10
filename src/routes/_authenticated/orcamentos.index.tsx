@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { redirect, createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -32,6 +32,8 @@ const PAGE_SIZE = 20;
 type Search = ReturnType<typeof quoteListSearch>;
 
 export const Route = createFileRoute("/_authenticated/orcamentos/")({
+  // Oculto: o app só cria pedidos; cadastros e demais módulos ficam com o ERP.
+  beforeLoad: () => { throw redirect({ to: "/pedidos" }); },
   validateSearch: quoteListSearch,
   head: () => ({
     meta: [

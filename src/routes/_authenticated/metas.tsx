@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { redirect, createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Loader2, Save } from "lucide-react";
@@ -16,6 +16,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const DESC = "Metas mensais de faturamento, clientes atendidos e visitas por vendedor.";
 export const Route = createFileRoute("/_authenticated/metas")({
+  // Oculto: o app só cria pedidos; cadastros e demais módulos ficam com o ERP.
+  beforeLoad: () => { throw redirect({ to: "/pedidos" }); },
   head: () => ({ meta: [
     { title: "Metas mensais — Dcalice" }, { name: "description", content: DESC },
     { property: "og:title", content: "Metas mensais — Dcalice" }, { property: "og:description", content: DESC },

@@ -1,0 +1,2 @@
+CREATE POLICY "Admin apaga arquivos de importação" ON storage.objects FOR DELETE TO authenticated
+USING ((bucket_id = 'imports') AND EXISTS (SELECT 1 FROM public.current_profile() p WHERE p.role = 'administrador' AND (storage.foldername(objects.name))[1] = p.organization_id::text));

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { redirect, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,8 @@ import { NoAccess } from "@/components/shared";
 import { ProductForm } from "@/components/ProductForm";
 
 export const Route = createFileRoute("/_authenticated/produtos/novo")({
+  // Oculto: o app só cria pedidos; cadastros e demais módulos ficam com o ERP.
+  beforeLoad: () => { throw redirect({ to: "/pedidos" }); },
   head: () => ({
     meta: [
       { title: "Novo produto — Dcalice" },
