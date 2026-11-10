@@ -14,7 +14,8 @@ export const syncErpStockNow = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const me = await requireAdmin(context.supabase, context.userId);
     const { syncErpStock } = await import("./erp-stock.server");
-    return syncErpStock(context.supabase, me.organization_id);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    return syncErpStock(supabaseAdmin, me.organization_id);
   });
 
 const ROLES = ["vendedor", "supervisor", "administrador", "cliente"] as const;
