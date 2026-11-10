@@ -55,3 +55,29 @@ export const inviteUser = createServerFn({ method: "POST" })
     if (data.customer_id) await supabaseAdmin.from("customers").update({ portal_user_id: uid }).eq("id", data.customer_id);
     return { ok: true, user_id: uid };
   });
+
+/** Teste somente leitura do acesso ao Tiny (API v2 info.php): não cria nem altera nada. */
+export const testTinyAccess = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const token = process.env.TINY_API_TOKEN;
+    if (!token) return { ok: false, message: "Chave do Tiny ainda não configurada." };
+    try {
+      const body = new URLSearchParams({ token, formato: "json" });
+      const res = await fetch("https://api.tiny.com.br/api2/info.php", {
+        method: "POST", body, signal: AbortSignal.timeout(15000),
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+      });
+      const json: any = await res.json().catch(() => null);
+      const r = json?.retorno;
+      if (r?.status === "OK") {
+        const conta = r.conta ?? {};
+        return { ok: true, message: `Acesso confirmado${conta.razao_social ? ` · ${conta.razao_social}` : ""}.` };
+      }
+      const err = r?.erros?.[0]?.erro ?? `HTTP ${res.status}`;
+      return { ok: false, message: `O Tiny recusou o acesso: ${String(err).slice(0, 200)}` };
+    } catch {
+      return { ok: false, message: "Não foi possível falar com o Tiny (tempo esgotado ou rede)." };
+    }
+  });
