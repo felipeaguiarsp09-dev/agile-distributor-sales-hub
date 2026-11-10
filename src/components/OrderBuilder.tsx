@@ -663,7 +663,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
         : null;
 
   return (
-    <div className="mx-auto max-w-6xl pb-24 lg:pb-0">
+    <div className="mx-auto max-w-6xl pb-20 lg:pb-0">
       {isQuote && (
         <Link to="/orcamentos" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Propostas comerciais
@@ -678,10 +678,10 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-        <div className="space-y-6">
-          <section className="border-b pb-5">
-            <Label>Cliente</Label>
+      <div className="grid gap-4 lg:grid-cols-[1fr_380px] lg:gap-6">
+        <div className="space-y-4">
+          <section className="rounded-xl border bg-card p-4 shadow-card sm:p-5">
+            <h2 className="mb-3 flex items-center gap-2 font-semibold"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">1</span>Cliente</h2>
             {/* Reabrir o seletor limpa a busca anterior, mas mantém o cliente já selecionado até trocar. */}
             <Popover
               open={customerOpen}
@@ -691,7 +691,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
               }}
             >
               <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" aria-expanded={customerOpen} aria-label="Cliente" className="mt-2 w-full justify-between font-normal">
+                <Button variant="outline" role="combobox" aria-expanded={customerOpen} aria-label="Cliente" className="h-12 w-full justify-between rounded-lg text-base font-normal">
                   <span className="truncate">{customer ? customer.name : "Selecione um cliente da carteira"}</span>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -754,7 +754,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
           </section>
 
           {customerId && (
-            <section className="border-b pb-5">
+            <section className="rounded-xl border bg-card p-4 shadow-card sm:p-5">
               <div className="flex flex-wrap items-center gap-2">
                 <History className="h-4 w-4 text-primary" />
                 <h2 className="flex-1 font-semibold">Comprados antes</h2>
@@ -781,7 +781,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
                   {topPurchased.map((p) => {
                     const cartQty = lines.find((l) => l.product_id === p.product_id)?.quantity ?? 0;
                     return (
-                      <li key={p.product_id} className="flex items-center gap-3 rounded-md bg-card p-3 text-sm">
+                      <li key={p.product_id} className="flex items-center gap-3 rounded-lg bg-muted/60 p-3 text-sm">
                         <div className="min-w-0 flex-1">
                           <p className="break-words font-medium">{p.name}</p>
                           <p className="text-muted-foreground">{brl(p.unit_price)} · {p.ordersCount > 1 ? `${p.ordersCount} pedidos` : "1 pedido"}</p>
@@ -815,7 +815,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
           )}
 
           {customerId && (
-            <section className="border-b pb-5">
+            <section className="rounded-xl border bg-card p-4 shadow-card sm:p-5">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <h2 className="flex-1 font-semibold">Sugestões da IA</h2>
@@ -831,7 +831,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
               )}
               <ul className="mt-3 space-y-2">
                 {sugs.map((s) => (
-                  <li key={s.product.id} className="flex items-start gap-3 rounded-md bg-card p-3 text-sm">
+                  <li key={s.product.id} className="flex items-start gap-3 rounded-lg bg-muted/60 p-3 text-sm">
                     <div className="flex-1">
                       <p className="font-medium">{s.product.name} · {brl(s.product.unit_price)}</p>
                       <p className="text-muted-foreground">{s.reason}</p>
@@ -843,16 +843,16 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
             </section>
           )}
 
-          <section className="border-b pb-5">
-            <h2 className="mb-3 font-semibold">Catálogo</h2>
+          <section className="rounded-xl border bg-card p-4 shadow-card sm:p-5">
+            <h2 className="mb-3 flex items-center gap-2 font-semibold"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">2</span>Produtos</h2>
             <StockSyncNotice isQuote={isQuote} />
-            <div className="mb-3 flex flex-col gap-2 sm:flex-row max-lg:sticky max-lg:top-[60px] max-lg:z-[5] max-lg:-mx-4 max-lg:px-4 max-lg:py-2 max-lg:bg-background">
+            <div className="mb-3 flex flex-col gap-2 sm:flex-row max-lg:sticky max-lg:top-[60px] max-lg:z-[5] max-lg:-mx-4 max-lg:px-4 max-lg:py-2 max-lg:bg-card">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input ref={catalogSearchRef} className="scroll-mt-[68px] pl-9" placeholder="Buscar por nome ou SKU" value={q} onChange={(e) => setQ(e.target.value)} />
+                <Input ref={catalogSearchRef} className="h-11 scroll-mt-[68px] rounded-lg pl-9 text-base sm:text-sm" placeholder="Buscar por nome ou SKU" value={q} onChange={(e) => setQ(e.target.value)} />
               </div>
               <Select value={cat} onValueChange={setCat}>
-                <SelectTrigger className="sm:w-48"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-11 rounded-lg sm:w-48"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todas">Todas as categorias</SelectItem>
                   {categories.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
@@ -868,7 +868,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
                 const quantity = lines.find((l) => l.product_id === p.id)?.quantity ?? 0;
                 return (
                   <li key={p.id} className="flex flex-wrap items-center gap-3 py-4 text-sm sm:flex-nowrap">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted">
                       {p.image_url ? <img src={p.image_url} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : <Package className="h-6 w-6 text-muted-foreground" />}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -884,8 +884,8 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
           </section>
         </div>
 
-        <aside ref={cartRef} id="order-cart" className="scroll-mt-4 h-fit space-y-4 rounded-lg border bg-card p-4 lg:sticky lg:top-6">
-          <h2 className="flex items-center gap-2 font-semibold"><ShoppingBag className="h-4 w-4" /> Carrinho <span className="ml-auto text-sm text-muted-foreground">{lines.reduce((sum, l) => sum + l.quantity, 0)} itens</span></h2>
+        <aside ref={cartRef} id="order-cart" className="scroll-mt-4 h-fit space-y-4 rounded-xl border bg-card p-4 shadow-card sm:p-5 lg:sticky lg:top-6">
+          <h2 className="flex items-center gap-2 font-semibold"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">3</span> Carrinho e pagamento <span className="ml-auto text-sm text-muted-foreground">{lines.reduce((sum, l) => sum + l.quantity, 0)} itens</span></h2>
           {lines.length === 0 ? (
             <p className="text-sm text-muted-foreground">{customerId ? "Adicione produtos do catálogo." : "Selecione um cliente para começar."}</p>
           ) : (
@@ -923,11 +923,16 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
           </div>
           {!isQuote && (
             <div className="space-y-1">
-              <Label htmlFor="payment">Forma de pagamento</Label>
-              <select id="payment" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
-                <option value="">Selecione…</option>
-                {(paymentMethods.data ?? []).filter((m) => m.is_active || m.code === paymentMethod).map((m) => <option key={m.code} value={m.code}>{m.name}</option>)}
-              </select>
+              <Label id="payment-label">Forma de pagamento</Label>
+              <div role="radiogroup" aria-labelledby="payment-label" className="grid grid-cols-2 gap-2 pt-1">
+                {(paymentMethods.data ?? []).filter((m) => m.is_active || m.code === paymentMethod).map((m) => (
+                  <button key={m.code} type="button" role="radio" aria-checked={paymentMethod === m.code} onClick={() => setPaymentMethod(m.code)}
+                    className={cn("min-h-11 rounded-lg border px-3 py-2 text-left text-sm font-medium transition-colors",
+                      paymentMethod === m.code ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background hover:bg-accent")}>
+                    {m.name}
+                  </button>
+                ))}
+              </div>
               {needsDays && (
                 <div className="space-y-1 pt-2">
                   <Label htmlFor="payment-days">Prazo (dias)</Label>
@@ -957,13 +962,13 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
               <button className="underline" onClick={() => { lastSnapshotRef.current = null; setRetryTick((t) => t + 1); setDraftState("idle"); }}>Tentar novamente</button>
             </p>
           )}
-          <Button className="w-full" onClick={isQuote ? saveQuote : confirm} disabled={saving || !customerId || lines.length === 0}>
+          <Button className="h-12 w-full text-base" onClick={isQuote ? saveQuote : confirm} disabled={saving || !customerId || lines.length === 0}>
             {saving && <Loader2 className="h-4 w-4 animate-spin" />} {isQuote ? "Salvar proposta" : "Confirmar pedido"}
           </Button>
           {isQuote && <p className="text-xs text-muted-foreground">Depois de salvar, converta em pedido na lista de orçamentos.</p>}
         </aside>
       </div>
-      {lines.length > 0 && <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-background p-3 lg:hidden">
+      {lines.length > 0 && <div className="fixed inset-x-0 bottom-[calc(3.6rem+env(safe-area-inset-bottom))] z-30 border-t bg-card/95 p-3 shadow-card backdrop-blur-md lg:hidden">
         <Button className="h-12 w-full justify-between" onClick={() => cartRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}>
           <span className="flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> Ver carrinho · {lines.reduce((sum, l) => sum + l.quantity, 0)} itens</span>
           <span className="tabular-nums">{brl(totals.total)}</span>
