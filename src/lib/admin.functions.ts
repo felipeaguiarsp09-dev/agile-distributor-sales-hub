@@ -61,7 +61,7 @@ export const testTinyAccess = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await requireAdmin(context.supabase, context.userId);
-    const token = process.env.TINY_API_TOKEN;
+    const token = process.env["TINY_API_TOKEN"];
     if (!token) return { ok: false, message: "Chave do Tiny ainda não configurada." };
     try {
       const body = new URLSearchParams({ token, formato: "json" });
