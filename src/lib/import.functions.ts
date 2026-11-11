@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCsv } from "./csv";
-import { isRowError, toCustomer, toOrderLine, toPaymentMethod, toProduct, type OrderLineRow, type RowError } from "./import-rows";
+import { isRowError, toCustomer, toOrderLine, toPaymentMethod, toProduct, planProductRow, type ExistingProduct, type OrderLineRow, type RowError } from "./import-rows";
 
 type Input = { import_job_id: string };
 
@@ -63,6 +63,38 @@ export const importErpData = createServerFn({ method: "POST" })
           const { seller_name: _s, ...fields } = r;
           const record = { ...fields, organization_id: org, owner_id: owner };
           const existingId = r.external_id ? idByExt.get(r.external_id) : undefined;
+          if (existingId) {
+            const { error } = await erp.from("customers").update(record).eq("id", existingId);
+            if (error) errors.push({ row: i + 2, error: error.message }); else { imported++; await progress(); }
+          } else inserts.push({ row: i + 2, record });
+        }
+        for (let i = 0; i < inserts.length; i += 500) {
+          const chunk = inserts.slice(i, i + 500);
+          const { error } = await erp.from("customers").insert(chunk.map((c) => c.record));
+          if (error) chunk.forEach((c) => errors.push({ row: c.row, error: error.message }));
+          else imported += chunk.length;
+          await progress(true);
+        }
+      } else if (job.entity_type === "payment_methods") {
+        // Formas de pagamento vêm do ERP: upsert pelo código, sem apagar as usadas em pedidos antigos.
+        for (let i = 0; i < rows.length; i++) {
+          const r = toPaymentMethod(rows[i]!, i + 2);
+          if (isRowError(r)) { errors.push(r); continue; }
+          const { error } = await erp.from("payment_methods").upsert({ ...r, organization_id: org, updated_at: new Date().toISOString() }, { onConflict: "organization_id,code" });
+          if (error) errors.push({ row: i + 2, error: error.message }); else { imported++; await progress(); }
+        }
+      } else if (job.entity_type === "products") {
+        const { data: existing } = await sb.from("products").select("id, external_id, sku").eq("organization_id", org);
+        const known: ExistingProduct[] = [...(existing ?? [])];
+        const inserts = [];
+        for (let i = 0; i < rows.length; i++) {
+          const r = toProduct(rows[i]!, i + 2);
+          if (isRowError(r)) { errors.push(r); continue; }
+          const step = planProductRow(known, r, i + 2);
+          if (isRowError(step)) { errors.push(step); continue; }
+          if (step.kind === "insert") known.push({ id: `pending-${i}`, external_id: r.external_id, sku: r.sku });
+          const existingId = step.kind === "update" ? step.id : undefined;
+          const record = { ...step.record, organization_id: org };
           if (existingId) {
             const { error } = await erp.from("customers").update(record).eq("id", existingId);
             if (error) errors.push({ row: i + 2, error: error.message }); else { imported++; await progress(); }

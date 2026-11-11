@@ -171,3 +171,26 @@ export function toOrderLine(r: Record<string, string>, row: number): OrderLineRo
   if (returned === null || returned < 0) return { row, error: "devolução inválida" };
   return { order_code, customer_code, sku, quantity, unit_price, created_at, status, discount, returned, seller_name: pick(r, "vendedor", "seller") };
 }
+
+export type ExistingProduct = { id: string; external_id: string | null; sku: string };
+export type ProductPlanStep =
+  | { kind: "update"; id: string; record: Partial<ProductRow> }
+  | { kind: "insert"; record: ProductRow };
+
+/** Decide, para uma linha válida, se atualiza um produto existente ou cria um novo.
+ *  Linha com ID do ERP: vincula pelo ID; senão pelo código de um produto ainda sem ID.
+ *  Linha sem ID: vincula pelo código a qualquer produto e preserva o ID já gravado.
+ *  Código que aponta para mais de um produto é recusado para não alterar o item errado. */
+export function planProductRow(existing: ExistingProduct[], r: ProductRow, row: number): ProductPlanStep | RowError {
+  if (r.external_id) {
+    const byExt = existing.find((p) => p.external_id === r.external_id);
+    if (byExt) return { kind: "update", id: byExt.id, record: r };
+    const unlinked = existing.filter((p) => !p.external_id && p.sku === r.sku);
+    if (unlinked.length > 1) return { row, error: `SKU ambíguo: ${r.sku}` };
+    return unlinked[0] ? { kind: "update", id: unlinked[0].id, record: r } : { kind: "insert", record: r };
+  }
+  const { external_id: _drop, ...rest } = r;
+  const matches = existing.filter((p) => p.sku === r.sku);
+  if (matches.length > 1) return { row, error: `SKU ambíguo: ${r.sku} (${matches.length} produtos)` };
+  return matches[0] ? { kind: "update", id: matches[0].id, record: rest } : { kind: "insert", record: r };
+}
