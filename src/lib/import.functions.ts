@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { parseCsv } from "./csv";
-import { isRowError, toCustomer, toOrderLine, toPaymentMethod, toProduct, planProductRow, type ExistingProduct, type OrderLineRow, type RowError } from "./import-rows";
+import { isRowError, toCustomer, toOrderLine, toPaymentMethod, toProduct, planProductRow, type ExistingProduct, type ProductRow, type OrderLineRow, type RowError } from "./import-rows";
 
 type Input = { import_job_id: string };
 
@@ -86,7 +86,7 @@ export const importErpData = createServerFn({ method: "POST" })
       } else if (job.entity_type === "products") {
         const { data: existing } = await sb.from("products").select("id, external_id, sku").eq("organization_id", org);
         const known: ExistingProduct[] = [...(existing ?? [])];
-        const inserts: { row: number; record: Record<string, unknown>; key: string }[] = [];
+        const inserts: { row: number; record: ProductRow & { organization_id: string }; key: string }[] = [];
         for (let i = 0; i < rows.length; i++) {
           const r = toProduct(rows[i]!, i + 2);
           if (isRowError(r)) { errors.push(r); continue; }
@@ -100,7 +100,7 @@ export const importErpData = createServerFn({ method: "POST" })
           if (existingId) {
             const { error } = await erp.from("products").update(record).eq("id", existingId);
             if (error) errors.push({ row: i + 2, error: error.message }); else { imported++; await progress(); }
-          } else inserts.push({ row: i + 2, record, key: `pending-${i}` });
+          } else inserts.push({ row: i + 2, record: record as ProductRow & { organization_id: string }, key: `pending-${i}` });
         }
         for (let i = 0; i < inserts.length; i += 500) {
           const chunk = inserts.slice(i, i + 500);

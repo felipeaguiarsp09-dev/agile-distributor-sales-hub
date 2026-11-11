@@ -7,9 +7,9 @@ function runImport(db: Db, sheet: Record<string, string>[]) {
   const errors: string[] = [];
   sheet.forEach((raw, i) => {
     const r = toProduct(raw, i + 2);
-    if (isRowError(r)) return errors.push(r.error);
+    if (isRowError(r)) { errors.push(r.error); return; }
     const step = planProductRow(db, r, i + 2);
-    if (isRowError(step)) return errors.push(step.error);
+    if (isRowError(step)) { errors.push(step.error); return; }
     if (step.kind === "update") Object.assign(db.find((p) => p.id === step.id)!, step.record);
     else db.push({ ...step.record, id: `new-${db.length}` });
   });
