@@ -86,7 +86,7 @@ export const importErpData = createServerFn({ method: "POST" })
       } else if (job.entity_type === "products") {
         const { data: existing } = await sb.from("products").select("id, external_id, sku").eq("organization_id", org);
         const known: ExistingProduct[] = [...(existing ?? [])];
-        const inserts = [];
+        const inserts: { row: number; record: Record<string, unknown>; key: string }[] = [];
         for (let i = 0; i < rows.length; i++) {
           const r = toProduct(rows[i]!, i + 2);
           if (isRowError(r)) { errors.push(r); continue; }
@@ -95,10 +95,12 @@ export const importErpData = createServerFn({ method: "POST" })
           if (step.kind === "insert") known.push({ id: `pending-${i}`, external_id: r.external_id, sku: r.sku });
           const existingId = step.kind === "update" ? step.id : undefined;
           const record = { ...step.record, organization_id: org };
+          const pending = existingId?.startsWith("pending-") ? inserts.find((c) => c.key === existingId) : undefined;
+          if (pending) { pending.record = { ...pending.record, ...record }; continue; } // mesma planilha repete o SKU: vale a última linha
           if (existingId) {
             const { error } = await erp.from("products").update(record).eq("id", existingId);
             if (error) errors.push({ row: i + 2, error: error.message }); else { imported++; await progress(); }
-          } else inserts.push({ row: i + 2, record });
+          } else inserts.push({ row: i + 2, record, key: `pending-${i}` });
         }
         for (let i = 0; i < inserts.length; i += 500) {
           const chunk = inserts.slice(i, i + 500);
