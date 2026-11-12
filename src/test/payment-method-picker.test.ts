@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   matchesPaymentMethodSearch,
   paymentMethodSummary,
+  paymentTermLabel,
   visiblePaymentMethods,
   type ErpPaymentMethod,
 } from "@/lib/payment-methods";
@@ -80,5 +81,31 @@ describe("resumo da forma escolhida (lista fechada)", () => {
 
   it("sem forma escolhida não há resumo", () => {
     expect(paymentMethodSummary("", ERP)).toBeUndefined();
+  });
+});
+
+describe("prazo mostrado no cartão da forma escolhida", () => {
+  it("mostra os dias digitados", () => {
+    expect(paymentTermLabel("28")).toBe("28 dias");
+    expect(paymentTermLabel(" 12 ")).toBe("12 dias");
+    expect(paymentTermLabel(28)).toBe("28 dias");
+  });
+
+  it("um dia fica no singular", () => {
+    expect(paymentTermLabel("1")).toBe("1 dia");
+    expect(paymentTermLabel(1)).toBe("1 dia");
+  });
+
+  it("sem dias válidos não mostra prazo", () => {
+    expect(paymentTermLabel("")).toBeUndefined();
+    expect(paymentTermLabel("   ")).toBeUndefined();
+    expect(paymentTermLabel("0")).toBeUndefined();
+    expect(paymentTermLabel("abc")).toBeUndefined();
+    expect(paymentTermLabel(undefined)).toBeUndefined();
+    expect(paymentTermLabel(null)).toBeUndefined();
+  });
+
+  it("dias quebrados viram o número inteiro de dias", () => {
+    expect(paymentTermLabel("28.7")).toBe("28 dias");
   });
 });

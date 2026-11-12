@@ -50,3 +50,11 @@ export function paymentMethodSummary(code: string, list?: ErpPaymentMethod[]): {
   if (method) return { name: method.name, requiresDays: method.requires_days };
   return { name: paymentMethodLabel(code), requiresDays: false };
 }
+
+/** Texto do prazo escolhido para o resumo: "28 dias", "1 dia"; nada quando ainda não foi informado. */
+export function paymentTermLabel(days: string | number | null | undefined): string | undefined {
+  const n = typeof days === "number" ? days : Number(String(days ?? "").trim());
+  if (!Number.isFinite(n) || n < 1) return undefined;
+  const whole = Math.floor(n);
+  return whole === 1 ? "1 dia" : `${whole} dias`;
+}

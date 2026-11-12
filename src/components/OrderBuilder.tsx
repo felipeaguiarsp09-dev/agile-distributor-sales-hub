@@ -928,6 +928,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
                 methods={paymentMethods.data}
                 selected={paymentMethod}
                 onSelect={setPaymentMethod}
+                days={paymentDays}
                 isLoading={paymentMethods.isLoading}
                 disabled={saving}
               />

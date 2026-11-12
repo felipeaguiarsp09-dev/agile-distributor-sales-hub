@@ -22,3 +22,4 @@
 - [x] Conferir no preview que o botão Novo produto sumiu (computador e celular)
 - [x] Forma de pagamento em lista com busca
 - [x] Destacar a forma escolhida também com a lista fechada (resumo sempre visível)
+- [x] Mostrar o prazo escolhido no cartão da forma de pagamento (quando ela exige prazo)

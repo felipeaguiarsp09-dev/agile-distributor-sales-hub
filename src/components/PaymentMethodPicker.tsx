@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import {
   matchesPaymentMethodSearch,
   paymentMethodSummary,
+  paymentTermLabel,
   type ErpPaymentMethod,
   visiblePaymentMethods,
 } from "@/lib/payment-methods";
@@ -15,18 +16,21 @@ type Props = {
   methods: ErpPaymentMethod[] | undefined;
   selected: string;
   onSelect: (code: string) => void;
+  /** Dias do prazo digitados no pedido; aparecem no resumo quando a forma exige prazo. */
+  days?: string;
   isLoading?: boolean;
   disabled?: boolean;
 };
 
 /** Lista as formas de pagamento do ERP com busca; a escolhida fica destacada num resumo sempre visível, com a lista aberta ou fechada. */
-export function PaymentMethodPicker({ methods, selected, onSelect, isLoading = false, disabled = false }: Props) {
+export function PaymentMethodPicker({ methods, selected, onSelect, days = "", isLoading = false, disabled = false }: Props) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(true);
   const listRef = useRef<HTMLDivElement>(null);
   const all = visiblePaymentMethods(methods, selected);
   const shown = all.filter((m) => matchesPaymentMethodSearch(m, query));
   const summary = paymentMethodSummary(selected, all);
+  const term = paymentTermLabel(days);
 
   // Com a lista aberta, a forma escolhida entra na área visível da rolagem.
   useEffect(() => {
@@ -57,7 +61,16 @@ export function PaymentMethodPicker({ methods, selected, onSelect, isLoading = f
                 <p className="text-xs text-muted-foreground">Forma escolhida</p>
                 <p className="truncate font-semibold text-primary">{summary.name}</p>
               </div>
-              {summary.requiresDays && <span className="shrink-0 text-xs text-muted-foreground">com prazo</span>}
+              {summary.requiresDays && (
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium",
+                    term ? "border-primary/30 bg-primary/10 text-primary" : "border-warning/60 bg-warning/25 text-warning-foreground",
+                  )}
+                >
+                  {term ? `Prazo: ${term}` : "Prazo: informar"}
+                </span>
+              )}
               <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
