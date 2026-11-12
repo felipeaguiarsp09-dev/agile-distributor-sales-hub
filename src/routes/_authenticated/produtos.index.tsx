@@ -1,13 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Package, Plus, Search } from "lucide-react";
+import { Package, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { PageHeader } from "@/components/ModulePage";
 import { EmptyState, ErrorState, RowsSkeleton, brl } from "@/components/shared";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -57,11 +56,6 @@ function ProductsPage() {
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeader title="Produtos" description="Catálogo com preço e estoque espelhado do ERP." />
-        {isAdmin && (
-          <Button disabled title="Os produtos são cadastrados no ERP">
-            <Plus className="h-4 w-4" /> Novo produto
-          </Button>
-        )}
       </div>
 
       <div className="mb-4 flex flex-col gap-2 sm:flex-row">
