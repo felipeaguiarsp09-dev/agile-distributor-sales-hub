@@ -1051,6 +1051,15 @@ export type Database = {
         Returns: undefined
       }
       submit_order: { Args: { p_order_id: string }; Returns: Json }
+      visit_check_in_locations: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          check_in_accuracy_m: number
+          check_in_lat: number
+          check_in_lng: number
+          id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

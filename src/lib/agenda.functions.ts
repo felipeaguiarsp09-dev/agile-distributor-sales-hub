@@ -13,10 +13,8 @@ export const listVisits = createServerFn({ method: "POST" })
       .gte("scheduled_at", data.from).lt("scheduled_at", data.to).order("scheduled_at");
     if (error) throw error;
     if (!canViewCheckInLocation(profile.role)) return visits.map((visit) => ({ ...visit, check_in_lat: null, check_in_lng: null, check_in_accuracy_m: null }));
-    const { data: locations, error: locationError } = await context.supabase.from("agenda_visits")
-      .select("id, check_in_lat, check_in_lng, check_in_accuracy_m")
-      .gte("scheduled_at", data.from).lt("scheduled_at", data.to);
+    const { data: locations, error: locationError } = await context.supabase.rpc("visit_check_in_locations", { p_from: data.from, p_to: data.to });
     if (locationError) throw locationError;
-    const byId = new Map(locations.map((location) => [location.id, location]));
+    const byId = new Map((locations ?? []).map((location) => [location.id, location]));
     return visits.map((visit) => ({ ...visit, ...byId.get(visit.id) }));
   });
