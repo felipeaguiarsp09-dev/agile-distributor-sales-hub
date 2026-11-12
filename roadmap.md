@@ -19,3 +19,4 @@
 - [x] Agenda: status "Realizada" em verde
 - [x] Agenda: visitas pendentes em amarelo (Realizada continua verde)
 - [x] Renomear Agenda para Visitas; salvar check-in antes do registro e preservar privacidade.
+- [x] Conferir no preview que o botão Novo produto sumiu (computador e celular)

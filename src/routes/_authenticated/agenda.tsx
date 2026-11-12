@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarPlus, ChevronLeft, ChevronRight, Loader2, MapPin, RefreshCw, Trash2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, MapPin, RefreshCw, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -11,7 +11,6 @@ import { PageHeader } from "@/components/ModulePage";
 import { EmptyState, ErrorState, NoAccess, RowsSkeleton } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -87,8 +86,8 @@ function AgendaPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="flex flex-wrap items-start gap-2">
-        <div className="flex-1"><PageHeader title="Visitas" description="Suas visitas aos clientes, com check-in na chegada e registro do que foi feito." /></div>
-        {(profile.role === "vendedor" || profile.role === "administrador") && <Button onClick={() => setNewOpen(true)}><CalendarPlus className="h-4 w-4" /> Nova visita</Button>}
+        <div className="flex-1"><PageHeader title="Visitas" description="Faça o check-in ao chegar no cliente e anote a observação da visita." /></div>
+        {(profile.role === "vendedor" || profile.role === "administrador") && <Button onClick={() => setNewOpen(true)}><MapPin className="h-4 w-4" /> Fazer check-in</Button>}
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -106,7 +105,7 @@ function AgendaPage() {
       {visits.isLoading ? <RowsSkeleton rows={3} /> : visits.isError ? (
         <ErrorState message="Não foi possível carregar a agenda" onRetry={() => visits.refetch()} />
       ) : !visits.data?.length ? (
-        <EmptyState title={view === "dia" ? "Nenhuma visita neste dia" : "Nenhuma visita nesta semana"}>Use “Nova visita” para planejar.</EmptyState>
+        <EmptyState title={view === "dia" ? "Nenhuma visita neste dia" : "Nenhuma visita nesta semana"}>Ao chegar no cliente, use “Fazer check-in”.</EmptyState>
       ) : (
         <div className="space-y-5">
           {days.map((d) => {
@@ -154,55 +153,82 @@ function AgendaPage() {
         </div>
       )}
 
-      <NewVisitDialog open={newOpen} onOpenChange={setNewOpen} defaultDate={anchor} />
+      <CheckInDialog open={newOpen} onOpenChange={setNewOpen} />
       <RecordDialog visit={record} onClose={() => setRecord(null)} />
     </div>
   );
 }
 
-function NewVisitDialog({ open, onOpenChange, defaultDate }: { open: boolean; onOpenChange: (v: boolean) => void; defaultDate: Date }) {
+function CheckInDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const { profile } = useAuth();
+  const canViewLocation = canViewCheckInLocation(profile?.role);
   const qc = useQueryClient();
   const [customer, setCustomer] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("09:00");
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
+  const [geo, setGeo] = useState<GeoFix | null>(null);
+  const [geoState, setGeoState] = useState<"idle" | "buscando" | "erro">("idle");
+  const [geoDenied, setGeoDenied] = useState(false);
   const customers = useQuery({
     queryKey: ["customers", "agenda", profile?.id],
     enabled: open,
     queryFn: async () => {
-      let q = supabase.from("customers").select("id, name, owner_id").order("name");
+      let q = supabase.from("customers").select("id, name, owner_id, address").order("name");
       if (profile?.role === "vendedor") q = q.eq("owner_id", profile.id);
       const { data, error } = await q;
       if (error) throw error;
       return data;
     },
   });
+  const capture = useCallback(() => {
+    setGeo(null); setGeoDenied(false);
+    if (!("geolocation" in navigator)) { setGeoState("erro"); return; }
+    setGeoState("buscando");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }); setGeoState("idle"); },
+      (err) => { setGeoDenied(err.code === err.PERMISSION_DENIED); setGeoState("erro"); },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
+    );
+  }, []);
+  useEffect(() => { if (open) { setCustomer(""); setNotes(""); capture(); } }, [open, capture]);
+  const selected = customers.data?.find((x) => x.id === customer);
+  const address = customerVisitAddress(selected?.address);
 
   async function save() {
-    const c = customers.data?.find((x) => x.id === customer);
-    const day = date || dayKey(defaultDate);
     if (!profile || busy) return;
-    if (!c) return void toast.error("Escolha o cliente");
+    if (!selected) return void toast.error("Escolha o cliente");
+    if (!geo) return void toast.error("É preciso a localização para fazer o check-in");
     setBusy(true);
-    const { error } = await supabase.from("agenda_visits").insert({
-      organization_id: profile.organization_id, customer_id: c.id,
-      seller_id: profile.role === "administrador" ? c.owner_id : profile.id,
-      scheduled_at: new Date(`${day}T${time}:00`).toISOString(), notes: notes.trim() || null,
-    });
+    const now = new Date();
+    const range = checkInDayRange(now);
+    const { data: existing, error: lookupError } = await supabase.from("agenda_visits")
+      .select("id").eq("customer_id", selected.id).gte("check_in_at", range.from).lt("check_in_at", range.to).limit(1);
+    if (lookupError || existing?.length) {
+      setBusy(false);
+      return void toast.error(lookupError ? "Não foi possível verificar os check-ins. Tente novamente." : "Já existe um check-in neste cliente hoje. Só é permitido um check-in por cliente por dia.");
+    }
+    const { data: saved, error } = await supabase.from("agenda_visits").insert({
+      organization_id: profile.organization_id, customer_id: selected.id,
+      seller_id: profile.role === "administrador" ? selected.owner_id : profile.id,
+      scheduled_at: now.toISOString(), check_in_at: now.toISOString(),
+      check_in_lat: geo.lat, check_in_lng: geo.lng, check_in_accuracy_m: geo.accuracy,
+    }).select("id").single();
+    if (error || !saved) {
+      setBusy(false);
+      return void toast.error(error?.code === "23505" ? "Já existe um check-in neste cliente hoje. Só é permitido um check-in por cliente por dia." : "Não foi possível fazer o check-in");
+    }
+    const { error: regError } = await supabase.from("agenda_visits").update({ status: "realizada", notes: notes.trim() || null }).eq("id", saved.id);
     setBusy(false);
-    if (error) return void toast.error("Não foi possível agendar a visita");
-    toast.success("Visita agendada");
-    onOpenChange(false);
-    setCustomer(""); setNotes(""); setDate("");
     void qc.invalidateQueries({ queryKey: ["agenda_visits"] });
+    if (regError) return void toast.error("Check-in feito, mas a observação não foi salva. Tente registrar de novo pela lista.");
+    toast.success("Check-in registrado");
+    onOpenChange(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader><DialogTitle>Nova visita</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Fazer check-in</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1">
             <Label>Cliente</Label>
@@ -211,14 +237,25 @@ function NewVisitDialog({ open, onOpenChange, defaultDate }: { open: boolean; on
               <SelectContent>{customers.data?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
             </Select>
             {customers.isSuccess && !customers.data.length && <p className="text-xs text-muted-foreground">Nenhum cliente na sua carteira ainda.</p>}
+            {address && <p className="flex items-start gap-2 pt-1 text-sm text-muted-foreground"><MapPin className="mt-0.5 h-4 w-4 shrink-0" />{address}</p>}
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1"><Label htmlFor="v-date">Data</Label><Input id="v-date" type="date" value={date || dayKey(defaultDate)} onChange={(e) => setDate(e.target.value)} /></div>
-            <div className="space-y-1"><Label htmlFor="v-time">Horário</Label><Input id="v-time" type="time" value={time} onChange={(e) => setTime(e.target.value)} /></div>
+          <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="h-4 w-4 shrink-0" />
+              {geoState === "buscando" && <span className="flex items-center gap-2"><Loader2 className="h-3 w-3 animate-spin" /> Obtendo sua localização...</span>}
+              {geoState === "erro" && <span>{geoDenied ? "Permissão de localização negada." : "Não foi possível obter sua localização."}</span>}
+              {geo && <span>Localização capturada{canViewLocation && <> · <a href={mapsUrl(geo.lat, geo.lng)} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">ver no mapa</a></>}</span>}
+            </div>
+            {geoState === "erro" && (
+              <div className="mt-2 space-y-2 border-t pt-2">
+                <p className="text-xs text-muted-foreground">{geoDenied ? "Para fazer o check-in, permita a Localização nas permissões do site (cadeado na barra de endereço). No celular, confira também se a localização do aparelho está ligada." : "Verifique se o GPS do aparelho está ligado e se há sinal, depois tente novamente."}</p>
+                <Button type="button" variant="outline" size="sm" className="h-11 w-full sm:h-8 sm:w-auto" onClick={capture}><RefreshCw className="h-4 w-4" /> Tentar novamente</Button>
+              </div>
+            )}
           </div>
-          <div className="space-y-1"><Label htmlFor="v-notes">Objetivo (opcional)</Label><Textarea id="v-notes" value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+          <div className="space-y-1"><Label htmlFor="c-notes">Observação</Label><Textarea id="c-notes" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: cliente pediu reposição de água na próxima semana" /></div>
         </div>
-        <DialogFooter><Button disabled={busy} onClick={save}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} Agendar</Button></DialogFooter>
+        <DialogFooter><Button disabled={busy || !geo || !selected} onClick={save}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} Confirmar check-in</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );
