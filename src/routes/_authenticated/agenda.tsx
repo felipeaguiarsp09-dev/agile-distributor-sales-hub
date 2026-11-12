@@ -5,7 +5,8 @@ import { CalendarPlus, ChevronLeft, ChevronRight, Loader2, MapPin, RefreshCw, Tr
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { canViewCheckInLocation, checkInDayRange } from "@/lib/agenda";
+import { canRegisterVisit, canViewCheckInLocation, checkInDayRange, customerVisitAddress } from "@/lib/agenda";
+import { listVisits } from "@/lib/agenda.functions";
 import { PageHeader } from "@/components/ModulePage";
 import { EmptyState, ErrorState, NoAccess, RowsSkeleton } from "@/components/shared";
 import { Button } from "@/components/ui/button";
@@ -19,9 +20,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export const Route = createFileRoute("/_authenticated/agenda")({
   head: () => ({
     meta: [
-      { title: "Agenda — Dcalice" },
+      { title: "Visitas — Dcalice" },
       { name: "description", content: "Visitas aos clientes por dia e semana, com check-in e registro." },
-      { property: "og:title", content: "Agenda — Dcalice" },
+      { property: "og:title", content: "Visitas — Dcalice" },
       { property: "og:description", content: "Visitas aos clientes por dia e semana, com check-in e registro." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -53,13 +54,10 @@ function AgendaPage() {
   const to = addDays(from, view === "dia" ? 1 : 7);
 
   const visits = useQuery({
-    queryKey: ["agenda_visits", from.toISOString(), to.toISOString()],
+    queryKey: ["agenda_visits", profile?.id, profile?.role, from.toISOString(), to.toISOString()],
     enabled: !!allowed,
     queryFn: async () => {
-      const { data, error } = await supabase.from("agenda_visits")
-        .select("id, customer_id, scheduled_at, status, check_in_at, check_in_lat, check_in_lng, check_in_accuracy_m, notes, seller_id, customers(name, address), seller:profiles!agenda_visits_seller_id_fkey(full_name)")
-        .gte("scheduled_at", from.toISOString()).lt("scheduled_at", to.toISOString()).order("scheduled_at");
-      if (error) throw error;
+      const data = await listVisits({ data: { from: from.toISOString(), to: to.toISOString() } });
       return data as Visit[];
     },
   });
@@ -89,7 +87,7 @@ function AgendaPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <div className="flex flex-wrap items-start gap-2">
-        <div className="flex-1"><PageHeader title="Agenda" description="Suas visitas aos clientes, com check-in na chegada e registro do que foi feito." /></div>
+        <div className="flex-1"><PageHeader title="Visitas" description="Suas visitas aos clientes, com check-in na chegada e registro do que foi feito." /></div>
         {(profile.role === "vendedor" || profile.role === "administrador") && <Button onClick={() => setNewOpen(true)}><CalendarPlus className="h-4 w-4" /> Nova visita</Button>}
       </div>
 
@@ -119,7 +117,7 @@ function AgendaPage() {
                 {view === "semana" && <h2 className="mb-2 text-sm font-semibold capitalize">{d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</h2>}
                 <ul className="space-y-2">
                   {list.map((v) => {
-                    const addr = (v.customers?.address ?? {}) as Record<string, string>;
+                    const address = customerVisitAddress(v.customers?.address);
                     const mine = v.seller_id === profile.id || profile.role === "administrador";
                     return (
                       <li key={v.id} className="rounded-lg border bg-card p-4">
@@ -128,7 +126,7 @@ function AgendaPage() {
                           <span className="font-medium">{v.customers?.name}</span>
                           <Badge variant={v.status === "cancelada" ? "destructive" : v.status === "realizada" ? "secondary" : "outline"} className={`ml-auto${v.status === "realizada" ? " border-transparent bg-success text-success-foreground" : v.status === "planejada" ? " border-transparent bg-warning text-warning-foreground" : ""}`}>{STATUS[v.status]}</Badge>
                         </div>
-                        {(addr["street"] || addr["city"]) && <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="h-3 w-3" /> {[addr["street"], addr["city"], addr["state"]].filter(Boolean).join(", ")}</p>}
+                        {address && <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="h-3 w-3" /> {address}</p>}
                         {profile.role !== "vendedor" && <p className="text-xs text-muted-foreground">Vendedor: {v.seller?.full_name}</p>}
                         {v.check_in_at && <p className="mt-1 text-xs text-muted-foreground">Check-in às {new Date(v.check_in_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>}
                         {canViewLocation && v.check_in_lat != null && v.check_in_lng != null && (
@@ -139,11 +137,11 @@ function AgendaPage() {
                         {v.notes && <p className="mt-2 whitespace-pre-line text-sm">{v.notes}</p>}
                         {mine && v.status === "planejada" && (
                           <div className="mt-3 flex flex-wrap gap-2">
-                            <Button size="sm" className="flex-1 sm:flex-none" onClick={() => setRecord(v)}><MapPin className="h-4 w-4" /> Check-in e registro</Button>
-                            <Button size="sm" variant="outline" onClick={() => setStatus(v, "cancelada")}><X className="h-4 w-4" /> Cancelar</Button>
+                            <Button size="sm" className="flex-1 sm:flex-none" onClick={() => setRecord(v)}><MapPin className="h-4 w-4" /> {v.check_in_at ? "Registrar visita" : "Fazer check-in"}</Button>
+                            {!v.check_in_at && <Button size="sm" variant="outline" onClick={() => setStatus(v, "cancelada")}><X className="h-4 w-4" /> Cancelar</Button>}
                           </div>
                         )}
-                        {mine && v.status !== "realizada" && (
+                        {mine && v.status !== "realizada" && !v.check_in_at && (
                           <Button size="sm" variant="ghost" className="mt-2 text-destructive" onClick={() => removeVisit(v)}><Trash2 className="h-4 w-4" /> Excluir</Button>
                         )}
                       </li>
@@ -185,11 +183,12 @@ function NewVisitDialog({ open, onOpenChange, defaultDate }: { open: boolean; on
   async function save() {
     const c = customers.data?.find((x) => x.id === customer);
     const day = date || dayKey(defaultDate);
+    if (!profile || busy) return;
     if (!c) return void toast.error("Escolha o cliente");
     setBusy(true);
     const { error } = await supabase.from("agenda_visits").insert({
-      organization_id: profile!.organization_id, customer_id: c.id,
-      seller_id: profile!.role === "administrador" ? c.owner_id : profile!.id,
+      organization_id: profile.organization_id, customer_id: c.id,
+      seller_id: profile.role === "administrador" ? c.owner_id : profile.id,
       scheduled_at: new Date(`${day}T${time}:00`).toISOString(), notes: notes.trim() || null,
     });
     setBusy(false);
@@ -236,6 +235,8 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
   const [geo, setGeo] = useState<GeoFix | null>(null);
   const [geoState, setGeoState] = useState<"idle" | "buscando" | "erro">("idle");
   const [geoDenied, setGeoDenied] = useState(false);
+  const [checkedInAt, setCheckedInAt] = useState<string | null>(null);
+  const checkedIn = canRegisterVisit(checkedInAt);
 
   // Captura o GPS ao abrir o diálogo; o check-in exige a localização.
   const capture = useCallback(() => {
@@ -251,10 +252,13 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
   }, []);
 
   useEffect(() => {
-    if (visit) capture();
+    setNotes("");
+    setCheckedInAt(visit?.check_in_at ?? null);
+    setGeo(null);
+    if (visit && !visit.check_in_at) capture();
   }, [visit?.id, capture]);
 
-  async function save() {
+  async function checkIn() {
     if (!visit || !geo || busy) return;
     setBusy(true);
     const now = new Date();
@@ -267,24 +271,37 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
       toast.error(lookupError ? "Não foi possível verificar os check-ins. Tente novamente." : "Já existe um check-in neste cliente hoje. Só é permitido um check-in por cliente por dia.");
       return;
     }
-    const text = [visit.notes, notes.trim()].filter(Boolean).join("\n— Registro: ");
-    const { error } = await supabase.from("agenda_visits").update({
-      status: "realizada", check_in_at: now.toISOString(), notes: text || null,
+    const { data: saved, error } = await supabase.from("agenda_visits").update({
+      check_in_at: now.toISOString(),
       check_in_lat: geo.lat, check_in_lng: geo.lng, check_in_accuracy_m: geo.accuracy,
-    }).eq("id", visit.id);
+    }).eq("id", visit.id).is("check_in_at", null).select("id, check_in_at").single();
     setBusy(false);
     if (error) return void toast.error(error.code === "23505" ? "Já existe um check-in neste cliente hoje. Só é permitido um check-in por cliente por dia." : "Não foi possível registrar a visita");
     toast.success("Check-in registrado");
-    setNotes("");
+    setCheckedInAt(saved.check_in_at);
     setGeo(null);
+    void qc.invalidateQueries({ queryKey: ["agenda_visits"] });
+  }
+
+  async function save() {
+    if (!visit || !checkedIn || busy) return;
+    setBusy(true);
+    const text = [visit.notes, notes.trim()].filter(Boolean).join("\n— Registro: ");
+    const { error } = await supabase.from("agenda_visits").update({ status: "realizada", notes: text || null })
+      .eq("id", visit.id).not("check_in_at", "is", null).select("id").single();
+    setBusy(false);
+    if (error) return void toast.error("Não foi possível registrar a visita. Faça o check-in primeiro.");
+    toast.success("Visita registrada");
     onClose();
     void qc.invalidateQueries({ queryKey: ["agenda_visits"] });
   }
   return (
     <Dialog open={!!visit} onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
-        <DialogHeader><DialogTitle>Check-in — {visit?.customers?.name}</DialogTitle></DialogHeader>
-        {(canViewLocation || !geo) && <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">
+        <DialogHeader><DialogTitle>{checkedIn ? "Registrar visita" : "Check-in"} — {visit?.customers?.name}</DialogTitle></DialogHeader>
+        {customerVisitAddress(visit?.customers?.address) && <p className="flex items-start gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4 shrink-0" />{customerVisitAddress(visit?.customers?.address)}</p>}
+        {checkedIn && <p className="text-sm text-muted-foreground">Check-in registrado às {new Date(checkedInAt ?? "").toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</p>}
+        {!checkedIn && (canViewLocation || !geo) && <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
             {geoState === "buscando" && <span className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Obtendo sua localização...</span>}
@@ -318,11 +335,11 @@ function RecordDialog({ visit, onClose }: { visit: Visit | null; onClose: () => 
             </div>
           )}
         </div>}
-        <div className="space-y-1">
+        {checkedIn && <div className="space-y-1">
           <Label htmlFor="r-notes">O que foi feito na visita</Label>
           <Textarea id="r-notes" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: cliente pediu reposição de água na próxima semana" />
-        </div>
-        <DialogFooter><Button disabled={busy || !geo} onClick={save}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} Registrar visita</Button></DialogFooter>
+        </div>}
+        <DialogFooter><Button disabled={busy || (!checkedIn && !geo)} onClick={checkedIn ? save : checkIn}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} {checkedIn ? "Registrar visita" : "Confirmar check-in"}</Button></DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -190,6 +190,13 @@
       "when": 1794314159959,
       "tag": "0026_erp_master_data_write_lock",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794516766313,
+      "tag": "0027_visits_require_prior_check_in",
+      "breakpoints": true
     }
   ]
 }

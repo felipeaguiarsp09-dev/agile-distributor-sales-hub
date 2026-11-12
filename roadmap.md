@@ -18,3 +18,4 @@
 - [x] Voltar o menu Agenda como estava anteriormente
 - [x] Agenda: status "Realizada" em verde
 - [x] Agenda: visitas pendentes em amarelo (Realizada continua verde)
+- [x] Renomear Agenda para Visitas; salvar check-in antes do registro e preservar privacidade.
