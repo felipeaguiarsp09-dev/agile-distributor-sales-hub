@@ -60,6 +60,7 @@ function StockSyncNotice({ isQuote = false }: { isQuote?: boolean }) {
 }
 import { pushOrderToErp, submitOrder, suggestProducts, validateOrderStock } from "@/lib/orders.functions";
 import { PageHeader } from "@/components/ModulePage";
+import { PaymentMethodPicker } from "@/components/PaymentMethodPicker";
 import { CreditBadge, ErrorState, NoAccess, RowsSkeleton, brl } from "@/components/shared";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -923,16 +924,13 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
           </div>
           {!isQuote && (
             <div className="space-y-1">
-              <Label id="payment-label">Forma de pagamento</Label>
-              <div role="radiogroup" aria-labelledby="payment-label" className="grid grid-cols-2 gap-2 pt-1">
-                {(paymentMethods.data ?? []).filter((m) => m.is_active || m.code === paymentMethod).map((m) => (
-                  <button key={m.code} type="button" role="radio" aria-checked={paymentMethod === m.code} onClick={() => setPaymentMethod(m.code)}
-                    className={cn("min-h-11 rounded-lg border px-3 py-2 text-left text-sm font-medium transition-colors",
-                      paymentMethod === m.code ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background hover:bg-accent")}>
-                    {m.name}
-                  </button>
-                ))}
-              </div>
+              <PaymentMethodPicker
+                methods={paymentMethods.data}
+                selected={paymentMethod}
+                onSelect={setPaymentMethod}
+                isLoading={paymentMethods.isLoading}
+                disabled={saving}
+              />
               {needsDays && (
                 <div className="space-y-1 pt-2">
                   <Label htmlFor="payment-days">Prazo (dias)</Label>
