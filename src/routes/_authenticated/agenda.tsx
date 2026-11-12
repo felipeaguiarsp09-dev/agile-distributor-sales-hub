@@ -169,6 +169,7 @@ function CheckInDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v
   const [geo, setGeo] = useState<GeoFix | null>(null);
   const [geoState, setGeoState] = useState<"idle" | "buscando" | "erro">("idle");
   const [geoDenied, setGeoDenied] = useState(false);
+  const [geoTimeout, setGeoTimeout] = useState(false);
   const customers = useQuery({
     queryKey: ["customers", "agenda", profile?.id],
     enabled: open,
@@ -181,12 +182,12 @@ function CheckInDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v
     },
   });
   const capture = useCallback(() => {
-    setGeo(null); setGeoDenied(false);
+    setGeo(null); setGeoDenied(false); setGeoTimeout(false);
     if (!("geolocation" in navigator)) { setGeoState("erro"); return; }
     setGeoState("buscando");
     navigator.geolocation.getCurrentPosition(
       (pos) => { setGeo({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }); setGeoState("idle"); },
-      (err) => { setGeoDenied(err.code === err.PERMISSION_DENIED); setGeoState("erro"); },
+      (err) => { setGeoDenied(err.code === err.PERMISSION_DENIED); setGeoTimeout(err.code === err.TIMEOUT); setGeoState("erro"); },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
     );
   }, []);
@@ -243,7 +244,7 @@ function CheckInDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4 shrink-0" />
               {geoState === "buscando" && <span className="flex items-center gap-2"><Loader2 className="h-3 w-3 animate-spin" /> Obtendo sua localização...</span>}
-              {geoState === "erro" && <span>{geoDenied ? "Permissão de localização negada." : "Não foi possível obter sua localização."}</span>}
+              {geoState === "erro" && <span role="alert" className="font-medium text-destructive">{geoDenied ? "Localização negada." : geoTimeout ? "A localização demorou demais para responder." : "Localização indisponível."} Sem ela, o check-in não pode ser feito.</span>}
               {geo && <span>Localização capturada{canViewLocation && <> · <a href={mapsUrl(geo.lat, geo.lng)} target="_blank" rel="noopener noreferrer" className="font-medium text-foreground underline underline-offset-2">ver no mapa</a></>}</span>}
             </div>
             {geoState === "erro" && (
