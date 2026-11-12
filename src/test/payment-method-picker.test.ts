@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { matchesPaymentMethodSearch, visiblePaymentMethods, type ErpPaymentMethod } from "@/lib/payment-methods";
+import {
+  matchesPaymentMethodSearch,
+  paymentMethodSummary,
+  visiblePaymentMethods,
+  type ErpPaymentMethod,
+} from "@/lib/payment-methods";
 
 const ERP: ErpPaymentMethod[] = [
   { code: "boleto", name: "Boleto", requires_days: true, is_active: true },
@@ -55,5 +60,25 @@ describe("lista de formas de pagamento do pedido", () => {
 
   it("só boleto exige prazo em dias", () => {
     expect(ERP.filter((m) => m.requires_days).map((m) => m.code)).toEqual(["boleto"]);
+  });
+});
+
+describe("resumo da forma escolhida (lista fechada)", () => {
+  it("mostra o nome da forma ativa escolhida e o aviso de prazo", () => {
+    expect(paymentMethodSummary("boleto", ERP)).toEqual({ name: "Boleto", requiresDays: true });
+    expect(paymentMethodSummary("dinheiro", ERP)).toEqual({ name: "Dinheiro", requiresDays: false });
+  });
+
+  it("mostra a forma desativada que já está salva no pedido", () => {
+    expect(paymentMethodSummary("pix", visiblePaymentMethods(ERP, "pix"))).toEqual({ name: "Pix", requiresDays: false });
+  });
+
+  it("usa o rótulo antigo quando o ERP não tem a forma gravada no pedido", () => {
+    expect(paymentMethodSummary("cartao_credito", [])).toEqual({ name: "Cartão de crédito", requiresDays: false });
+    expect(paymentMethodSummary("codigo_desconhecido", [])).toEqual({ name: "codigo_desconhecido", requiresDays: false });
+  });
+
+  it("sem forma escolhida não há resumo", () => {
+    expect(paymentMethodSummary("", ERP)).toBeUndefined();
   });
 });

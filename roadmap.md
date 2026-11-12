@@ -20,3 +20,5 @@
 - [x] Agenda: visitas pendentes em amarelo (Realizada continua verde)
 - [x] Renomear Agenda para Visitas; salvar check-in antes do registro e preservar privacidade.
 - [x] Conferir no preview que o botão Novo produto sumiu (computador e celular)
+- [x] Forma de pagamento em lista com busca
+- [x] Destacar a forma escolhida também com a lista fechada (resumo sempre visível)

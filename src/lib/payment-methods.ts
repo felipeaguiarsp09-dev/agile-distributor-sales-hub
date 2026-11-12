@@ -42,3 +42,11 @@ export function matchesPaymentMethodSearch(m: ErpPaymentMethod, query: string): 
 export function paymentMethodLabel(code: string, list?: ErpPaymentMethod[]) {
   return list?.find((m) => m.code === code)?.name ?? PAYMENT_METHOD_LABEL[code as PaymentMethod] ?? code;
 }
+
+/** Nome e aviso de prazo da forma escolhida, para o resumo que fica visível com a lista fechada. */
+export function paymentMethodSummary(code: string, list?: ErpPaymentMethod[]): { name: string; requiresDays: boolean } | undefined {
+  if (!code) return undefined;
+  const method = list?.find((m) => m.code === code);
+  if (method) return { name: method.name, requiresDays: method.requires_days };
+  return { name: paymentMethodLabel(code), requiresDays: false };
+}
