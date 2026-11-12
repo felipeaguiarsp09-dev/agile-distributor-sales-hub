@@ -12,17 +12,21 @@ export const Route = createFileRoute("/api/public/payment-webhook")({
         const provider = url.searchParams.get("provider") as (typeof PROVIDERS)[number] | null;
         const org = url.searchParams.get("org") ?? "";
         if (!provider || !PROVIDERS.includes(provider) || !UUID.test(org)) return new Response("bad request", { status: 400 });
-        const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+        const rawBody = await request.text();
+        let body: Record<string, unknown> | null = null;
+        try { body = JSON.parse(rawBody) as Record<string, unknown>; } catch { body = null; }
         if (!body) return new Response("bad request", { status: 400 });
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { verifyEvent, nextOrderStatus } = await import("@/lib/payments.server");
+        const { verifyEvent, verifySignature, nextOrderStatus } = await import("@/lib/payments.server");
         const { data: cfg } = await supabaseAdmin
           .from("integration_configs").select("credentials")
           .eq("organization_id", org).eq("integration_type", "pagamento").eq("provider", provider).maybeSingle();
         if (!cfg) return new Response("not configured", { status: 404 });
 
-        const ev = await verifyEvent(provider, (cfg.credentials ?? {}) as Record<string, string>, body, request.headers);
+        const creds = (cfg.credentials ?? {}) as Record<string, string>;
+        if (!(await verifySignature(provider, creds, body, rawBody, request.headers))) return new Response("invalid signature", { status: 401 });
+        const ev = await verifyEvent(provider, creds, body, request.headers);
         if (!ev) return new Response("ignored", { status: 200 });
 
         let q = supabaseAdmin.from("payments").select("id, order_id, status").eq("organization_id", org).eq("gateway", provider);

@@ -1,5 +1,5 @@
 /** Chamadas aos gateways de pagamento (Mercado Pago, Asaas, Stripe). Somente servidor. */
-export type PaymentCreds = { access_token?: string; api_key?: string; secret_key?: string; sandbox?: boolean; webhook_token?: string };
+export type PaymentCreds = { access_token?: string; api_key?: string; secret_key?: string; sandbox?: boolean; webhook_token?: string; webhook_secret?: string };
 export type Provider = "mercadopago" | "asaas" | "stripe";
 
 export type Intent = { gateway_payment_id: string; checkout_url: string };
@@ -75,6 +75,40 @@ export async function createIntent(
 }
 
 export type VerifiedEvent = { match: { order_id?: string | undefined; gateway_payment_id?: string | undefined }; status: "pendente" | "pago" | "falhou" | "estornado" };
+
+async function hmacHex(secret: string, msg: string) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(msg));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function sigParts(h: string | null) {
+  const out: Record<string, string[]> = {};
+  for (const part of (h ?? "").split(",")) { const [k, v] = part.trim().split("="); if (k && v) (out[k] ??= []).push(v); }
+  return out;
+}
+const FRESH_SECONDS = 300;
+/** Assinatura do gateway: só eventos assinados com o segredo do webhook disparam consultas. */
+export async function verifySignature(provider: Provider, creds: PaymentCreds, // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  body: any, rawBody: string, headers: Headers, now = Date.now()): Promise<boolean> {
+  if (provider === "asaas") return true;
+  if (!creds.webhook_secret) return false;
+  if (provider === "stripe") {
+    const parts = sigParts(headers.get("stripe-signature"));
+    const t = parts["t"]?.[0];
+    if (!t || Math.abs(now / 1000 - Number(t)) > FRESH_SECONDS) return false;
+    const expected = await hmacHex(creds.webhook_secret, `${t}.${rawBody}`);
+    return (parts["v1"] ?? []).includes(expected);
+  }
+  const parts = sigParts(headers.get("x-signature"));
+  const ts = parts["ts"]?.[0]; const v1 = parts["v1"]?.[0];
+  const id = body?.data?.id ?? body?.id;
+  const reqId = headers.get("x-request-id");
+  if (!ts || !v1 || !id || !reqId) return false;
+  const tsSec = Number(ts) > 1e11 ? Number(ts) / 1000 : Number(ts);
+  if (Math.abs(now / 1000 - tsSec) > FRESH_SECONDS) return false;
+  const rid = String(id); const idPart = /^[a-z0-9]+$/i.test(rid) ? rid.toLowerCase() : rid;
+  return (await hmacHex(creds.webhook_secret, `id:${idPart};request-id:${reqId};ts:${ts};`)) === v1;
+}
 
 /** Confirma o evento consultando o próprio gateway (não confia no corpo recebido). */
 export async function verifyEvent(provider: Provider, creds: PaymentCreds, // eslint-disable-next-line @typescript-eslint/no-explicit-any

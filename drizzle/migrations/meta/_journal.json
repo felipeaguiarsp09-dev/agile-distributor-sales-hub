@@ -204,6 +204,13 @@
       "when": 1794518391959,
       "tag": "0028_hide_visit_location_from_sellers",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794519122867,
+      "tag": "0029_harden_signup_discount_inactive",
+      "breakpoints": true
     }
   ]
 }

@@ -25,3 +25,18 @@ describe("payment-webhook", () => {
     expect(ev?.status).toBe("falhou");
   });
 });
+
+import { verifySignature } from "@/lib/payments.server";
+describe("assinatura do webhook", () => {
+  it("recusa Stripe e Mercado Pago sem assinatura ou segredo", async () => {
+    expect(await verifySignature("stripe", { secret_key: "sk" }, {}, "{}", new Headers())).toBe(false);
+    expect(await verifySignature("stripe", { webhook_secret: "w" }, {}, "{}", new Headers({ "stripe-signature": "t=1,v1=abc" }))).toBe(false);
+    expect(await verifySignature("mercadopago", { webhook_secret: "w" }, { data: { id: "1" } }, "{}", new Headers({ "x-signature": "ts=1,v1=x", "x-request-id": "r" }))).toBe(false);
+  });
+  it("aceita assinatura Stripe válida", async () => {
+    const t = Math.floor(Date.now() / 1000); const raw = '{"a":1}';
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode("w"), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const sig = [...new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${t}.${raw}`)))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    expect(await verifySignature("stripe", { webhook_secret: "w" }, {}, raw, new Headers({ "stripe-signature": `t=${t},v1=${sig}` }))).toBe(true);
+  });
+});
