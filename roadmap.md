@@ -23,3 +23,4 @@
 - [x] Forma de pagamento em lista com busca
 - [x] Destacar a forma escolhida também com a lista fechada (resumo sempre visível)
 - [x] Mostrar o prazo escolhido no cartão da forma de pagamento (quando ela exige prazo)
+- [x] Forma de pagamento e prazo no resumo do pedido (leitura clara no celular)

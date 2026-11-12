@@ -29,7 +29,7 @@ import {
   type CartLine,
   type HistoryOrder,
 } from "@/lib/orders";
-import { usePaymentMethods } from "@/lib/payment-methods";
+import { paymentSummaryLine, usePaymentMethods } from "@/lib/payment-methods";
 import { dateInDays, isQuoteExpired } from "@/lib/quotes";
 import { isStockStale } from "@/lib/stock-sync";
 
@@ -210,6 +210,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
   const paymentMethods = usePaymentMethods();
   const needsDays = !!paymentMethods.data?.find((m) => m.code === paymentMethod)?.requires_days;
   const [paymentDays, setPaymentDays] = useState("");
+  const paymentLine = paymentSummaryLine(paymentMethod, paymentMethods.data, paymentDays);
 
   const cartRef = useRef<HTMLElement>(null);
   const [customerId, setCustomerId] = useState(initialCustomerId ?? "");
@@ -921,6 +922,19 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
               </div>
             )}
             <div className="flex justify-between text-base font-bold"><span>Total</span><span className="tabular-nums">{brl(totals.total)}</span></div>
+            {!isQuote && paymentLine && (
+              <div className="flex items-baseline justify-between gap-2 border-t pt-2">
+                <span className="shrink-0 text-muted-foreground">Forma de pagamento</span>
+                <span
+                  className={cn(
+                    "min-w-0 truncate text-right font-medium",
+                    paymentLine.pending ? "text-warning-foreground" : "text-primary",
+                  )}
+                >
+                  {paymentLine.text}
+                </span>
+              </div>
+            )}
           </div>
           {!isQuote && (
             <div className="space-y-1">

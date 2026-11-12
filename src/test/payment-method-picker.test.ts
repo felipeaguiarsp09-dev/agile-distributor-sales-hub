@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   matchesPaymentMethodSearch,
   paymentMethodSummary,
+  paymentSummaryLine,
   paymentTermLabel,
   visiblePaymentMethods,
   type ErpPaymentMethod,
@@ -107,5 +108,30 @@ describe("prazo mostrado no cartão da forma escolhida", () => {
 
   it("dias quebrados viram o número inteiro de dias", () => {
     expect(paymentTermLabel("28.7")).toBe("28 dias");
+  });
+});
+
+describe("linha da forma de pagamento no resumo do pedido", () => {
+  it("mostra a forma e o prazo escolhidos", () => {
+    expect(paymentSummaryLine("boleto", ERP, "28")).toEqual({ text: "Boleto · 28 dias", pending: false });
+    expect(paymentSummaryLine("boleto", ERP, "1")).toEqual({ text: "Boleto · 1 dia", pending: false });
+  });
+
+  it("avisa quando a forma exige prazo e ele ainda não foi digitado", () => {
+    expect(paymentSummaryLine("boleto", ERP, "")).toEqual({ text: "Boleto · prazo a informar", pending: true });
+  });
+
+  it("forma sem prazo aparece sozinha", () => {
+    expect(paymentSummaryLine("dinheiro", ERP, "28")).toEqual({ text: "Dinheiro", pending: false });
+    expect(paymentSummaryLine("dinheiro", ERP, "")).toEqual({ text: "Dinheiro", pending: false });
+  });
+
+  it("sem forma escolhida não há linha", () => {
+    expect(paymentSummaryLine("", ERP, "28")).toBeUndefined();
+  });
+
+  it("usa o rótulo antigo quando o ERP não tem a forma gravada", () => {
+    expect(paymentSummaryLine("cartao_credito", [], "28")).toEqual({ text: "Cartão de crédito", pending: false });
+    expect(paymentSummaryLine("codigo_desconhecido", [], "")).toEqual({ text: "codigo_desconhecido", pending: false });
   });
 });

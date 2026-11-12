@@ -58,3 +58,16 @@ export function paymentTermLabel(days: string | number | null | undefined): stri
   const whole = Math.floor(n);
   return whole === 1 ? "1 dia" : `${whole} dias`;
 }
+
+/** Linha "forma · prazo" para o resumo do pedido; nada quando ainda não há forma escolhida. */
+export function paymentSummaryLine(
+  code: string,
+  list: ErpPaymentMethod[] | undefined,
+  days: string | number | null | undefined,
+): { text: string; pending: boolean } | undefined {
+  if (!code) return undefined;
+  const label = paymentMethodLabel(code, list);
+  if (!list?.find((m) => m.code === code)?.requires_days) return { text: label, pending: false };
+  const term = paymentTermLabel(days);
+  return term ? { text: `${label} · ${term}`, pending: false } : { text: `${label} · prazo a informar`, pending: true };
+}
