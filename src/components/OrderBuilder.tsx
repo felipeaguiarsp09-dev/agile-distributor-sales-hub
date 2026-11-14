@@ -927,7 +927,7 @@ export function OrderBuilder({ mode, initialCustomerId, resumeId, repeatOrderId,
                 <span className="shrink-0 text-muted-foreground">Forma de pagamento</span>
                 <span
                   className={cn(
-                    "min-w-0 truncate text-right font-medium",
+                    "min-w-0 break-words text-right font-medium",
                     paymentLine.pending ? "text-warning-foreground" : "text-primary",
                   )}
                 >
